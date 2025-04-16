@@ -23,7 +23,12 @@
 <body>
     <div class="container" id="anomalyScreen">
         <div class="form-container">
-            <h2>Registro de Anormalidade</h2>
+            <div class="header-container">
+                <h2>Registro de Anormalidade</h2>
+                <button id="logoutButton" class="logout-button" title="Sair" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
             <form id="anomalyForm">
                 <div class="form-group">
                     <label for="description">Descrição da Anormalidade:</label>
@@ -67,6 +72,13 @@
             </form>
         </div>
     </div>
+    <script>
+        // Função de logout global
+        function logout() {
+            localStorage.removeItem('userData');
+            window.location.href = 'login.html';
+        }
+    </script>
     <script src="registro.js"></script>
 </body>
 </html> 

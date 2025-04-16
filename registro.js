@@ -2,7 +2,6 @@
 window.addEventListener('load', () => {
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData || !userData.email) {
-        alert('Você precisa fazer login primeiro!');
         window.location.href = 'login.html';
         return;
     }
@@ -19,7 +18,19 @@ const uploadButton = document.getElementById('uploadButton');
 const fileInput = document.getElementById('image');
 const video = document.getElementById('camera');
 const canvas = document.getElementById('canvas');
+const logoutButton = document.getElementById('logoutButton');
 let stream = null;
+
+// Função para verificar se o usuário está logado
+function checkLogin() {
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData || !userData.email) {
+        alert('Você precisa fazer login primeiro!');
+        window.location.href = 'login.html';
+        return false;
+    }
+    return true;
+}
 
 // Função para iniciar a câmera
 async function startCamera() {
@@ -487,6 +498,11 @@ fileInput.addEventListener('change', (e) => {
 anomalyForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
+    // Verificar se o usuário está logado
+    if (!checkLogin()) {
+        return;
+    }
+
     try {
         console.log('Iniciando processo de registro...');
         
@@ -532,6 +548,19 @@ anomalyForm.addEventListener('submit', async (e) => {
 
 // Evento para download do QR Code
 downloadQRButton.addEventListener('click', downloadQRCode);
+
+// Função para fazer logout
+function logout() {
+    // Limpar dados do usuário
+    localStorage.removeItem('userData');
+    // Redirecionar para a página de login
+    window.location.href = 'login.html';
+}
+
+// Adicionar evento de clique ao botão de sair
+if (logoutButton) {
+    logoutButton.addEventListener('click', logout);
+}
 
 // Limpar recursos ao sair da página
 window.addEventListener('beforeunload', stopCamera); 
