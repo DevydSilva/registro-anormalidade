@@ -54,19 +54,32 @@ function stopCamera() {
 // Função para tirar foto
 function takePhoto() {
     try {
-        const context = canvas.getContext('2d');
+        // Garantir que o canvas esteja visível
+        canvas.style.display = 'block';
+        
+        // Configurar o tamanho do canvas para corresponder ao vídeo
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
+        
+        // Desenhar o frame atual do vídeo no canvas
+        const context = canvas.getContext('2d');
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
+        // Converter o canvas para uma imagem JPEG
         const photoData = canvas.toDataURL('image/jpeg', 0.8);
+        
+        // Exibir a imagem capturada
         imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
         
+        // Parar a câmera e atualizar a interface
         stopCamera();
         takePhotoButton.style.display = 'none';
         retakePhotoButton.style.display = 'block';
         startCameraButton.style.display = 'block';
         uploadButton.style.display = 'block';
+        
+        // Esconder o canvas após a captura
+        canvas.style.display = 'none';
     } catch (error) {
         console.error('Erro ao tirar foto:', error);
         alert('Erro ao capturar a foto. Por favor, tente novamente.');
