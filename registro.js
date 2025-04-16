@@ -190,8 +190,131 @@ function formatarData(data) {
     }
 }
 
+// Função para criar uma imagem com os dados do formulário
+function createInfoImage(data) {
+    return new Promise((resolve, reject) => {
+        try {
+            // Criar um canvas para a imagem
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = 600;
+            const ctx = canvas.getContext('2d');
+
+            // Fundo branco
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Cabeçalho
+            ctx.fillStyle = '#2c3e50';
+            ctx.fillRect(0, 0, canvas.width, 80);
+            
+            // Título
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('Registro de Anormalidade', canvas.width / 2, 50);
+
+            // Data e hora
+            ctx.fillStyle = '#34495e';
+            ctx.font = '16px Arial';
+            ctx.textAlign = 'right';
+            const dataFormatada = new Date(data.timestamp).toLocaleString('pt-BR');
+            ctx.fillText(`Registrado em: ${dataFormatada}`, canvas.width - 20, 120);
+
+            // ID do registro
+            ctx.fillStyle = '#7f8c8d';
+            ctx.font = '14px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(`ID: ${data.id}`, 20, 120);
+
+            // Informações principais
+            ctx.fillStyle = '#2c3e50';
+            ctx.font = 'bold 18px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText('Local:', 20, 180);
+            ctx.fillText('Descrição:', 20, 280);
+
+            // Valores
+            ctx.fillStyle = '#34495e';
+            ctx.font = '16px Arial';
+            
+            // Local
+            const localLines = wrapText(ctx, data.location, canvas.width - 40, 20);
+            ctx.fillText(localLines, 20, 210);
+
+            // Descrição
+            const descLines = wrapText(ctx, data.description, canvas.width - 40, 20);
+            ctx.fillText(descLines, 20, 310);
+
+            // Se houver imagem, adicionar ao canvas
+            if (data.image) {
+                const img = new Image();
+                img.onload = () => {
+                    // Calcular dimensões mantendo a proporção
+                    const maxWidth = canvas.width - 40;
+                    const maxHeight = 200;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > maxWidth) {
+                        height = (maxWidth * height) / width;
+                        width = maxWidth;
+                    }
+
+                    if (height > maxHeight) {
+                        width = (maxHeight * width) / height;
+                        height = maxHeight;
+                    }
+
+                    // Centralizar a imagem
+                    const x = (canvas.width - width) / 2;
+                    const y = 400;
+                    ctx.drawImage(img, x, y, width, height);
+
+                    // Converter para PNG
+                    const imageData = canvas.toDataURL('image/png');
+                    resolve(imageData);
+                };
+                img.onerror = () => {
+                    // Se houver erro ao carregar a imagem, continuar sem ela
+                    const imageData = canvas.toDataURL('image/png');
+                    resolve(imageData);
+                };
+                img.src = data.image;
+            } else {
+                // Se não houver imagem, converter direto para PNG
+                const imageData = canvas.toDataURL('image/png');
+                resolve(imageData);
+            }
+        } catch (error) {
+            console.error('Erro ao criar imagem:', error);
+            reject(error);
+        }
+    });
+}
+
+// Função auxiliar para quebrar texto em múltiplas linhas
+function wrapText(context, text, maxWidth, lineHeight) {
+    const words = text.split(' ');
+    let lines = [];
+    let currentLine = words[0];
+
+    for (let i = 1; i < words.length; i++) {
+        const word = words[i];
+        const width = context.measureText(currentLine + ' ' + word).width;
+        if (width < maxWidth) {
+            currentLine += ' ' + word;
+        } else {
+            lines.push(currentLine);
+            currentLine = word;
+        }
+    }
+    lines.push(currentLine);
+    return lines.join('\n');
+}
+
 // Função para enviar email
-async function sendEmail(anomalyData, qrCodeImage) {
+async function sendEmail(anomalyData, infoImage) {
     try {
         console.log('Iniciando envio de email...');
         
@@ -209,15 +332,9 @@ async function sendEmail(anomalyData, qrCodeImage) {
                 <p style="margin: 10px 0;"><strong>Local:</strong> ${anomalyData.location}</p>
                 <p style="margin: 10px 0;"><strong>Descrição:</strong> ${anomalyData.description}</p>
             </div>
-            ${anomalyData.image ? `
-            <div style="margin: 20px 0;">
-                <h3 style="color: #444; font-size: 18px;">Imagem da Anormalidade:</h3>
-                <img src="${anomalyData.image}" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            </div>
-            ` : ''}
             <div style="margin: 20px 0; text-align: center;">
-                <h3 style="color: #444; font-size: 18px;">QR Code do Registro:</h3>
-                <img src="${qrCodeImage}" style="width: 200px; height: 200px; margin: 10px auto; display: block;">
+                <h3 style="color: #444; font-size: 18px;">Comprovante do Registro:</h3>
+                <img src="${infoImage}" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             </div>
             <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666;">
                 <p style="margin: 5px 0;">Registrado por: ${userData.name}</p>
@@ -226,19 +343,13 @@ async function sendEmail(anomalyData, qrCodeImage) {
             </div>
         `;
 
-        console.log('Template do email preparado');
-
         const emailParams = {
             to_email: userData.email,
             to_name: userData.name,
             from_name: "Sistema de Registro de Anormalidades",
             subject: `Registro de Anormalidade - ${formatarData(anomalyData.timestamp)}`,
-            message: emailTemplate,
-            anomaly_image: anomalyData.image,
-            qr_code: qrCodeImage
+            message: emailTemplate
         };
-
-        console.log('Parâmetros do email:', emailParams);
 
         const response = await emailjs.send(
             "service_2g8768o",
@@ -246,16 +357,14 @@ async function sendEmail(anomalyData, qrCodeImage) {
             emailParams
         );
 
-        console.log('Resposta do EmailJS:', response);
-
         if (response.status === 200) {
             alert('Registro enviado com sucesso para seu email!');
         } else {
             throw new Error(`Status da resposta: ${response.status}`);
         }
     } catch (error) {
-        console.error('Erro detalhado ao enviar email:', error);
-        alert('Erro ao enviar email. Por favor, verifique o console para mais detalhes e tente novamente.');
+        console.error('Erro ao enviar email:', error);
+        alert('Erro ao enviar email. Por favor, tente novamente.');
     }
 }
 
@@ -309,8 +418,6 @@ anomalyForm.addEventListener('submit', async (e) => {
             imageData = previewImage.src;
         }
 
-        console.log('Dados coletados:', { description, location, hasImage: !!imageData });
-
         const anomalyData = {
             description,
             location,
@@ -319,23 +426,14 @@ anomalyForm.addEventListener('submit', async (e) => {
             image: imageData
         };
 
-        console.log('Gerando QR Code...');
-        let qrCodeImage;
-        try {
-            qrCodeImage = await generateQRCode(anomalyData);
-            if (!qrCodeImage) {
-                throw new Error('Falha ao gerar QR Code');
-            }
-        } catch (error) {
-            console.error('Erro na geração do QR Code:', error);
-            throw new Error('Não foi possível gerar o QR Code. Por favor, tente novamente.');
-        }
-
-        console.log('QR Code gerado com sucesso, enviando email...');
-        await sendEmail(anomalyData, qrCodeImage);
+        console.log('Criando imagem com informações...');
+        const infoImage = await createInfoImage(anomalyData);
+        
+        console.log('Enviando email...');
+        await sendEmail(anomalyData, infoImage);
 
     } catch (error) {
-        console.error('Erro detalhado no processo de registro:', error);
+        console.error('Erro no processo de registro:', error);
         alert(error.message || 'Ocorreu um erro no processo de registro. Por favor, tente novamente.');
     }
 });
