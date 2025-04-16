@@ -8,10 +8,15 @@
     <!-- Font Awesome para ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <!-- Biblioteca EmailJS -->
-    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
         (function() {
-            emailjs.init("UhX1NQMUijjOeEFNH");
+            try {
+                emailjs.init("UhX1NQMUijjOeEFNH");
+                console.log('EmailJS inicializado com sucesso');
+            } catch (error) {
+                console.error('Erro ao inicializar EmailJS:', error);
+            }
         })();
     </script>
 </head>

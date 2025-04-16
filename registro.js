@@ -1,3 +1,13 @@
+// Verificar se o usuário está logado
+window.addEventListener('load', () => {
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData || !userData.email) {
+        alert('Você precisa fazer login primeiro!');
+        window.location.href = 'login.html';
+        return;
+    }
+});
+
 // Elementos do DOM
 const anomalyForm = document.getElementById('anomalyForm');
 const imagePreview = document.getElementById('imagePreview');
@@ -190,6 +200,37 @@ function formatarData(data) {
     }
 }
 
+// Função para comprimir imagem
+function compressImage(imageData, maxWidth = 800, maxHeight = 600, quality = 0.7) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            let width = img.width;
+            let height = img.height;
+
+            if (width > maxWidth) {
+                height = (maxWidth * height) / width;
+                width = maxWidth;
+            }
+
+            if (height > maxHeight) {
+                width = (maxHeight * width) / height;
+                height = maxHeight;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const compressedData = canvas.toDataURL('image/jpeg', quality);
+            resolve(compressedData);
+        };
+        img.src = imageData;
+    });
+}
+
 // Função para criar uma imagem com os dados do formulário
 function createInfoImage(data) {
     return new Promise((resolve, reject) => {
@@ -249,41 +290,54 @@ function createInfoImage(data) {
             // Se houver imagem, adicionar ao canvas
             if (data.image) {
                 const img = new Image();
-                img.onload = () => {
-                    // Calcular dimensões mantendo a proporção
-                    const maxWidth = canvas.width - 40;
-                    const maxHeight = 200;
-                    let width = img.width;
-                    let height = img.height;
+                img.onload = async () => {
+                    try {
+                        // Comprimir a imagem antes de adicionar ao canvas
+                        const compressedImage = await compressImage(data.image);
+                        const compressedImg = new Image();
+                        compressedImg.onload = () => {
+                            // Calcular dimensões mantendo a proporção
+                            const maxWidth = canvas.width - 40;
+                            const maxHeight = 200;
+                            let width = compressedImg.width;
+                            let height = compressedImg.height;
 
-                    if (width > maxWidth) {
-                        height = (maxWidth * height) / width;
-                        width = maxWidth;
+                            if (width > maxWidth) {
+                                height = (maxWidth * height) / width;
+                                width = maxWidth;
+                            }
+
+                            if (height > maxHeight) {
+                                width = (maxHeight * width) / height;
+                                height = maxHeight;
+                            }
+
+                            // Centralizar a imagem
+                            const x = (canvas.width - width) / 2;
+                            const y = 400;
+                            ctx.drawImage(compressedImg, x, y, width, height);
+
+                            // Converter para PNG e comprimir
+                            const imageData = canvas.toDataURL('image/jpeg', 0.7);
+                            resolve(imageData);
+                        };
+                        compressedImg.src = compressedImage;
+                    } catch (error) {
+                        console.error('Erro ao comprimir imagem:', error);
+                        // Se houver erro na compressão, continuar sem a imagem
+                        const imageData = canvas.toDataURL('image/jpeg', 0.7);
+                        resolve(imageData);
                     }
-
-                    if (height > maxHeight) {
-                        width = (maxHeight * width) / height;
-                        height = maxHeight;
-                    }
-
-                    // Centralizar a imagem
-                    const x = (canvas.width - width) / 2;
-                    const y = 400;
-                    ctx.drawImage(img, x, y, width, height);
-
-                    // Converter para PNG
-                    const imageData = canvas.toDataURL('image/png');
-                    resolve(imageData);
                 };
                 img.onerror = () => {
                     // Se houver erro ao carregar a imagem, continuar sem ela
-                    const imageData = canvas.toDataURL('image/png');
+                    const imageData = canvas.toDataURL('image/jpeg', 0.7);
                     resolve(imageData);
                 };
                 img.src = data.image;
             } else {
-                // Se não houver imagem, converter direto para PNG
-                const imageData = canvas.toDataURL('image/png');
+                // Se não houver imagem, converter direto para JPEG
+                const imageData = canvas.toDataURL('image/jpeg', 0.7);
                 resolve(imageData);
             }
         } catch (error) {
@@ -313,6 +367,22 @@ function wrapText(context, text, maxWidth, lineHeight) {
     return lines.join('\n');
 }
 
+// Função para salvar imagem localmente
+function saveImageLocally(imageData) {
+    return new Promise((resolve, reject) => {
+        try {
+            // Criar um link para download
+            const link = document.createElement('a');
+            link.download = 'comprovante-anomalia.png';
+            link.href = imageData;
+            link.click();
+            resolve('Imagem salva localmente');
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
 // Função para enviar email
 async function sendEmail(anomalyData, infoImage) {
     try {
@@ -325,32 +395,24 @@ async function sendEmail(anomalyData, infoImage) {
 
         console.log('Dados do usuário:', userData);
 
-        const emailTemplate = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-                <h2 style="color: #2c3e50; font-size: 24px; margin-bottom: 20px; text-align: center;">Registro de Anormalidade</h2>
-                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                    <p style="margin: 10px 0; color: #34495e;"><strong>Data:</strong> ${formatarData(anomalyData.timestamp)}</p>
-                    <p style="margin: 10px 0; color: #34495e;"><strong>Local:</strong> ${anomalyData.location}</p>
-                    <p style="margin: 10px 0; color: #34495e;"><strong>Descrição:</strong> ${anomalyData.description}</p>
-                </div>
-                <div style="margin: 20px 0; text-align: center;">
-                    <h3 style="color: #2c3e50; font-size: 18px; margin-bottom: 10px;">Comprovante do Registro:</h3>
-                    <img src="${infoImage}" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                </div>
-                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #7f8c8d;">
-                    <p style="margin: 5px 0;"><strong>Registrado por:</strong> ${userData.name}</p>
-                    <p style="margin: 5px 0;"><strong>Telefone:</strong> ${userData.phone}</p>
-                    <p style="margin: 5px 0;"><strong>Email:</strong> ${userData.email}</p>
-                </div>
-            </div>
-        `;
+        // Salvar a imagem localmente
+        await saveImageLocally(infoImage);
 
         const emailParams = {
             to_email: userData.email,
             to_name: userData.name,
             from_name: "Sistema de Registro de Anormalidades",
             subject: `Registro de Anormalidade - ${formatarData(anomalyData.timestamp)}`,
-            message: emailTemplate
+            message: `
+                <h2>Registro de Anormalidade</h2>
+                <p><strong>Data:</strong> ${formatarData(anomalyData.timestamp)}</p>
+                <p><strong>Local:</strong> ${anomalyData.location}</p>
+                <p><strong>Descrição:</strong> ${anomalyData.description}</p>
+                <p><strong>Registrado por:</strong> ${userData.name}</p>
+                <p><strong>Telefone:</strong> ${userData.phone}</p>
+                <p><strong>Email:</strong> ${userData.email}</p>
+                <p>O comprovante do registro foi salvo localmente no seu dispositivo.</p>
+            `
         };
 
         console.log('Enviando email com os seguintes parâmetros:', {
@@ -358,23 +420,38 @@ async function sendEmail(anomalyData, infoImage) {
             subject: emailParams.subject
         });
 
-        const response = await emailjs.send(
-            "service_2g8768o",
-            "template_gvn13j7",
-            emailParams
-        );
+        // Verificar se o EmailJS está inicializado
+        if (typeof emailjs === 'undefined') {
+            throw new Error('EmailJS não está inicializado corretamente. Por favor, recarregue a página.');
+        }
 
-        console.log('Resposta do EmailJS:', response);
+        // Verificar se o serviço e template existem
+        if (!emailjs.send) {
+            throw new Error('Função de envio do EmailJS não está disponível. Verifique a configuração.');
+        }
 
-        if (response.status === 200) {
-            alert('Registro enviado com sucesso para seu email!');
-            return true;
-        } else {
-            throw new Error(`Falha no envio do email. Status: ${response.status}`);
+        try {
+            const response = await emailjs.send(
+                "service_2g8768o",
+                "template_gvn13j7",
+                emailParams
+            );
+
+            console.log('Resposta do EmailJS:', response);
+
+            if (response && response.status === 200) {
+                alert('Registro enviado com sucesso para seu email! O comprovante foi salvo localmente.');
+                return true;
+            } else {
+                throw new Error(`Falha no envio do email. Status: ${response ? response.status : 'desconhecido'}`);
+            }
+        } catch (emailError) {
+            console.error('Erro específico do EmailJS:', emailError);
+            throw new Error(`Erro ao enviar email: ${emailError.message || 'Erro desconhecido'}. Por favor, tente novamente.`);
         }
     } catch (error) {
         console.error('Erro detalhado ao enviar email:', error);
-        throw new Error(`Erro ao enviar email: ${error.message}. Por favor, verifique sua conexão e tente novamente.`);
+        throw new Error(`Erro ao enviar email: ${error.message || 'Erro desconhecido'}. Por favor, verifique sua conexão e tente novamente.`);
     }
 }
 
