@@ -110,18 +110,21 @@ function generateQRCode(data) {
 
             console.log('Dados para QR Code:', qrData);
 
-            // Criar o QR Code
-            qrcode = new QRCode(qrcodeElement, {
-                text: qrData,
+            // Criar o QR Code usando a nova biblioteca
+            QRCode.toCanvas(qrcodeElement, qrData, {
                 width: 200,
-                height: 200,
-                colorDark: '#000000',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.H
-            });
+                margin: 1,
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
+                }
+            }, function (error) {
+                if (error) {
+                    console.error('Erro ao gerar QR Code:', error);
+                    reject(error);
+                    return;
+                }
 
-            // Aguardar a geração do QR Code
-            setTimeout(() => {
                 try {
                     const qrCodeCanvas = qrcodeElement.querySelector('canvas');
                     if (!qrCodeCanvas) {
@@ -139,7 +142,7 @@ function generateQRCode(data) {
                     console.error('Erro ao processar QR Code gerado:', error);
                     reject(error);
                 }
-            }, 500); // Aumentado o tempo de espera para 500ms
+            });
         } catch (error) {
             console.error('Erro detalhado na geração do QR Code:', error);
             reject(error);
