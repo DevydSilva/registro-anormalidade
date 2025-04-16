@@ -35,10 +35,6 @@ function checkLogin() {
 // Função para iniciar a câmera
 async function startCamera() {
     try {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            throw new Error('Seu navegador não suporta acesso à câmera');
-        }
-
         stream = await navigator.mediaDevices.getUserMedia({ 
             video: { 
                 facingMode: 'environment',
@@ -60,7 +56,7 @@ async function startCamera() {
         };
     } catch (err) {
         console.error('Erro ao acessar a câmera:', err);
-        alert('Não foi possível acessar a câmera. Por favor, verifique as permissões ou tente usar um navegador diferente.');
+        alert('Não foi possível acessar a câmera. Por favor, verifique as permissões.');
         startCameraButton.style.display = 'block';
         takePhotoButton.style.display = 'none';
         uploadButton.style.display = 'block';
@@ -98,14 +94,8 @@ function takePhoto() {
         // Converter o canvas para uma imagem JPEG
         const photoData = canvas.toDataURL('image/jpeg', 0.8);
         
-        // Exibir a imagem capturada usando o canvas diretamente
-        imagePreview.innerHTML = '';
-        const previewCanvas = document.createElement('canvas');
-        previewCanvas.width = canvas.width;
-        previewCanvas.height = canvas.height;
-        const previewContext = previewCanvas.getContext('2d');
-        previewContext.drawImage(canvas, 0, 0);
-        imagePreview.appendChild(previewCanvas);
+        // Exibir a imagem capturada
+        imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
         
         // Parar a câmera e atualizar a interface
         stopCamera();
@@ -150,29 +140,32 @@ function generateQRCode(data) {
             const qrText = `ID: ${data.id}\nLocal: ${data.location}\nData: ${new Date(data.timestamp).toLocaleString('pt-BR')}`;
             console.log('Texto para QR Code:', qrText);
 
-            // Criar um canvas para o QR Code
-            const canvas = document.createElement('canvas');
-            canvas.width = 200;
-            canvas.height = 200;
-            qrcodeElement.appendChild(canvas);
-
-            // Gerar o QR Code usando a biblioteca
-            QRCode.toCanvas(canvas, qrText, {
+            // Criar o QR Code
+            const qr = new QRCode(qrcodeElement, {
+                text: qrText,
                 width: 200,
-                margin: 1,
-                color: {
-                    dark: '#000000',
-                    light: '#ffffff'
-                }
-            }, (error) => {
-                if (error) {
-                    console.error('Erro ao gerar QR Code:', error);
-                    reject(error);
-                } else {
-                    console.log('QR Code gerado com sucesso');
-                    resolve(canvas);
-                }
+                height: 200,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
             });
+
+            // Aguardar um momento para o QR Code ser gerado
+            setTimeout(() => {
+                try {
+                    const canvas = qrcodeElement.querySelector('canvas');
+                    if (canvas) {
+                        const qrCodeImage = canvas.toDataURL('image/png');
+                        console.log('QR Code gerado com sucesso');
+                        resolve(qrCodeImage);
+                    } else {
+                        throw new Error('Canvas do QR Code não encontrado');
+                    }
+                } catch (err) {
+                    console.error('Erro ao converter QR Code para imagem:', err);
+                    reject(err);
+                }
+            }, 100);
         } catch (error) {
             console.error('Erro na geração do QR Code:', error);
             reject(error);
@@ -183,6 +176,10 @@ function generateQRCode(data) {
 // Função para baixar o QR Code
 function downloadQRCode() {
     try {
+        if (!qrcode) {
+            throw new Error('QR Code não foi gerado');
+        }
+        
         const canvas = document.querySelector('#qrcode canvas');
         if (canvas) {
             const link = document.createElement('a');
@@ -218,7 +215,6 @@ function formatarData(data) {
 function compressImage(imageData, maxWidth = 800, maxHeight = 600, quality = 0.7) {
     return new Promise((resolve) => {
         const img = new Image();
-        img.crossOrigin = 'anonymous';
         img.onload = () => {
             let width = img.width;
             let height = img.height;

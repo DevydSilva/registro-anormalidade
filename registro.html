@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Content Security Policy removida temporariamente para testes -->
     <title>Registro de Anormalidade - Sistema de Registro de Anormalidades</title>
     <link rel="stylesheet" href="registro.css">
     <!-- Font Awesome para ícones -->
@@ -17,7 +16,6 @@
                 console.log('EmailJS inicializado com sucesso');
             } catch (error) {
                 console.error('Erro ao inicializar EmailJS:', error);
-                alert('Erro ao inicializar o serviço de email. Por favor, recarregue a página.');
             }
         })();
     </script>
@@ -29,7 +27,6 @@
                 <h2>Registro de Anormalidade</h2>
                 <button id="logoutButton" class="logout-button" title="Sair" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i>
-                    <span>Sair</span>
                 </button>
             </div>
             <form id="anomalyForm">
@@ -68,7 +65,6 @@
                         Fazer Upload de Imagem
                     </button>
                 </div>
-                <div id="qrcode"></div>
                 <button type="submit">
                     <i class="fas fa-paper-plane"></i>
                     Enviar
@@ -83,7 +79,6 @@
             window.location.href = 'login.html';
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script src="registro.js"></script>
 </body>
 </html> 

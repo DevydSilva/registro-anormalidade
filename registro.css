@@ -176,61 +176,6 @@ button:hover {
     display: none;
 }
 
-.logout-button {
-    background: linear-gradient(135deg, #ff4444, #ff6b6b);
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    border-radius: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    height: 32px;
-}
-
-.logout-button:hover {
-    background: linear-gradient(135deg, #ff6b6b, #ff4444);
-    transform: translateY(-1px);
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
-}
-
-.logout-button:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.logout-button i {
-    font-size: 14px;
-    transition: transform 0.3s ease;
-}
-
-.logout-button:hover i {
-    transform: translateX(2px);
-}
-
-.header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 12px 15px;
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-.header-container h2 {
-    margin: 0;
-    color: #2c3e50;
-    font-size: 22px;
-    font-weight: 600;
-}
-
 @media (max-width: 600px) {
     .container {
         padding: 10px;
@@ -251,4 +196,40 @@ button:hover {
     button i {
         font-size: 20px;
     }
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logout-button {
+    background: transparent;
+    color: #666;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.logout-button:hover {
+    background: #f8f9fa;
+    color: #dc3545;
+}
+
+.logout-button i {
+    font-size: 18px;
+}
+
+.logout-button span {
+    display: none;
 } 
