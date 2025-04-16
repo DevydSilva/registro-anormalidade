@@ -180,31 +180,32 @@ button:hover {
     background: linear-gradient(135deg, #ff4444, #ff6b6b);
     color: white;
     border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
+    padding: 8px 15px;
+    border-radius: 20px;
     cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    height: 32px;
 }
 
 .logout-button:hover {
     background: linear-gradient(135deg, #ff6b6b, #ff4444);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
 }
 
 .logout-button:active {
     transform: translateY(0);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .logout-button i {
-    font-size: 16px;
+    font-size: 14px;
     transition: transform 0.3s ease;
 }
 
@@ -217,16 +218,16 @@ button:hover {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
-    padding: 15px;
+    padding: 12px 15px;
     background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .header-container h2 {
     margin: 0;
     color: #2c3e50;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: 600;
 }
 
