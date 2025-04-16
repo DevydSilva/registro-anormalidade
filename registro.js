@@ -115,21 +115,20 @@ function generateQRCode(data) {
             // Limpar o elemento QR Code
             qrcodeElement.innerHTML = '';
 
-            // Verificar se os dados são válidos
-            if (!data || typeof data !== 'object') {
-                throw new Error('Dados inválidos para gerar QR Code');
-            }
+            // Criar um objeto simplificado com apenas os dados essenciais
+            const qrData = {
+                id: data.id,
+                descricao: data.description.substring(0, 100), // Limitar o tamanho da descrição
+                local: data.location,
+                data: data.timestamp
+            };
 
-            // Converter os dados para string JSON
-            const qrData = JSON.stringify(data);
-            if (!qrData) {
-                throw new Error('Falha ao converter dados para JSON');
-            }
+            // Converter para string JSON
+            const qrDataString = JSON.stringify(qrData);
+            console.log('Dados para QR Code:', qrDataString);
 
-            console.log('Dados para QR Code:', qrData);
-
-            // Criar o QR Code usando a biblioteca QRCode.js
-            QRCode.toCanvas(qrcodeElement, qrData, {
+            // Criar o QR Code
+            QRCode.toCanvas(qrcodeElement, qrDataString, {
                 width: 200,
                 margin: 1,
                 color: {
@@ -141,19 +140,23 @@ function generateQRCode(data) {
                     console.error('Erro ao gerar QR Code:', error);
                     reject(error);
                 } else {
-                    // Converter o canvas para URL da imagem
-                    const canvas = qrcodeElement.querySelector('canvas');
-                    if (canvas) {
-                        const qrCodeImage = canvas.toDataURL('image/png');
-                        console.log('QR Code gerado com sucesso');
-                        resolve(qrCodeImage);
-                    } else {
-                        reject(new Error('Canvas do QR Code não encontrado'));
+                    try {
+                        const canvas = qrcodeElement.querySelector('canvas');
+                        if (canvas) {
+                            const qrCodeImage = canvas.toDataURL('image/png');
+                            console.log('QR Code gerado com sucesso');
+                            resolve(qrCodeImage);
+                        } else {
+                            throw new Error('Canvas do QR Code não encontrado');
+                        }
+                    } catch (err) {
+                        console.error('Erro ao converter QR Code para imagem:', err);
+                        reject(err);
                     }
                 }
             });
         } catch (error) {
-            console.error('Erro detalhado na geração do QR Code:', error);
+            console.error('Erro na geração do QR Code:', error);
             reject(error);
         }
     });
