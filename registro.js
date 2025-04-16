@@ -26,6 +26,7 @@ async function startCamera() {
         video.style.display = 'block';
         startCameraButton.style.display = 'none';
         takePhotoButton.style.display = 'block';
+        takePhotoButton.disabled = false;
         uploadButton.style.display = 'none';
         
         // Garantir que o vídeo está carregado antes de mostrar
@@ -35,6 +36,10 @@ async function startCamera() {
     } catch (err) {
         console.error('Erro ao acessar a câmera:', err);
         alert('Não foi possível acessar a câmera. Por favor, verifique as permissões.');
+        // Restaurar estado inicial em caso de erro
+        startCameraButton.style.display = 'block';
+        takePhotoButton.style.display = 'none';
+        uploadButton.style.display = 'block';
     }
 }
 
@@ -51,14 +56,10 @@ function stopCamera() {
 // Função para tirar foto
 function takePhoto() {
     const context = canvas.getContext('2d');
-    // Ajustar o tamanho do canvas para corresponder ao vídeo
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-    
-    // Desenhar o frame atual do vídeo no canvas
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // Converter para imagem
     const photoData = canvas.toDataURL('image/jpeg', 0.8);
     imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
     
