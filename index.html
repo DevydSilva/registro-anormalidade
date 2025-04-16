@@ -16,6 +16,7 @@
                 console.log('EmailJS inicializado com sucesso');
             } catch (error) {
                 console.error('Erro ao inicializar EmailJS:', error);
+                alert('Erro ao inicializar o serviço de email. Por favor, recarregue a página.');
             }
         })();
     </script>
@@ -79,6 +80,7 @@
             window.location.href = 'login.html';
         }
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script src="registro.js"></script>
 </body>
 </html> 

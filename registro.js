@@ -35,6 +35,10 @@ function checkLogin() {
 // Função para iniciar a câmera
 async function startCamera() {
     try {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('Seu navegador não suporta acesso à câmera');
+        }
+
         stream = await navigator.mediaDevices.getUserMedia({ 
             video: { 
                 facingMode: 'environment',
@@ -56,7 +60,7 @@ async function startCamera() {
         };
     } catch (err) {
         console.error('Erro ao acessar a câmera:', err);
-        alert('Não foi possível acessar a câmera. Por favor, verifique as permissões.');
+        alert('Não foi possível acessar a câmera. Por favor, verifique as permissões ou tente usar um navegador diferente.');
         startCameraButton.style.display = 'block';
         takePhotoButton.style.display = 'none';
         uploadButton.style.display = 'block';
