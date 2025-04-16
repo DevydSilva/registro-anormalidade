@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Anormalidade - Sistema de Registro de Anormalidades</title>
+    <link rel="stylesheet" href="registro.css">
+    <!-- Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Biblioteca QR Code -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- Biblioteca EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            emailjs.init("SUA_PUBLIC_KEY");
+        })();
+    </script>
+</head>
+<body>
+    <div class="container" id="anomalyScreen">
+        <div class="form-container">
+            <h2>Registro de Anormalidade</h2>
+            <form id="anomalyForm">
+                <div class="form-group">
+                    <label for="description">Descrição da Anormalidade:</label>
+                    <textarea id="description" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="location">Onde Ocorreu:</label>
+                    <input type="text" id="location" required>
+                </div>
+                <div class="form-group">
+                    <label>Imagem:</label>
+                    <div class="camera-section">
+                        <video id="camera" autoplay playsinline></video>
+                        <canvas id="canvas" style="display: none;"></canvas>
+                        <div class="camera-buttons">
+                            <button type="button" id="startCamera" class="camera-button">
+                                <i class="fas fa-camera"></i>
+                                Abrir Câmera
+                            </button>
+                            <button type="button" id="takePhoto" class="camera-button" style="display: none;">
+                                <i class="fas fa-circle"></i>
+                                Capturar Foto
+                            </button>
+                            <button type="button" id="retakePhoto" class="camera-button" style="display: none;">
+                                <i class="fas fa-redo"></i>
+                                Nova Foto
+                            </button>
+                        </div>
+                    </div>
+                    <div id="imagePreview"></div>
+                    <input type="file" id="image" accept="image/*" style="display: none;">
+                    <button type="button" id="uploadButton" class="secondary-button">
+                        <i class="fas fa-upload"></i>
+                        Fazer Upload de Imagem
+                    </button>
+                </div>
+                <button type="submit">
+                    <i class="fas fa-paper-plane"></i>
+                    Enviar
+                </button>
+            </form>
+
+            <!-- Área do QR Code -->
+            <div class="qr-section">
+                <h3>QR Code da Anormalidade</h3>
+                <div id="qrcode"></div>
+                <button id="downloadQR" class="secondary-button">
+                    <i class="fas fa-download"></i>
+                    Baixar QR Code
+                </button>
+            </div>
+        </div>
+    </div>
+    <script src="registro.js"></script>
+</body>
+</html> 
