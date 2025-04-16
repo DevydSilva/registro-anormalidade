@@ -87,11 +87,32 @@ function retakePhoto() {
 
 // Função para gerar o QR Code e retornar a promessa com a URL da imagem
 function generateQRCode(data) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         try {
-            document.getElementById('qrcode').innerHTML = '';
-            qrcode = new QRCode(document.getElementById('qrcode'), {
-                text: JSON.stringify(data),
+            const qrcodeElement = document.getElementById('qrcode');
+            if (!qrcodeElement) {
+                throw new Error('Elemento QR Code não encontrado no DOM');
+            }
+
+            // Limpar o elemento QR Code
+            qrcodeElement.innerHTML = '';
+
+            // Verificar se os dados são válidos
+            if (!data || typeof data !== 'object') {
+                throw new Error('Dados inválidos para gerar QR Code');
+            }
+
+            // Converter os dados para string JSON
+            const qrData = JSON.stringify(data);
+            if (!qrData) {
+                throw new Error('Falha ao converter dados para JSON');
+            }
+
+            console.log('Dados para QR Code:', qrData);
+
+            // Criar o QR Code
+            qrcode = new QRCode(qrcodeElement, {
+                text: qrData,
                 width: 200,
                 height: 200,
                 colorDark: '#000000',
@@ -99,19 +120,29 @@ function generateQRCode(data) {
                 correctLevel: QRCode.CorrectLevel.H
             });
 
+            // Aguardar a geração do QR Code
             setTimeout(() => {
-                const qrCodeCanvas = document.querySelector('#qrcode canvas');
-                if (qrCodeCanvas) {
+                try {
+                    const qrCodeCanvas = qrcodeElement.querySelector('canvas');
+                    if (!qrCodeCanvas) {
+                        throw new Error('Canvas do QR Code não foi criado');
+                    }
+
                     const qrCodeImage = qrCodeCanvas.toDataURL('image/png');
+                    if (!qrCodeImage) {
+                        throw new Error('Falha ao converter QR Code para imagem');
+                    }
+
+                    console.log('QR Code gerado com sucesso');
                     resolve(qrCodeImage);
-                } else {
-                    console.error('QR Code não foi gerado corretamente');
-                    resolve(null);
+                } catch (error) {
+                    console.error('Erro ao processar QR Code gerado:', error);
+                    reject(error);
                 }
-            }, 100);
+            }, 500); // Aumentado o tempo de espera para 500ms
         } catch (error) {
-            console.error('Erro ao gerar QR Code:', error);
-            resolve(null);
+            console.error('Erro detalhado na geração do QR Code:', error);
+            reject(error);
         }
     });
 }
@@ -262,6 +293,11 @@ anomalyForm.addEventListener('submit', async (e) => {
         const location = document.getElementById('location').value;
         let imageData = null;
 
+        // Validar campos obrigatórios
+        if (!description || !location) {
+            throw new Error('Por favor, preencha todos os campos obrigatórios');
+        }
+
         // Pegar a imagem (seja da câmera ou do upload)
         const previewImage = imagePreview.querySelector('img');
         if (previewImage) {
@@ -279,17 +315,23 @@ anomalyForm.addEventListener('submit', async (e) => {
         };
 
         console.log('Gerando QR Code...');
-        const qrCodeImage = await generateQRCode(anomalyData);
-        if (!qrCodeImage) {
-            throw new Error('Falha ao gerar QR Code');
+        let qrCodeImage;
+        try {
+            qrCodeImage = await generateQRCode(anomalyData);
+            if (!qrCodeImage) {
+                throw new Error('Falha ao gerar QR Code');
+            }
+        } catch (error) {
+            console.error('Erro na geração do QR Code:', error);
+            throw new Error('Não foi possível gerar o QR Code. Por favor, tente novamente.');
         }
 
-        console.log('QR Code gerado, enviando email...');
+        console.log('QR Code gerado com sucesso, enviando email...');
         await sendEmail(anomalyData, qrCodeImage);
 
     } catch (error) {
         console.error('Erro detalhado no processo de registro:', error);
-        alert('Ocorreu um erro no processo de registro. Por favor, verifique o console para mais detalhes e tente novamente.');
+        alert(error.message || 'Ocorreu um erro no processo de registro. Por favor, tente novamente.');
     }
 });
 
