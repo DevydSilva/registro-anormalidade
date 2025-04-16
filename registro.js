@@ -110,25 +110,26 @@ function generateQRCode(data) {
 
             console.log('Dados para QR Code:', qrData);
 
-            // Criar o QR Code usando a nova biblioteca
+            // Criar o QR Code usando a biblioteca qrcode-generator
             const qr = qrcode(0, 'L');
             qr.addData(qrData);
             qr.make();
 
             // Criar o elemento canvas
             const canvas = document.createElement('canvas');
-            canvas.width = 200;
-            canvas.height = 200;
+            const size = 200;
+            canvas.width = size;
+            canvas.height = size;
             const ctx = canvas.getContext('2d');
 
             // Desenhar o QR Code no canvas
             const cells = qr.modules;
-            const tileW = canvas.width / cells.length;
-            const tileH = canvas.height / cells.length;
+            const tileW = size / cells.length;
+            const tileH = size / cells.length;
 
             // Fundo branco
             ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillRect(0, 0, size, size);
 
             // Desenhar os módulos do QR Code
             ctx.fillStyle = '#000000';
