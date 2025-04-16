@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - Sistema de Registro de Anormalidades</title>
+    <link rel="stylesheet" href="cadastro.css">
+</head>
+<body>
+    <div class="container" id="userRegisterScreen">
+        <div class="form-container">
+            <h2>Cadastro de Usuário</h2>
+            <form id="userRegisterForm">
+                <div class="form-group">
+                    <label for="regName">Nome:</label>
+                    <input type="text" id="regName" required>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">E-mail:</label>
+                    <input type="email" id="regEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPhone">Telefone:</label>
+                    <input type="tel" id="regPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Senha:</label>
+                    <input type="password" id="regPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="regConfirmPassword">Confirmar Senha:</label>
+                    <input type="password" id="regConfirmPassword" required>
+                </div>
+                <button type="submit">Cadastrar</button>
+                <div class="login-link">
+                    <p>Já tem uma conta? <a href="login.html" id="loginLink">Voltar para o Login</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="cadastro.js"></script>
+</body>
+</html> 
