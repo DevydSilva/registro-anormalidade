@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' *; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; img-src * data: 'self'">
+    <title>Recuperação de Credenciais - Sistema de Registro de Anormalidades</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+    <div class="container" id="recoveryScreen">
+        <div class="form-container">
+            <h2>Recuperação de Credenciais</h2>
+            <div class="recovery-options">
+                <button id="recoverPasswordBtn" class="recovery-button">
+                    <i class="fas fa-key"></i>
+                    Recuperar Senha
+                </button>
+                <button id="recoverEmailBtn" class="recovery-button">
+                    <i class="fas fa-envelope"></i>
+                    Recuperar E-mail
+                </button>
+            </div>
+
+            <!-- Formulário de Recuperação de Senha -->
+            <form id="passwordRecoveryForm" style="display: none;">
+                <div class="form-group">
+                    <label for="recoveryName">Nome:</label>
+                    <input type="text" id="recoveryName" required>
+                </div>
+                <div class="form-group">
+                    <label for="recoveryEmail">E-mail:</label>
+                    <input type="email" id="recoveryEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Nova Senha:</label>
+                    <input type="password" id="newPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmNewPassword">Confirmar Nova Senha:</label>
+                    <input type="password" id="confirmNewPassword" required>
+                </div>
+                <button type="submit">Alterar Senha</button>
+            </form>
+
+            <!-- Formulário de Recuperação de E-mail -->
+            <form id="emailRecoveryForm" style="display: none;">
+                <div class="form-group">
+                    <label for="emailRecoveryName">Nome:</label>
+                    <input type="text" id="emailRecoveryName" required>
+                </div>
+                <div class="form-group">
+                    <label for="emailRecoveryPassword">Senha:</label>
+                    <input type="password" id="emailRecoveryPassword" required>
+                </div>
+                <div class="form-group">
+                    <label for="newEmail">Novo E-mail:</label>
+                    <input type="email" id="newEmail" required>
+                </div>
+                <button type="submit">Alterar E-mail</button>
+            </form>
+
+            <div class="back-to-login">
+                <a href="login.html">Voltar para o Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const recoverPasswordBtn = document.getElementById('recoverPasswordBtn');
+            const recoverEmailBtn = document.getElementById('recoverEmailBtn');
+            const passwordRecoveryForm = document.getElementById('passwordRecoveryForm');
+            const emailRecoveryForm = document.getElementById('emailRecoveryForm');
+
+            // Mostrar formulário de recuperação de senha
+            recoverPasswordBtn.addEventListener('click', () => {
+                passwordRecoveryForm.style.display = 'block';
+                emailRecoveryForm.style.display = 'none';
+            });
+
+            // Mostrar formulário de recuperação de e-mail
+            recoverEmailBtn.addEventListener('click', () => {
+                emailRecoveryForm.style.display = 'block';
+                passwordRecoveryForm.style.display = 'none';
+            });
+
+            // Manipular recuperação de senha
+            passwordRecoveryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('recoveryName').value;
+                const email = document.getElementById('recoveryEmail').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+                if (newPassword !== confirmPassword) {
+                    alert('As senhas não coincidem!');
+                    return;
+                }
+
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const userIndex = users.findIndex(user => 
+                    user.name === name && user.email === email
+                );
+
+                if (userIndex === -1) {
+                    alert('Usuário não encontrado! Verifique o nome e e-mail informados.');
+                    return;
+                }
+
+                users[userIndex].password = newPassword;
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('Senha alterada com sucesso!');
+                window.location.href = 'login.html';
+            });
+
+            // Manipular recuperação de e-mail
+            emailRecoveryForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = document.getElementById('emailRecoveryName').value;
+                const password = document.getElementById('emailRecoveryPassword').value;
+                const newEmail = document.getElementById('newEmail').value;
+
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                const userIndex = users.findIndex(user => 
+                    user.name === name && user.password === password
+                );
+
+                if (userIndex === -1) {
+                    alert('Usuário não encontrado! Verifique o nome e senha informados.');
+                    return;
+                }
+
+                users[userIndex].email = newEmail;
+                localStorage.setItem('users', JSON.stringify(users));
+                alert('E-mail alterado com sucesso!');
+                window.location.href = 'login.html';
+            });
+        });
+    </script>
+</body>
+</html> 
