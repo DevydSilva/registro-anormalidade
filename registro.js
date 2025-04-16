@@ -98,8 +98,14 @@ function takePhoto() {
         // Converter o canvas para uma imagem JPEG
         const photoData = canvas.toDataURL('image/jpeg', 0.8);
         
-        // Exibir a imagem capturada
-        imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
+        // Exibir a imagem capturada usando o canvas diretamente
+        imagePreview.innerHTML = '';
+        const previewCanvas = document.createElement('canvas');
+        previewCanvas.width = canvas.width;
+        previewCanvas.height = canvas.height;
+        const previewContext = previewCanvas.getContext('2d');
+        previewContext.drawImage(canvas, 0, 0);
+        imagePreview.appendChild(previewCanvas);
         
         // Parar a câmera e atualizar a interface
         stopCamera();
@@ -219,6 +225,7 @@ function formatarData(data) {
 function compressImage(imageData, maxWidth = 800, maxHeight = 600, quality = 0.7) {
     return new Promise((resolve) => {
         const img = new Image();
+        img.crossOrigin = 'anonymous';
         img.onload = () => {
             let width = img.width;
             let height = img.height;
