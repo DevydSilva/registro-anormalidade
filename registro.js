@@ -104,17 +104,52 @@ function downloadQRCode() {
     }
 }
 
+// Função para formatar a data
+function formatarData(data) {
+    return new Date(data).toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
 // Função para enviar email
 async function sendEmail(anomalyData, qrCodeImage) {
     try {
         const userData = JSON.parse(localStorage.getItem('userData'));
-        
+        if (!userData || !userData.email) {
+            throw new Error('Dados do usuário não encontrados');
+        }
+
+        // Preparar o template do email com HTML
+        const emailTemplate = `
+            <h2>Registro de Anormalidade</h2>
+            <p><strong>Data:</strong> ${formatarData(anomalyData.timestamp)}</p>
+            <p><strong>Local:</strong> ${anomalyData.location}</p>
+            <p><strong>Descrição:</strong> ${anomalyData.description}</p>
+            <div style="margin: 20px 0;">
+                <h3>Imagem da Anormalidade:</h3>
+                ${anomalyData.image ? `<img src="${anomalyData.image}" style="max-width: 100%; height: auto; margin: 10px 0;">` : 'Nenhuma imagem anexada'}
+            </div>
+            <div style="margin: 20px 0;">
+                <h3>QR Code do Registro:</h3>
+                <img src="${qrCodeImage}" style="max-width: 200px; height: auto;">
+            </div>
+            <p style="margin-top: 20px; color: #666;">
+                Registrado por: ${userData.name}<br>
+                Telefone: ${userData.phone}
+            </p>
+        `;
+
         const emailParams = {
             to_email: userData.email,
             to_name: userData.name,
-            description: anomalyData.description,
-            location: anomalyData.location,
-            date: new Date(anomalyData.timestamp).toLocaleString(),
+            from_name: "Sistema de Registro de Anormalidades",
+            subject: `Registro de Anormalidade - ${formatarData(anomalyData.timestamp)}`,
+            message: emailTemplate,
+            anomaly_image: anomalyData.image,
             qr_code: qrCodeImage
         };
 
@@ -125,7 +160,7 @@ async function sendEmail(anomalyData, qrCodeImage) {
         );
 
         if (response.status === 200) {
-            alert('Email enviado com sucesso!');
+            alert('Registro enviado com sucesso para seu email!');
         }
     } catch (error) {
         console.error('Erro ao enviar email:', error);
@@ -188,8 +223,6 @@ anomalyForm.addEventListener('submit', async (e) => {
             await sendEmail(anomalyData, qrCodeImage);
         }
     }, 500);
-
-    alert('Anormalidade registrada com sucesso!');
 });
 
 // Evento para download do QR Code
