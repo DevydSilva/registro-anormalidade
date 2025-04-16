@@ -140,32 +140,24 @@ function generateQRCode(data) {
             const qrText = `ID: ${data.id}\nLocal: ${data.location}\nData: ${new Date(data.timestamp).toLocaleString('pt-BR')}`;
             console.log('Texto para QR Code:', qrText);
 
-            // Criar o QR Code
-            const qr = new QRCode(qrcodeElement, {
-                text: qrText,
+            // Criar o QR Code usando a biblioteca qrcode
+            QRCode.toCanvas(qrcodeElement, qrText, {
                 width: 200,
-                height: 200,
-                colorDark: "#000000",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            // Aguardar um momento para o QR Code ser gerado
-            setTimeout(() => {
-                try {
-                    const canvas = qrcodeElement.querySelector('canvas');
-                    if (canvas) {
-                        const qrCodeImage = canvas.toDataURL('image/png');
-                        console.log('QR Code gerado com sucesso');
-                        resolve(qrCodeImage);
-                    } else {
-                        throw new Error('Canvas do QR Code não encontrado');
-                    }
-                } catch (err) {
-                    console.error('Erro ao converter QR Code para imagem:', err);
-                    reject(err);
+                margin: 1,
+                color: {
+                    dark: '#000000',
+                    light: '#ffffff'
                 }
-            }, 100);
+            }, (error, canvas) => {
+                if (error) {
+                    console.error('Erro ao gerar QR Code:', error);
+                    reject(error);
+                } else {
+                    console.log('QR Code gerado com sucesso');
+                    const qrCodeImage = canvas.toDataURL('image/png');
+                    resolve(qrCodeImage);
+                }
+            });
         } catch (error) {
             console.error('Erro na geração do QR Code:', error);
             reject(error);
@@ -176,10 +168,6 @@ function generateQRCode(data) {
 // Função para baixar o QR Code
 function downloadQRCode() {
     try {
-        if (!qrcode) {
-            throw new Error('QR Code não foi gerado');
-        }
-        
         const canvas = document.querySelector('#qrcode canvas');
         if (canvas) {
             const link = document.createElement('a');
