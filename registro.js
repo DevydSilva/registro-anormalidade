@@ -320,26 +320,28 @@ async function sendEmail(anomalyData, infoImage) {
         
         const userData = JSON.parse(localStorage.getItem('userData'));
         if (!userData || !userData.email) {
-            throw new Error('Dados do usuário não encontrados');
+            throw new Error('Dados do usuário não encontrados. Por favor, faça login novamente.');
         }
 
         console.log('Dados do usuário:', userData);
 
         const emailTemplate = `
-            <h2 style="color: #333; font-size: 24px; margin-bottom: 20px;">Registro de Anormalidade</h2>
-            <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                <p style="margin: 10px 0;"><strong>Data:</strong> ${formatarData(anomalyData.timestamp)}</p>
-                <p style="margin: 10px 0;"><strong>Local:</strong> ${anomalyData.location}</p>
-                <p style="margin: 10px 0;"><strong>Descrição:</strong> ${anomalyData.description}</p>
-            </div>
-            <div style="margin: 20px 0; text-align: center;">
-                <h3 style="color: #444; font-size: 18px;">Comprovante do Registro:</h3>
-                <img src="${infoImage}" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            </div>
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666;">
-                <p style="margin: 5px 0;">Registrado por: ${userData.name}</p>
-                <p style="margin: 5px 0;">Telefone: ${userData.phone}</p>
-                <p style="margin: 5px 0;">Email: ${userData.email}</p>
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                <h2 style="color: #2c3e50; font-size: 24px; margin-bottom: 20px; text-align: center;">Registro de Anormalidade</h2>
+                <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <p style="margin: 10px 0; color: #34495e;"><strong>Data:</strong> ${formatarData(anomalyData.timestamp)}</p>
+                    <p style="margin: 10px 0; color: #34495e;"><strong>Local:</strong> ${anomalyData.location}</p>
+                    <p style="margin: 10px 0; color: #34495e;"><strong>Descrição:</strong> ${anomalyData.description}</p>
+                </div>
+                <div style="margin: 20px 0; text-align: center;">
+                    <h3 style="color: #2c3e50; font-size: 18px; margin-bottom: 10px;">Comprovante do Registro:</h3>
+                    <img src="${infoImage}" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                </div>
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #7f8c8d;">
+                    <p style="margin: 5px 0;"><strong>Registrado por:</strong> ${userData.name}</p>
+                    <p style="margin: 5px 0;"><strong>Telefone:</strong> ${userData.phone}</p>
+                    <p style="margin: 5px 0;"><strong>Email:</strong> ${userData.email}</p>
+                </div>
             </div>
         `;
 
@@ -351,20 +353,28 @@ async function sendEmail(anomalyData, infoImage) {
             message: emailTemplate
         };
 
+        console.log('Enviando email com os seguintes parâmetros:', {
+            to_email: userData.email,
+            subject: emailParams.subject
+        });
+
         const response = await emailjs.send(
             "service_2g8768o",
             "template_gvn13j7",
             emailParams
         );
 
+        console.log('Resposta do EmailJS:', response);
+
         if (response.status === 200) {
             alert('Registro enviado com sucesso para seu email!');
+            return true;
         } else {
-            throw new Error(`Status da resposta: ${response.status}`);
+            throw new Error(`Falha no envio do email. Status: ${response.status}`);
         }
     } catch (error) {
-        console.error('Erro ao enviar email:', error);
-        alert('Erro ao enviar email. Por favor, tente novamente.');
+        console.error('Erro detalhado ao enviar email:', error);
+        throw new Error(`Erro ao enviar email: ${error.message}. Por favor, verifique sua conexão e tente novamente.`);
     }
 }
 
@@ -432,6 +442,11 @@ anomalyForm.addEventListener('submit', async (e) => {
         console.log('Enviando email...');
         await sendEmail(anomalyData, infoImage);
 
+        // Limpar o formulário após envio bem-sucedido
+        anomalyForm.reset();
+        imagePreview.innerHTML = '';
+        stopCamera();
+        
     } catch (error) {
         console.error('Erro no processo de registro:', error);
         alert(error.message || 'Ocorreu um erro no processo de registro. Por favor, tente novamente.');
