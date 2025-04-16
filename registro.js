@@ -29,14 +29,12 @@ async function startCamera() {
         takePhotoButton.disabled = false;
         uploadButton.style.display = 'none';
         
-        // Garantir que o vídeo está carregado antes de mostrar
         video.onloadedmetadata = () => {
             video.play();
         };
     } catch (err) {
         console.error('Erro ao acessar a câmera:', err);
         alert('Não foi possível acessar a câmera. Por favor, verifique as permissões.');
-        // Restaurar estado inicial em caso de erro
         startCameraButton.style.display = 'block';
         takePhotoButton.style.display = 'none';
         uploadButton.style.display = 'block';
@@ -63,7 +61,6 @@ function takePhoto() {
     const photoData = canvas.toDataURL('image/jpeg', 0.8);
     imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
     
-    // Parar a câmera e atualizar botões
     stopCamera();
     takePhotoButton.style.display = 'none';
     retakePhotoButton.style.display = 'block';
@@ -78,16 +75,29 @@ function retakePhoto() {
     startCamera();
 }
 
-// Função para gerar o QR Code
+// Função para gerar o QR Code e retornar a promessa com a URL da imagem
 function generateQRCode(data) {
-    document.getElementById('qrcode').innerHTML = '';
-    qrcode = new QRCode(document.getElementById('qrcode'), {
-        text: JSON.stringify(data),
-        width: 200,
-        height: 200,
-        colorDark: '#000000',
-        colorLight: '#ffffff',
-        correctLevel: QRCode.CorrectLevel.H
+    return new Promise((resolve) => {
+        document.getElementById('qrcode').innerHTML = '';
+        qrcode = new QRCode(document.getElementById('qrcode'), {
+            text: JSON.stringify(data),
+            width: 200,
+            height: 200,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Esperar um momento para garantir que o QR Code foi gerado
+        setTimeout(() => {
+            const qrCodeCanvas = document.querySelector('#qrcode canvas');
+            if (qrCodeCanvas) {
+                const qrCodeImage = qrCodeCanvas.toDataURL('image/png');
+                resolve(qrCodeImage);
+            } else {
+                resolve(null);
+            }
+        }, 100);
     });
 }
 
@@ -125,22 +135,27 @@ async function sendEmail(anomalyData, qrCodeImage) {
 
         // Preparar o template do email com HTML
         const emailTemplate = `
-            <h2>Registro de Anormalidade</h2>
-            <p><strong>Data:</strong> ${formatarData(anomalyData.timestamp)}</p>
-            <p><strong>Local:</strong> ${anomalyData.location}</p>
-            <p><strong>Descrição:</strong> ${anomalyData.description}</p>
-            <div style="margin: 20px 0;">
-                <h3>Imagem da Anormalidade:</h3>
-                ${anomalyData.image ? `<img src="${anomalyData.image}" style="max-width: 100%; height: auto; margin: 10px 0;">` : 'Nenhuma imagem anexada'}
+            <h2 style="color: #333; font-size: 24px; margin-bottom: 20px;">Registro de Anormalidade</h2>
+            <div style="background-color: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <p style="margin: 10px 0;"><strong>Data:</strong> ${formatarData(anomalyData.timestamp)}</p>
+                <p style="margin: 10px 0;"><strong>Local:</strong> ${anomalyData.location}</p>
+                <p style="margin: 10px 0;"><strong>Descrição:</strong> ${anomalyData.description}</p>
             </div>
+            ${anomalyData.image ? `
             <div style="margin: 20px 0;">
-                <h3>QR Code do Registro:</h3>
-                <img src="${qrCodeImage}" style="max-width: 200px; height: auto;">
+                <h3 style="color: #444; font-size: 18px;">Imagem da Anormalidade:</h3>
+                <img src="${anomalyData.image}" style="max-width: 100%; height: auto; margin: 10px 0; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
             </div>
-            <p style="margin-top: 20px; color: #666;">
-                Registrado por: ${userData.name}<br>
-                Telefone: ${userData.phone}
-            </p>
+            ` : ''}
+            <div style="margin: 20px 0; text-align: center;">
+                <h3 style="color: #444; font-size: 18px;">QR Code do Registro:</h3>
+                <img src="${qrCodeImage}" style="width: 200px; height: 200px; margin: 10px auto; display: block;">
+            </div>
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee; color: #666;">
+                <p style="margin: 5px 0;">Registrado por: ${userData.name}</p>
+                <p style="margin: 5px 0;">Telefone: ${userData.phone}</p>
+                <p style="margin: 5px 0;">Email: ${userData.email}</p>
+            </div>
         `;
 
         const emailParams = {
@@ -154,8 +169,8 @@ async function sendEmail(anomalyData, qrCodeImage) {
         };
 
         const response = await emailjs.send(
-            "YOUR_SERVICE_ID",
-            "YOUR_TEMPLATE_ID",
+            "service_2g8768o", // Service ID
+            "template_gvn13j7", // Template ID atualizado
             emailParams
         );
 
@@ -195,34 +210,38 @@ fileInput.addEventListener('change', (e) => {
 anomalyForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const description = document.getElementById('description').value;
-    const location = document.getElementById('location').value;
-    let imageData = null;
+    try {
+        const description = document.getElementById('description').value;
+        const location = document.getElementById('location').value;
+        let imageData = null;
 
-    // Pegar a imagem (seja da câmera ou do upload)
-    const previewImage = imagePreview.querySelector('img');
-    if (previewImage) {
-        imageData = previewImage.src;
-    }
-
-    const anomalyData = {
-        description,
-        location,
-        timestamp: new Date().toISOString(),
-        id: Math.random().toString(36).substr(2, 9),
-        image: imageData
-    };
-
-    generateQRCode(anomalyData);
-
-    // Espera um momento para o QR Code ser gerado
-    setTimeout(async () => {
-        const qrCodeCanvas = document.querySelector('#qrcode canvas');
-        if (qrCodeCanvas) {
-            const qrCodeImage = qrCodeCanvas.toDataURL('image/png');
-            await sendEmail(anomalyData, qrCodeImage);
+        // Pegar a imagem (seja da câmera ou do upload)
+        const previewImage = imagePreview.querySelector('img');
+        if (previewImage) {
+            imageData = previewImage.src;
         }
-    }, 500);
+
+        const anomalyData = {
+            description,
+            location,
+            timestamp: new Date().toISOString(),
+            id: Math.random().toString(36).substr(2, 9),
+            image: imageData
+        };
+
+        // Gerar QR Code e esperar pela URL da imagem
+        const qrCodeImage = await generateQRCode(anomalyData);
+        if (!qrCodeImage) {
+            throw new Error('Erro ao gerar QR Code');
+        }
+
+        // Enviar email com o QR Code
+        await sendEmail(anomalyData, qrCodeImage);
+
+    } catch (error) {
+        console.error('Erro no processo:', error);
+        alert('Ocorreu um erro ao processar o registro. Por favor, tente novamente.');
+    }
 });
 
 // Evento para download do QR Code
