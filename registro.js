@@ -9,7 +9,6 @@ const uploadButton = document.getElementById('uploadButton');
 const fileInput = document.getElementById('image');
 const video = document.getElementById('camera');
 const canvas = document.getElementById('canvas');
-let qrcode = null;
 let stream = null;
 
 // Função para iniciar a câmera
@@ -29,8 +28,10 @@ async function startCamera() {
         takePhotoButton.disabled = false;
         uploadButton.style.display = 'none';
         
+        // Esperar o vídeo carregar antes de habilitar o botão de tirar foto
         video.onloadedmetadata = () => {
             video.play();
+            takePhotoButton.disabled = false;
         };
     } catch (err) {
         console.error('Erro ao acessar a câmera:', err);
@@ -54,6 +55,10 @@ function stopCamera() {
 // Função para tirar foto
 function takePhoto() {
     try {
+        if (!stream) {
+            throw new Error('Câmera não está ativa');
+        }
+
         // Garantir que o canvas esteja visível
         canvas.style.display = 'block';
         
