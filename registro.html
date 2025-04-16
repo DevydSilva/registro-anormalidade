@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https://devydsilva.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https://devydsilva.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js;">
     <title>Registro de Anormalidade - Sistema de Registro de Anormalidades</title>
     <link rel="stylesheet" href="css/style.css">
     <!-- Font Awesome para ícones -->
@@ -80,6 +80,8 @@
             window.location.href = 'login.html';
         }
     </script>
+    <!-- Biblioteca QRCode.js -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
     <script src="registro.js"></script>
 </body>
 </html> 
