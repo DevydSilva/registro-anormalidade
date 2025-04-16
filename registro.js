@@ -206,7 +206,7 @@ async function sendEmail(anomalyData, qrCodeImage) {
 
         const response = await emailjs.send(
             "service_2g8768o",
-            "template_gvn13j7",
+            "template_q330hxu",
             emailParams
         );
 
