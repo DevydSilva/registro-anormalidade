@@ -2,51 +2,49 @@
    Initialization and Login Verification
    ========================================================================== */
 
-// Global DOM Elements
-const elements = {
-    video: null,
-    canvas: null,
-    startCameraButton: null,
-    takePhotoButton: null,
-    retakePhotoButton: null,
-    imagePreview: null,
-    stream: null
-};
+// Elementos globais
+let video = null;
+let canvas = null;
+let startCameraButton = null;
+let takePhotoButton = null;
+let retakePhotoButton = null;
+let imagePreview = null;
+let stream = null;
 
 // Função para mostrar erros da câmera
 function showCameraError(message) {
     alert(message);
-    if (elements.startCameraButton) elements.startCameraButton.style.display = 'block';
-    if (elements.takePhotoButton) elements.takePhotoButton.style.display = 'none';
-    if (elements.retakePhotoButton) elements.retakePhotoButton.style.display = 'none';
+    if (startCameraButton) startCameraButton.style.display = 'block';
+    if (takePhotoButton) takePhotoButton.style.display = 'none';
+    if (retakePhotoButton) retakePhotoButton.style.display = 'none';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize elements
-    elements.video = document.getElementById('video');
-    elements.canvas = document.getElementById('canvas');
-    elements.startCameraButton = document.getElementById('startCamera');
-    elements.takePhotoButton = document.querySelector('.camera-button:nth-child(2)');
-    elements.retakePhotoButton = document.querySelector('.camera-button:nth-child(3)');
-    elements.imagePreview = document.getElementById('imagePreview');
+    // Inicializa elementos
+    video = document.getElementById('video');
+    canvas = document.getElementById('canvas');
+    startCameraButton = document.getElementById('startCamera');
+    takePhotoButton = document.querySelector('.camera-button:nth-child(2)');
+    retakePhotoButton = document.querySelector('.camera-button:nth-child(3)');
+    imagePreview = document.getElementById('imagePreview');
 
     // Setup event listeners
-    if (elements.startCameraButton) {
-        elements.startCameraButton.addEventListener('click', startCamera);
+    if (startCameraButton) {
+        startCameraButton.addEventListener('click', startCamera);
     }
 
-    if (elements.takePhotoButton) {
-        elements.takePhotoButton.addEventListener('click', takePhoto);
+    if (takePhotoButton) {
+        takePhotoButton.addEventListener('click', takePhoto);
     }
 
-    if (elements.retakePhotoButton) {
-        elements.retakePhotoButton.addEventListener('click', retakePhoto);
+    if (retakePhotoButton) {
+        retakePhotoButton.addEventListener('click', retakePhoto);
     }
 
     // Add cleanup event
     window.addEventListener('beforeunload', stopCamera);
 
-    // Check login
+    // Verifica login
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData || !userData.email) {
         window.location.href = 'login.html';
@@ -57,102 +55,104 @@ document.addEventListener('DOMContentLoaded', function() {
 /**
  * Inicia a câmera
  */
-async function startCamera() {
+window.startCamera = async function() {
     try {
-        // Primeiro tenta acessar a câmera traseira
-        elements.stream = await navigator.mediaDevices.getUserMedia({
+        // Tenta acessar a câmera traseira
+        stream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: 'environment' }
         });
-        elements.video.srcObject = elements.stream;
-        elements.video.style.display = 'block';
+        video.srcObject = stream;
+        video.style.display = 'block';
         
-        // Esconde botão de abrir câmera e mostra botão de tirar foto
-        if (elements.startCameraButton) elements.startCameraButton.style.display = 'none';
-        if (elements.takePhotoButton) {
-            elements.takePhotoButton.style.display = 'block';
-            elements.takePhotoButton.disabled = false;
+        // Atualiza botões
+        if (startCameraButton) startCameraButton.style.display = 'none';
+        if (takePhotoButton) {
+            takePhotoButton.style.display = 'block';
+            takePhotoButton.disabled = false;
         }
-        if (elements.retakePhotoButton) elements.retakePhotoButton.style.display = 'none';
+        if (retakePhotoButton) retakePhotoButton.style.display = 'none';
         
-        if (elements.canvas) elements.canvas.style.display = 'none';
-        await elements.video.play();
+        if (canvas) canvas.style.display = 'none';
+        await video.play();
 
     } catch (error) {
         console.error('Erro ao acessar a câmera:', error);
         try {
-            // Se falhar, tenta a câmera frontal
-            elements.stream = await navigator.mediaDevices.getUserMedia({
+            // Tenta a câmera frontal
+            stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: 'user' }
             });
             
-            elements.video.srcObject = elements.stream;
-            elements.video.style.display = 'block';
-            await elements.video.play();
+            video.srcObject = stream;
+            video.style.display = 'block';
+            await video.play();
             
         } catch (fallbackError) {
             console.error('Erro ao tentar câmera frontal:', fallbackError);
             alert('Não foi possível acessar a câmera. Por favor:\n1. Verifique se você permitiu o acesso à câmera\n2. Se já negou a permissão, clique no ícone de cadeado/câmera na barra de endereços\n3. Limpe as permissões do site e tente novamente');
-            if (elements.startCameraButton) elements.startCameraButton.style.display = 'block';
-            if (elements.takePhotoButton) elements.takePhotoButton.style.display = 'none';
-            if (elements.retakePhotoButton) elements.retakePhotoButton.style.display = 'none';
+            
+            // Restaura botões
+            if (startCameraButton) startCameraButton.style.display = 'block';
+            if (takePhotoButton) takePhotoButton.style.display = 'none';
+            if (retakePhotoButton) retakePhotoButton.style.display = 'none';
         }
     }
-}
+};
 
 /**
  * Para a câmera
  */
-function stopCamera() {
-    if (elements.stream) {
-        elements.stream.getTracks().forEach(track => track.stop());
-        if (elements.video) {
-            elements.video.srcObject = null;
-            elements.video.style.display = 'none';
+window.stopCamera = function() {
+    if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+        if (video) {
+            video.srcObject = null;
+            video.style.display = 'none';
         }
-        elements.stream = null;
+        stream = null;
     }
-}
+};
 
 /**
  * Tira foto
  */
-function takePhoto() {
-    if (!elements.video || !elements.canvas) return;
+window.takePhoto = function() {
+    if (!video || !canvas) return;
     
     try {
-        elements.canvas.style.display = 'block';
-        elements.canvas.width = elements.video.videoWidth;
-        elements.canvas.height = elements.video.videoHeight;
+        canvas.style.display = 'block';
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
         
-        const context = elements.canvas.getContext('2d');
-        context.drawImage(elements.video, 0, 0, elements.canvas.width, elements.canvas.height);
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        const photoData = elements.canvas.toDataURL('image/jpeg', 0.8);
-        if (elements.imagePreview) {
-            elements.imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
+        const photoData = canvas.toDataURL('image/jpeg', 0.8);
+        if (imagePreview) {
+            imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
         }
         
-        stopCamera();
+        window.stopCamera();
         
-        if (elements.takePhotoButton) elements.takePhotoButton.style.display = 'none';
-        if (elements.retakePhotoButton) elements.retakePhotoButton.style.display = 'block';
-        elements.canvas.style.display = 'none';
+        if (takePhotoButton) takePhotoButton.style.display = 'none';
+        if (retakePhotoButton) retakePhotoButton.style.display = 'block';
+        canvas.style.display = 'none';
     } catch (error) {
         console.error('Erro ao tirar foto:', error);
         alert('Erro ao capturar a foto. Por favor, tente novamente.');
     }
-}
+};
 
 /**
  * Reinicia o processo de foto
  */
-function retakePhoto() {
-    if (elements.imagePreview) {
-        elements.imagePreview.innerHTML = '';
+window.retakePhoto = function() {
+    if (imagePreview) {
+        imagePreview.innerHTML = '';
     }
-    if (elements.retakePhotoButton) elements.retakePhotoButton.style.display = 'none';
-    if (elements.startCameraButton) elements.startCameraButton.style.display = 'block';
-}
+    if (retakePhotoButton) retakePhotoButton.style.display = 'none';
+    if (startCameraButton) startCameraButton.style.display = 'block';
+};
 
 /* ==========================================================================
    Funções do QR Code
@@ -529,14 +529,14 @@ function fazerLogout() {
 function handleFileUpload(e) {
     try {
         const file = e.target.files[0];
-        if (file && elements.imagePreview) {
+        if (file && imagePreview) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                elements.imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
                 window.stopCamera();
-                if (elements.video) elements.video.style.display = 'none';
-                if (elements.takePhotoButton) elements.takePhotoButton.style.display = 'none';
-                if (elements.retakePhotoButton) elements.retakePhotoButton.style.display = 'none';
+                if (video) video.style.display = 'none';
+                if (takePhotoButton) takePhotoButton.style.display = 'none';
+                if (retakePhotoButton) retakePhotoButton.style.display = 'none';
             };
             reader.readAsDataURL(file);
         }
