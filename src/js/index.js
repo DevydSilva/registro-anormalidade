@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
 /**
  * Inicia a câmera
  */
-window.startCamera = async function() {
+async function startCamera() {
     try {
         // Tenta acessar a câmera traseira
         stream = await navigator.mediaDevices.getUserMedia({
@@ -89,20 +89,15 @@ window.startCamera = async function() {
             
         } catch (fallbackError) {
             console.error('Erro ao tentar câmera frontal:', fallbackError);
-            alert('Não foi possível acessar a câmera. Por favor:\n1. Verifique se você permitiu o acesso à câmera\n2. Se já negou a permissão, clique no ícone de cadeado/câmera na barra de endereços\n3. Limpe as permissões do site e tente novamente');
-            
-            // Restaura botões
-            if (startCameraButton) startCameraButton.style.display = 'block';
-            if (takePhotoButton) takePhotoButton.style.display = 'none';
-            if (retakePhotoButton) retakePhotoButton.style.display = 'none';
+            showCameraError('Não foi possível acessar a câmera. Por favor:\n1. Verifique se você permitiu o acesso à câmera\n2. Se já negou a permissão, clique no ícone de cadeado/câmera na barra de endereços\n3. Limpe as permissões do site e tente novamente');
         }
     }
-};
+}
 
 /**
  * Para a câmera
  */
-window.stopCamera = function() {
+function stopCamera() {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
         if (video) {
@@ -111,12 +106,12 @@ window.stopCamera = function() {
         }
         stream = null;
     }
-};
+}
 
 /**
  * Tira foto
  */
-window.takePhoto = function() {
+function takePhoto() {
     if (!video || !canvas) return;
     
     try {
@@ -132,7 +127,7 @@ window.takePhoto = function() {
             imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
         }
         
-        window.stopCamera();
+        stopCamera();
         
         if (takePhotoButton) takePhotoButton.style.display = 'none';
         if (retakePhotoButton) retakePhotoButton.style.display = 'block';
@@ -141,18 +136,18 @@ window.takePhoto = function() {
         console.error('Erro ao tirar foto:', error);
         alert('Erro ao capturar a foto. Por favor, tente novamente.');
     }
-};
+}
 
 /**
  * Reinicia o processo de foto
  */
-window.retakePhoto = function() {
+function retakePhoto() {
     if (imagePreview) {
         imagePreview.innerHTML = '';
     }
     if (retakePhotoButton) retakePhotoButton.style.display = 'none';
     if (startCameraButton) startCameraButton.style.display = 'block';
-};
+}
 
 /* ==========================================================================
    Funções do QR Code
@@ -533,7 +528,7 @@ function handleFileUpload(e) {
             const reader = new FileReader();
             reader.onload = (e) => {
                 imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                window.stopCamera();
+                stopCamera();
                 if (video) video.style.display = 'none';
                 if (takePhotoButton) takePhotoButton.style.display = 'none';
                 if (retakePhotoButton) retakePhotoButton.style.display = 'none';
@@ -546,7 +541,9 @@ function handleFileUpload(e) {
     }
 }
 
-// Expõe funções necessárias globalmente
+// Exporta funções para o escopo global
 window.startCamera = startCamera;
+window.stopCamera = stopCamera;
 window.takePhoto = takePhoto;
-window.retakePhoto = retakePhoto; 
+window.retakePhoto = retakePhoto;
+window.showCameraError = showCameraError; 
