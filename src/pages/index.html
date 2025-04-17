@@ -4,7 +4,7 @@
     <!-- Meta tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://devydsilva.github.io https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://ssl.gstatic.com; img-src 'self' data: blob: https://devydsilva.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; media-src 'self' blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://devydsilva.github.io https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://ssl.gstatic.com; img-src 'self' data: blob: https://devydsilva.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; media-src 'self' blob: mediastream:;">
     <title>Registro de Anormalidade</title>
     <link rel="stylesheet" href="../css/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -51,8 +51,9 @@
                     <div class="form-group">
                         <label for="video">Foto:</label>
                         <div class="camera-container">
-                            <video id="video" autoplay playsinline style="display: none;"></video>
+                            <video id="video" autoplay playsinline muted style="display: none;"></video>
                             <canvas id="canvas" style="display: none;"></canvas>
+                            <div id="imagePreview"></div>
                             <div class="camera-controls">
                                 <button type="button" class="camera-button" id="startCamera" title="Abrir câmera">
                                     <i class="fas fa-camera"></i> Abrir Câmera
@@ -89,10 +90,10 @@
     </script>
     <!-- Biblioteca QRCode.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="../js/index.js"></script>
+    <script src="../js/index.js" defer></script>
     <script>
-        // Inicialização quando o DOM estiver carregado
-        document.addEventListener('DOMContentLoaded', function() {
+        // Aguarda todos os scripts carregarem antes de adicionar os event listeners
+        window.addEventListener('load', function() {
             // Função de logout
             const logoutButton = document.getElementById('logoutButton');
             if (logoutButton) {
@@ -118,13 +119,15 @@
             const retakePhotoButton = document.getElementById('retakePhoto');
 
             if (startCameraButton) {
-                startCameraButton.addEventListener('click', function() {
-                    if (typeof window.startCamera === 'function') {
-                        window.startCamera().catch(error => {
-                            console.error('Erro ao iniciar câmera:', error);
-                        });
-                    } else {
-                        console.error('Função startCamera não está disponível');
+                startCameraButton.addEventListener('click', async function() {
+                    try {
+                        if (typeof window.startCamera === 'function') {
+                            await window.startCamera();
+                        } else {
+                            console.error('Função startCamera não está disponível');
+                        }
+                    } catch (error) {
+                        console.error('Erro ao iniciar câmera:', error);
                     }
                 });
             }

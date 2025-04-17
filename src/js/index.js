@@ -62,29 +62,48 @@ async function startCamera() {
 
         // Configura o vídeo
         if (video) {
+            // Primeiro, limpa qualquer stream existente
+            video.srcObject = null;
+            
+            // Aguarda um frame para garantir que o vídeo está limpo
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Configura o novo stream
             video.srcObject = stream;
             video.style.display = 'block';
             
             // Espera o vídeo estar pronto
             await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    reject(new Error('Timeout ao carregar vídeo'));
+                }, 5000);
+
                 video.onloadedmetadata = () => {
+                    clearTimeout(timeout);
                     video.play()
-                        .then(resolve)
+                        .then(() => {
+                            // Atualiza botões
+                            if (startCameraButton) startCameraButton.style.display = 'none';
+                            if (takePhotoButton) {
+                                takePhotoButton.style.display = 'block';
+                                takePhotoButton.disabled = false;
+                            }
+                            if (retakePhotoButton) retakePhotoButton.style.display = 'none';
+                            resolve();
+                        })
                         .catch(error => {
+                            clearTimeout(timeout);
                             console.error('Erro ao iniciar vídeo:', error);
                             reject(error);
                         });
                 };
-                video.onerror = reject;
+                
+                video.onerror = (error) => {
+                    clearTimeout(timeout);
+                    console.error('Erro no elemento de vídeo:', error);
+                    reject(error);
+                };
             });
-
-            // Atualiza botões
-            if (startCameraButton) startCameraButton.style.display = 'none';
-            if (takePhotoButton) {
-                takePhotoButton.style.display = 'block';
-                takePhotoButton.disabled = false;
-            }
-            if (retakePhotoButton) retakePhotoButton.style.display = 'none';
         }
 
     } catch (error) {
