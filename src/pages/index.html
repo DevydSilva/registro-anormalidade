@@ -54,6 +54,7 @@
                             <video id="video" autoplay playsinline muted style="display: none;"></video>
                             <canvas id="canvas" style="display: none;"></canvas>
                             <div id="imagePreview"></div>
+                            <div id="qrcode" style="display: none;"></div>
                             <div class="camera-controls">
                                 <button type="button" class="camera-button" id="startCamera" title="Abrir câmera">
                                     <i class="fas fa-camera"></i> Abrir Câmera
@@ -100,16 +101,6 @@
                 logoutButton.addEventListener('click', function() {
                     localStorage.removeItem('userData');
                     window.location.href = 'login.html';
-                });
-            }
-
-            // Função para lidar com o envio do formulário
-            const form = document.getElementById('anormalidadeForm');
-            if (form) {
-                form.addEventListener('submit', function(event) {
-                    event.preventDefault();
-                    // Aqui você pode adicionar a lógica de envio do formulário
-                    return false;
                 });
             }
 

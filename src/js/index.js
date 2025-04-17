@@ -259,6 +259,12 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = 'login.html';
         return;
     }
+
+    // Adiciona o event listener do formulário
+    const form = document.getElementById('anormalidadeForm');
+    if (form) {
+        form.addEventListener('submit', processForm);
+    }
 });
 
 /* ==========================================================================
@@ -650,6 +656,62 @@ function handleFileUpload(e) {
     } catch (error) {
         console.error('Erro ao fazer upload da imagem:', error);
         alert('Erro ao fazer upload da imagem. Por favor, tente novamente.');
+    }
+}
+
+/**
+ * Processa o formulário e envia os dados
+ * @param {Event} event - Evento do formulário
+ */
+async function processForm(event) {
+    event.preventDefault();
+    
+    try {
+        // Obtém os dados do formulário
+        const data = document.getElementById('data').value;
+        const hora = document.getElementById('hora').value;
+        const local = document.getElementById('local').value;
+        const descricao = document.getElementById('descricao').value;
+        const imagePreview = document.getElementById('imagePreview');
+        
+        // Verifica se todos os campos obrigatórios foram preenchidos
+        if (!data || !hora || !local || !descricao) {
+            alert('Por favor, preencha todos os campos obrigatórios.');
+            return;
+        }
+        
+        // Obtém a imagem do preview
+        let imageData = null;
+        if (imagePreview && imagePreview.querySelector('img')) {
+            imageData = imagePreview.querySelector('img').src;
+        }
+        
+        // Cria o objeto com os dados da anomalia
+        const anomalyData = {
+            id: Date.now().toString(),
+            timestamp: new Date(`${data}T${hora}`).toISOString(),
+            location: local,
+            description: descricao,
+            image: imageData
+        };
+        
+        // Cria a imagem com as informações
+        const infoImage = await criarImagemInfo(anomalyData);
+        
+        // Envia o email
+        await enviarEmail(anomalyData, infoImage);
+        
+        // Limpa o formulário após o envio bem-sucedido
+        event.target.reset();
+        if (imagePreview) {
+            imagePreview.innerHTML = '';
+        }
+        
+        alert('Registro enviado com sucesso!');
+        
+    } catch (error) {
+        console.error('Erro ao processar formulário:', error);
+        alert(`Erro ao enviar registro: ${error.message}`);
     }
 }
 
