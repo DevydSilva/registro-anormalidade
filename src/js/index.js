@@ -20,7 +20,7 @@ function showCameraError(message) {
 }
 
 // Função para iniciar a câmera
-window.startCamera = async function() {
+async function startCamera() {
     try {
         // Verifica se o navegador suporta a API de mídia
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -81,10 +81,10 @@ window.startCamera = async function() {
             showCameraError('Não foi possível acessar a câmera. Por favor:\n1. Verifique se você permitiu o acesso à câmera\n2. Se já negou a permissão, clique no ícone de cadeado/câmera na barra de endereços\n3. Limpe as permissões do site e tente novamente');
         }
     }
-};
+}
 
 // Função para parar a câmera
-window.stopCamera = function() {
+function stopCamera() {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
         if (video) {
@@ -93,10 +93,10 @@ window.stopCamera = function() {
         }
         stream = null;
     }
-};
+}
 
 // Função para tirar foto
-window.takePhoto = function() {
+function takePhoto() {
     if (!video || !canvas) {
         video = document.getElementById('video');
         canvas = document.getElementById('canvas');
@@ -121,7 +121,7 @@ window.takePhoto = function() {
             imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
         }
         
-        window.stopCamera();
+        stopCamera();
         
         if (!takePhotoButton) {
             takePhotoButton = document.querySelector('.camera-button:nth-child(2)');
@@ -137,10 +137,10 @@ window.takePhoto = function() {
         console.error('Erro ao tirar foto:', error);
         alert('Erro ao capturar a foto. Por favor, tente novamente.');
     }
-};
+}
 
 // Função para refazer foto
-window.retakePhoto = function() {
+function retakePhoto() {
     if (!imagePreview) {
         imagePreview = document.getElementById('imagePreview');
     }
@@ -157,7 +157,7 @@ window.retakePhoto = function() {
     
     if (retakePhotoButton) retakePhotoButton.style.display = 'none';
     if (startCameraButton) startCameraButton.style.display = 'block';
-};
+}
 
 // Inicialização quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
@@ -586,4 +586,8 @@ function handleFileUpload(e) {
 }
 
 // Exporta funções para o escopo global
+window.startCamera = startCamera;
+window.stopCamera = stopCamera;
+window.takePhoto = takePhoto;
+window.retakePhoto = retakePhoto;
 window.showCameraError = showCameraError; 
