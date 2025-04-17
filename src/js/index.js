@@ -20,13 +20,13 @@ function showCameraError(message) {
 }
 
 // Função para inicializar o vídeo
-async function initializeVideo(stream) {
+function initializeVideo(stream) {
     return new Promise((resolve, reject) => {
         if (!video) {
             video = document.getElementById('video');
         }
 
-        // Limpa o vídeo existente
+        // Remove qualquer stream existente
         if (video.srcObject) {
             video.srcObject = null;
         }
@@ -36,9 +36,9 @@ async function initializeVideo(stream) {
         video.style.display = 'block';
 
         // Configura handlers de eventos
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-            playPromise
+        video.onloadedmetadata = () => {
+            console.log('Metadados do vídeo carregados');
+            video.play()
                 .then(() => {
                     console.log('Vídeo iniciado com sucesso');
                     resolve();
@@ -47,10 +47,36 @@ async function initializeVideo(stream) {
                     console.error('Erro ao iniciar vídeo:', error);
                     reject(error);
                 });
-        } else {
-            resolve();
-        }
+        };
+
+        video.onerror = (error) => {
+            console.error('Erro no elemento de vídeo:', error);
+            reject(error);
+        };
+
+        // Timeout para evitar que o código fique preso
+        setTimeout(() => {
+            if (video.readyState < 2) { // 2 = HAVE_CURRENT_DATA
+                reject(new Error('Timeout ao carregar vídeo'));
+            }
+        }, 5000);
     });
+}
+
+// Função para obter stream da câmera
+async function getCameraStream(facingMode) {
+    try {
+        return await navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: facingMode,
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }
+        });
+    } catch (error) {
+        console.error(`Erro ao acessar câmera ${facingMode}:`, error);
+        throw error;
+    }
 }
 
 // Função para iniciar a câmera
@@ -75,14 +101,7 @@ async function startCamera() {
 
         // Tenta acessar a câmera traseira primeiro
         try {
-            stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: 'environment',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                }
-            });
-            
+            stream = await getCameraStream('environment');
             await initializeVideo(stream);
             
             // Atualiza botões somente após o vídeo estar pronto
@@ -98,14 +117,7 @@ async function startCamera() {
             
             // Tenta a câmera frontal
             try {
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: {
-                        facingMode: 'user',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    }
-                });
-                
+                stream = await getCameraStream('user');
                 await initializeVideo(stream);
                 
                 // Atualiza botões somente após o vídeo estar pronto
