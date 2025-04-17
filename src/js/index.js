@@ -1,27 +1,51 @@
-// Verificar se o usuário está logado
+/* ==========================================================================
+   Inicialização e Verificação de Login
+   ========================================================================== */
+
+/**
+ * Verifica se o usuário está logado ao carregar a página
+ * Redireciona para a página de login se não estiver autenticado
+ */
 window.addEventListener('load', () => {
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData || !userData.email) {
         window.location.href = 'login.html';
         return;
     }
+    
+    // Inicializa a câmera automaticamente
+    startCamera();
 });
 
-// Elementos do DOM
-const anomalyForm = document.getElementById('anomalyForm');
+/* ==========================================================================
+   Elementos do DOM
+   ========================================================================== */
+
+/**
+ * Elementos do formulário e da interface
+ * Referências aos elementos HTML necessários para o funcionamento da página
+ */
+const anomalyForm = document.getElementById('anormalidadeForm');
 const imagePreview = document.getElementById('imagePreview');
 const downloadQRButton = document.getElementById('downloadQR');
 const startCameraButton = document.getElementById('startCamera');
-const takePhotoButton = document.getElementById('takePhoto');
-const retakePhotoButton = document.getElementById('retakePhoto');
+const takePhotoButton = document.querySelector('.camera-button');
+const retakePhotoButton = document.querySelector('.camera-button:nth-child(2)');
 const uploadButton = document.getElementById('uploadButton');
 const fileInput = document.getElementById('image');
-const video = document.getElementById('camera');
+const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const logoutButton = document.getElementById('logoutButton');
 let stream = null;
 
-// Função para verificar se o usuário está logado
+/* ==========================================================================
+   Funções de Autenticação
+   ========================================================================== */
+
+/**
+ * Verifica se o usuário está logado
+ * @returns {boolean} Retorna true se o usuário estiver logado, false caso contrário
+ */
 function checkLogin() {
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData || !userData.email) {
@@ -32,7 +56,15 @@ function checkLogin() {
     return true;
 }
 
-// Função para iniciar a câmera
+/* ==========================================================================
+   Funções da Câmera
+   ========================================================================== */
+
+/**
+ * Inicia a câmera do dispositivo
+ * @async
+ * @returns {Promise<void>}
+ */
 async function startCamera() {
     try {
         stream = await navigator.mediaDevices.getUserMedia({ 
@@ -49,7 +81,6 @@ async function startCamera() {
         takePhotoButton.disabled = false;
         uploadButton.style.display = 'none';
         
-        // Esperar o vídeo carregar antes de habilitar o botão de tirar foto
         video.onloadedmetadata = () => {
             video.play();
             takePhotoButton.disabled = false;
@@ -63,7 +94,9 @@ async function startCamera() {
     }
 }
 
-// Função para parar a câmera
+/**
+ * Para a câmera e limpa os recursos
+ */
 function stopCamera() {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
@@ -73,38 +106,30 @@ function stopCamera() {
     }
 }
 
-// Função para tirar foto
+/**
+ * Captura uma foto usando a câmera
+ */
 function takePhoto() {
     try {
         if (!stream) {
             throw new Error('Câmera não está ativa');
         }
 
-        // Garantir que o canvas esteja visível
         canvas.style.display = 'block';
-        
-        // Configurar o tamanho do canvas para corresponder ao vídeo
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         
-        // Desenhar o frame atual do vídeo no canvas
         const context = canvas.getContext('2d');
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        // Converter o canvas para uma imagem JPEG
         const photoData = canvas.toDataURL('image/jpeg', 0.8);
-        
-        // Exibir a imagem capturada
         imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
         
-        // Parar a câmera e atualizar a interface
         stopCamera();
         takePhotoButton.style.display = 'none';
         retakePhotoButton.style.display = 'block';
         startCameraButton.style.display = 'block';
         uploadButton.style.display = 'block';
-        
-        // Esconder o canvas após a captura
         canvas.style.display = 'none';
     } catch (error) {
         console.error('Erro ao tirar foto:', error);
@@ -112,7 +137,9 @@ function takePhoto() {
     }
 }
 
-// Função para tirar nova foto
+/**
+ * Reinicia o processo de captura de foto
+ */
 function retakePhoto() {
     try {
         imagePreview.innerHTML = '';
@@ -124,7 +151,15 @@ function retakePhoto() {
     }
 }
 
-// Função para gerar o QR Code e retornar a promessa com a URL da imagem
+/* ==========================================================================
+   Funções do QR Code
+   ========================================================================== */
+
+/**
+ * Gera um QR Code com os dados da anomalia
+ * @param {Object} data - Dados da anomalia
+ * @returns {Promise<string>} Promessa com a URL da imagem do QR Code
+ */
 function generateQRCode(data) {
     return new Promise((resolve, reject) => {
         try {
@@ -133,14 +168,10 @@ function generateQRCode(data) {
                 throw new Error('Elemento QR Code não encontrado no DOM');
             }
 
-            // Limpar o elemento QR Code
             qrcodeElement.innerHTML = '';
-
-            // Criar um texto simples com os dados essenciais
             const qrText = `ID: ${data.id}\nLocal: ${data.location}\nData: ${new Date(data.timestamp).toLocaleString('pt-BR')}`;
             console.log('Texto para QR Code:', qrText);
 
-            // Criar o QR Code usando a biblioteca qrcode
             QRCode.toCanvas(qrcodeElement, qrText, {
                 width: 200,
                 margin: 1,
@@ -165,7 +196,9 @@ function generateQRCode(data) {
     });
 }
 
-// Função para baixar o QR Code
+/**
+ * Baixa o QR Code gerado
+ */
 function downloadQRCode() {
     try {
         const canvas = document.querySelector('#qrcode canvas');
@@ -183,7 +216,15 @@ function downloadQRCode() {
     }
 }
 
-// Função para formatar a data
+/* ==========================================================================
+   Funções de Utilitários
+   ========================================================================== */
+
+/**
+ * Formata uma data para o padrão brasileiro
+ * @param {Date|string} data - Data a ser formatada
+ * @returns {string} Data formatada
+ */
 function formatarData(data) {
     try {
         return new Date(data).toLocaleString('pt-BR', {
@@ -199,7 +240,14 @@ function formatarData(data) {
     }
 }
 
-// Função para comprimir imagem
+/**
+ * Comprime uma imagem
+ * @param {string} imageData - Dados da imagem em base64
+ * @param {number} maxWidth - Largura máxima da imagem
+ * @param {number} maxHeight - Altura máxima da imagem
+ * @param {number} quality - Qualidade da compressão (0-1)
+ * @returns {Promise<string>} Promessa com os dados da imagem comprimida
+ */
 function compressImage(imageData, maxWidth = 800, maxHeight = 600, quality = 0.7) {
     return new Promise((resolve) => {
         const img = new Image();
@@ -230,72 +278,67 @@ function compressImage(imageData, maxWidth = 800, maxHeight = 600, quality = 0.7
     });
 }
 
-// Função para criar uma imagem com os dados do formulário
+/* ==========================================================================
+   Funções de Processamento de Imagem
+   ========================================================================== */
+
+/**
+ * Cria uma imagem com os dados do formulário
+ * @param {Object} data - Dados do formulário
+ * @returns {Promise<string>} Promessa com os dados da imagem gerada
+ */
 function createInfoImage(data) {
     return new Promise((resolve, reject) => {
         try {
-            // Criar um canvas para a imagem
             const canvas = document.createElement('canvas');
             canvas.width = 800;
             canvas.height = 600;
             const ctx = canvas.getContext('2d');
 
-            // Fundo branco
             ctx.fillStyle = '#ffffff';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Cabeçalho
             ctx.fillStyle = '#2c3e50';
             ctx.fillRect(0, 0, canvas.width, 80);
             
-            // Título
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 24px Arial';
             ctx.textAlign = 'center';
             ctx.fillText('Registro de Anormalidade', canvas.width / 2, 50);
 
-            // Data e hora
             ctx.fillStyle = '#34495e';
             ctx.font = '16px Arial';
             ctx.textAlign = 'right';
             const dataFormatada = new Date(data.timestamp).toLocaleString('pt-BR');
             ctx.fillText(`Registrado em: ${dataFormatada}`, canvas.width - 20, 120);
 
-            // ID do registro
             ctx.fillStyle = '#7f8c8d';
             ctx.font = '14px Arial';
             ctx.textAlign = 'left';
             ctx.fillText(`ID: ${data.id}`, 20, 120);
 
-            // Informações principais
             ctx.fillStyle = '#2c3e50';
             ctx.font = 'bold 18px Arial';
             ctx.textAlign = 'left';
             ctx.fillText('Local:', 20, 180);
             ctx.fillText('Descrição:', 20, 280);
 
-            // Valores
             ctx.fillStyle = '#34495e';
             ctx.font = '16px Arial';
             
-            // Local
             const localLines = wrapText(ctx, data.location, canvas.width - 40, 20);
             ctx.fillText(localLines, 20, 210);
 
-            // Descrição
             const descLines = wrapText(ctx, data.description, canvas.width - 40, 20);
             ctx.fillText(descLines, 20, 310);
 
-            // Se houver imagem, adicionar ao canvas
             if (data.image) {
                 const img = new Image();
                 img.onload = async () => {
                     try {
-                        // Comprimir a imagem antes de adicionar ao canvas
                         const compressedImage = await compressImage(data.image);
                         const compressedImg = new Image();
                         compressedImg.onload = () => {
-                            // Calcular dimensões mantendo a proporção
                             const maxWidth = canvas.width - 40;
                             const maxHeight = 200;
                             let width = compressedImg.width;
@@ -311,31 +354,26 @@ function createInfoImage(data) {
                                 height = maxHeight;
                             }
 
-                            // Centralizar a imagem
                             const x = (canvas.width - width) / 2;
                             const y = 400;
                             ctx.drawImage(compressedImg, x, y, width, height);
 
-                            // Converter para PNG e comprimir
                             const imageData = canvas.toDataURL('image/jpeg', 0.7);
                             resolve(imageData);
                         };
                         compressedImg.src = compressedImage;
                     } catch (error) {
                         console.error('Erro ao comprimir imagem:', error);
-                        // Se houver erro na compressão, continuar sem a imagem
                         const imageData = canvas.toDataURL('image/jpeg', 0.7);
                         resolve(imageData);
                     }
                 };
                 img.onerror = () => {
-                    // Se houver erro ao carregar a imagem, continuar sem ela
                     const imageData = canvas.toDataURL('image/jpeg', 0.7);
                     resolve(imageData);
                 };
                 img.src = data.image;
             } else {
-                // Se não houver imagem, converter direto para JPEG
                 const imageData = canvas.toDataURL('image/jpeg', 0.7);
                 resolve(imageData);
             }
@@ -346,43 +384,58 @@ function createInfoImage(data) {
     });
 }
 
-// Função auxiliar para quebrar texto em múltiplas linhas
+/**
+ * Quebra o texto em linhas para caber no canvas
+ * @param {CanvasRenderingContext2D} context - Contexto do canvas
+ * @param {string} text - Texto a ser quebrado
+ * @param {number} maxWidth - Largura máxima da linha
+ * @param {number} lineHeight - Altura da linha
+ * @returns {Array<string>} Array com as linhas do texto
+ */
 function wrapText(context, text, maxWidth, lineHeight) {
     const words = text.split(' ');
-    let lines = [];
+    const lines = [];
     let currentLine = words[0];
 
     for (let i = 1; i < words.length; i++) {
-        const word = words[i];
-        const width = context.measureText(currentLine + ' ' + word).width;
+        const width = context.measureText(currentLine + ' ' + words[i]).width;
         if (width < maxWidth) {
-            currentLine += ' ' + word;
+            currentLine += ' ' + words[i];
         } else {
             lines.push(currentLine);
-            currentLine = word;
+            currentLine = words[i];
         }
     }
     lines.push(currentLine);
-    return lines.join('\n');
+    return lines;
 }
 
-// Função para salvar imagem localmente
+/* ==========================================================================
+   Funções de Armazenamento e Envio
+   ========================================================================== */
+
+/**
+ * Salva a imagem localmente
+ * @param {string} imageData - Dados da imagem em base64
+ */
 function saveImageLocally(imageData) {
-    return new Promise((resolve, reject) => {
-        try {
-            // Criar um link para download
-            const link = document.createElement('a');
-            link.download = 'comprovante-anomalia.png';
-            link.href = imageData;
-            link.click();
-            resolve('Imagem salva localmente');
-        } catch (error) {
-            reject(error);
-        }
-    });
+    try {
+        const link = document.createElement('a');
+        link.download = 'anomalia-info.png';
+        link.href = imageData;
+        link.click();
+    } catch (error) {
+        console.error('Erro ao salvar imagem:', error);
+        alert('Erro ao salvar a imagem. Por favor, tente novamente.');
+    }
 }
 
-// Função para enviar email
+/**
+ * Envia um email com os dados da anomalia
+ * @param {Object} anomalyData - Dados da anomalia
+ * @param {string} infoImage - Dados da imagem em base64
+ * @returns {Promise<void>}
+ */
 async function sendEmail(anomalyData, infoImage) {
     try {
         console.log('Iniciando envio de email...');
@@ -394,7 +447,6 @@ async function sendEmail(anomalyData, infoImage) {
 
         console.log('Dados do usuário:', userData);
 
-        // Salvar a imagem localmente
         await saveImageLocally(infoImage);
 
         const emailParams = {
@@ -419,12 +471,10 @@ async function sendEmail(anomalyData, infoImage) {
             subject: emailParams.subject
         });
 
-        // Verificar se o EmailJS está inicializado
         if (typeof emailjs === 'undefined') {
             throw new Error('EmailJS não está inicializado corretamente. Por favor, recarregue a página.');
         }
 
-        // Verificar se o serviço e template existem
         if (!emailjs.send) {
             throw new Error('Função de envio do EmailJS não está disponível. Verifique a configuração.');
         }
@@ -454,11 +504,73 @@ async function sendEmail(anomalyData, infoImage) {
     }
 }
 
-// Event Listeners
-startCameraButton.addEventListener('click', startCamera);
-takePhotoButton.addEventListener('click', takePhoto);
-retakePhotoButton.addEventListener('click', retakePhoto);
-uploadButton.addEventListener('click', () => fileInput.click());
+/* ==========================================================================
+   Funções de Logout
+   ========================================================================== */
+
+/**
+ * Realiza o logout do usuário
+ */
+function logout() {
+    localStorage.removeItem('userData');
+    window.location.href = 'login.html';
+}
+
+/* ==========================================================================
+   Event Listeners
+   ========================================================================== */
+
+// Adiciona os event listeners necessários
+if (logoutButton) {
+    logoutButton.addEventListener('click', logout);
+}
+
+if (startCameraButton) {
+    startCameraButton.addEventListener('click', startCamera);
+}
+
+if (takePhotoButton) {
+    takePhotoButton.addEventListener('click', takePhoto);
+}
+
+if (retakePhotoButton) {
+    retakePhotoButton.addEventListener('click', retakePhoto);
+}
+
+if (downloadQRButton) {
+    downloadQRButton.addEventListener('click', downloadQRCode);
+}
+
+if (anomalyForm) {
+    anomalyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!checkLogin()) return;
+
+        try {
+            const formData = new FormData(anomalyForm);
+            const anomalyData = {
+                id: Math.random().toString(36).substr(2, 9),
+                location: formData.get('local'),
+                description: formData.get('descricao'),
+                timestamp: new Date().toISOString(),
+                image: imagePreview.querySelector('img')?.src || null
+            };
+
+            const qrCodeImage = await generateQRCode(anomalyData);
+            const infoImage = await createInfoImage(anomalyData);
+            
+            await sendEmail(anomalyData, infoImage);
+            saveImageLocally(infoImage);
+            
+            alert('Anomalia registrada com sucesso!');
+            anomalyForm.reset();
+            imagePreview.innerHTML = '';
+        } catch (error) {
+            console.error('Erro ao registrar anomalia:', error);
+            alert('Erro ao registrar a anomalia. Por favor, tente novamente.');
+        }
+    });
+}
 
 // Preview da imagem quando fizer upload
 fileInput.addEventListener('change', (e) => {
@@ -481,74 +593,6 @@ fileInput.addEventListener('change', (e) => {
         alert('Erro ao fazer upload da imagem. Por favor, tente novamente.');
     }
 });
-
-// Manipula o envio do formulário
-anomalyForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    
-    // Verificar se o usuário está logado
-    if (!checkLogin()) {
-        return;
-    }
-
-    try {
-        console.log('Iniciando processo de registro...');
-        
-        const description = document.getElementById('description').value;
-        const location = document.getElementById('location').value;
-        let imageData = null;
-
-        // Validar campos obrigatórios
-        if (!description || !location) {
-            throw new Error('Por favor, preencha todos os campos obrigatórios');
-        }
-
-        // Pegar a imagem (seja da câmera ou do upload)
-        const previewImage = imagePreview.querySelector('img');
-        if (previewImage) {
-            imageData = previewImage.src;
-        }
-
-        const anomalyData = {
-            description,
-            location,
-            timestamp: new Date().toISOString(),
-            id: Math.random().toString(36).substr(2, 9),
-            image: imageData
-        };
-
-        console.log('Criando imagem com informações...');
-        const infoImage = await createInfoImage(anomalyData);
-        
-        console.log('Enviando email...');
-        await sendEmail(anomalyData, infoImage);
-
-        // Limpar o formulário após envio bem-sucedido
-        anomalyForm.reset();
-        imagePreview.innerHTML = '';
-        stopCamera();
-        
-    } catch (error) {
-        console.error('Erro no processo de registro:', error);
-        alert(error.message || 'Ocorreu um erro no processo de registro. Por favor, tente novamente.');
-    }
-});
-
-// Evento para download do QR Code
-downloadQRButton.addEventListener('click', downloadQRCode);
-
-// Função para fazer logout
-function logout() {
-    // Limpar dados do usuário
-    localStorage.removeItem('userData');
-    // Redirecionar para a página de login
-    window.location.href = 'login.html';
-}
-
-// Adicionar evento de clique ao botão de sair
-if (logoutButton) {
-    logoutButton.addEventListener('click', logout);
-}
 
 // Limpar recursos ao sair da página
 window.addEventListener('beforeunload', stopCamera); 

@@ -1,3 +1,11 @@
+/* ==========================================================================
+   Estilos Base e Reset
+   ========================================================================== */
+
+/**
+ * Reset CSS e configurações base
+ * Define as propriedades padrão para todos os elementos
+ */
 * {
     margin: 0;
     padding: 0;
@@ -5,6 +13,14 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* ==========================================================================
+   Layout e Estrutura
+   ========================================================================== */
+
+/**
+ * Estilo do corpo da página
+ * Define o fundo gradiente e centraliza o conteúdo
+ */
 body {
     background: linear-gradient(135deg, #43cea2  0%, #185a9d 100%);
     min-height: 100vh;
@@ -13,12 +29,20 @@ body {
     align-items: center;
 }
 
+/**
+ * Container principal
+ * Define a largura máxima e padding do container
+ */
 .container {
     width: 100%;
     max-width: 500px;
     padding: 20px;
 }
 
+/**
+ * Container do formulário
+ * Define o estilo do container que envolve os formulários
+ */
 .form-container {
     background: white;
     padding: 30px;
@@ -26,16 +50,36 @@ body {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
+/* ==========================================================================
+   Tipografia
+   ========================================================================== */
+
+/**
+ * Títulos
+ * Define o estilo dos títulos h2
+ */
 h2 {
     color: #333;
     text-align: center;
     margin-bottom: 30px;
 }
 
+/* ==========================================================================
+   Componentes do Formulário
+   ========================================================================== */
+
+/**
+ * Grupo de campos do formulário
+ * Define o espaçamento entre os grupos de campos
+ */
 .form-group {
     margin-bottom: 20px;
 }
 
+/**
+ * Labels
+ * Define o estilo das labels dos campos
+ */
 label {
     display: block;
     margin-bottom: 5px;
@@ -43,6 +87,10 @@ label {
     font-weight: 500;
 }
 
+/**
+ * Campos de entrada
+ * Define o estilo dos campos de texto
+ */
 input {
     width: 100%;
     padding: 10px;
@@ -52,11 +100,23 @@ input {
     transition: border-color 0.3s ease;
 }
 
+/**
+ * Estados de foco dos campos
+ * Define o estilo quando os campos estão em foco
+ */
 input:focus {
     outline: none;
     border-color: #4a90e2;
 }
 
+/* ==========================================================================
+   Botões
+   ========================================================================== */
+
+/**
+ * Botões
+ * Define o estilo base dos botões
+ */
 button {
     width: 100%;
     padding: 12px;
@@ -69,10 +129,22 @@ button {
     transition: background 0.3s ease;
 }
 
+/**
+ * Estados de hover dos botões
+ * Define o estilo quando o mouse está sobre os botões
+ */
 button:hover {
     background: #357abd;
 }
 
+/* ==========================================================================
+   Links e Mensagens
+   ========================================================================== */
+
+/**
+ * Mensagem de registro
+ * Define o estilo da mensagem que indica a possibilidade de registro
+ */
 .register-message {
     margin-top: 20px;
     text-align: center;
@@ -81,26 +153,50 @@ button:hover {
     font-style: italic;
 }
 
+/**
+ * Container do link de registro
+ * Define o estilo do container que envolve o link de registro
+ */
 .register-link {
     margin-top: 10px;
     text-align: center;
 }
 
+/**
+ * Parágrafo dentro do link de registro
+ * Define o estilo do texto dentro do container do link de registro
+ */
 .register-link p {
     color: #666;
     font-size: 14px;
 }
 
+/**
+ * Link de registro
+ * Define o estilo do link que leva para a página de registro
+ */
 .register-link a {
     color: #4CAF50;
     text-decoration: none;
     font-weight: bold;
 }
 
+/**
+ * Estados de hover do link de registro
+ * Define o estilo quando o mouse está sobre o link de registro
+ */
 .register-link a:hover {
     text-decoration: underline;
 }
 
+/* ==========================================================================
+   Media Queries
+   ========================================================================== */
+
+/**
+ * Responsividade para telas menores
+ * Ajusta o layout para dispositivos móveis
+ */
 @media (max-width: 600px) {
     .container {
         padding: 10px;

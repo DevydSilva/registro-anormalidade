@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <!-- Meta tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://devydsilva.github.io https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://ssl.gstatic.com; img-src 'self' data: blob: https://devydsilva.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; media-src 'self' blob:;">
-    <title>Sistema de Registro de Anormalidades</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/registro.css">
-    <!-- Font Awesome para ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Registro de Anormalidade</title>
+    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Biblioteca EmailJS -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
@@ -23,69 +22,80 @@
     </script>
 </head>
 <body>
-    <div class="container" id="anomalyScreen">
-        <div class="form-container">
-            <div class="header-container">
-                <h2>Registro de Anormalidade</h2>
-                <button id="logoutButton" class="logout-button" title="Sair" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                </button>
+    <header class="header-section">
+        <div class="container">
+            <div class="header-logo">
+                <img src="../assets/senai-logo.svg" alt="Logo SENAI">
             </div>
-            <form id="anomalyForm">
-                <div class="form-group">
-                    <label for="description">Descrição da Anormalidade:</label>
-                    <textarea id="description" required></textarea>
+            <button class="logout-button" onclick="logout()" title="Sair do sistema">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>Registrar Nova Anormalidade</h2>
                 </div>
-                <div class="form-group">
-                    <label for="location">Onde Ocorreu:</label>
-                    <input type="text" id="location" required>
-                </div>
-                <div class="form-group">
-                    <label>Imagem:</label>
-                    <div class="camera-section">
-                        <video id="camera" autoplay playsinline></video>
-                        <canvas id="canvas"></canvas>
-                        <div class="camera-buttons">
-                            <button type="button" id="startCamera" class="camera-button">
-                                <i class="fas fa-camera"></i>
-                                Abrir Câmera
-                            </button>
-                            <button type="button" id="takePhoto" class="camera-button" style="display: none;" disabled>
-                                <i class="fas fa-circle"></i>
-                                Tirar Foto
-                            </button>
-                            <button type="button" id="retakePhoto" class="camera-button" style="display: none;">
-                                <i class="fas fa-redo"></i>
-                                Nova Foto
-                            </button>
+                <form id="anormalidadeForm" onsubmit="return handleSubmit(event)">
+                    <div class="form-group">
+                        <label for="data">Data:</label>
+                        <input type="date" id="data" required max="2024-12-31">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="hora">Hora:</label>
+                        <input type="time" id="hora" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="local">Local:</label>
+                        <input type="text" id="local" placeholder="Digite o local da ocorrência" required maxlength="100">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descricao">Descrição:</label>
+                        <textarea id="descricao" placeholder="Descreva a anormalidade" required maxlength="500"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="foto">Foto:</label>
+                        <div class="camera-container">
+                            <video id="video" autoplay playsinline></video>
+                            <canvas id="canvas" style="display: none;"></canvas>
+                            <div class="camera-controls">
+                                <button type="button" onclick="takePhoto()" class="camera-button" title="Tirar foto">
+                                    <i class="fas fa-camera"></i> Tirar Foto
+                                </button>
+                                <button type="button" onclick="retakePhoto()" class="camera-button" style="display: none;" title="Refazer foto">
+                                    <i class="fas fa-redo"></i> Refazer
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div id="imagePreview"></div>
-                    <input type="file" id="image" accept="image/*" style="display: none;">
-                    <button type="button" id="uploadButton" class="secondary-button">
-                        <i class="fas fa-upload"></i>
-                        Fazer Upload de Imagem
+                    
+                    <button type="submit" class="submit-button" title="Salvar registro">
+                        <i class="fas fa-save"></i> Salvar Registro
                     </button>
-                </div>
-                <div class="form-group">
-                    <div id="qrcode"></div>
-                    <button type="button" id="downloadQR" class="secondary-button" style="display: none;">
-                        <i class="fas fa-download"></i>
-                        Baixar QR Code
-                    </button>
-                </div>
-                <button type="submit">
-                    <i class="fas fa-paper-plane"></i>
-                    Enviar
-                </button>
-            </form>
+                </form>
+            </div>
         </div>
-    </div>
+    </main>
+
     <script>
         // Função de logout global
         function logout() {
             localStorage.removeItem('userData');
             window.location.href = 'login.html';
+        }
+
+        // Função para lidar com o envio do formulário
+        function handleSubmit(event) {
+            event.preventDefault();
+            // Aqui você pode adicionar a lógica de envio do formulário
+            return false;
         }
     </script>
     <!-- Biblioteca QRCode.js -->

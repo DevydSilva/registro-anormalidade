@@ -1,3 +1,11 @@
+/* ==========================================================================
+   Estilos Base e Reset
+   ========================================================================== */
+
+/**
+ * Reset CSS e configurações base
+ * Define as propriedades padrão para todos os elementos
+ */
 * {
     margin: 0;
     padding: 0;
@@ -5,6 +13,14 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* ==========================================================================
+   Layout e Estrutura
+   ========================================================================== */
+
+/**
+ * Estilo do corpo da página
+ * Define o fundo gradiente e centraliza o conteúdo
+ */
 body {
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
     min-height: 100vh;
@@ -13,12 +29,20 @@ body {
     align-items: center;
 }
 
+/**
+ * Container principal
+ * Define a largura máxima e padding do container
+ */
 .container {
     width: 100%;
     max-width: 500px;
     padding: 20px;
 }
 
+/**
+ * Container do formulário
+ * Define o estilo do container que envolve os formulários
+ */
 .form-container {
     background: white;
     padding: 30px;
@@ -26,16 +50,36 @@ body {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
 
+/* ==========================================================================
+   Tipografia
+   ========================================================================== */
+
+/**
+ * Títulos
+ * Define o estilo dos títulos h2
+ */
 h2 {
     color: #333;
     text-align: center;
     margin-bottom: 30px;
 }
 
+/* ==========================================================================
+   Componentes do Formulário
+   ========================================================================== */
+
+/**
+ * Grupo de campos do formulário
+ * Define o espaçamento entre os grupos de campos
+ */
 .form-group {
     margin-bottom: 20px;
 }
 
+/**
+ * Labels
+ * Define o estilo das labels dos campos
+ */
 label {
     display: block;
     margin-bottom: 5px;
@@ -43,6 +87,10 @@ label {
     font-weight: 500;
 }
 
+/**
+ * Campos de entrada
+ * Define o estilo dos campos de texto e textarea
+ */
 input, textarea {
     width: 100%;
     padding: 10px;
@@ -52,16 +100,32 @@ input, textarea {
     transition: border-color 0.3s ease;
 }
 
+/**
+ * Estados de foco dos campos
+ * Define o estilo quando os campos estão em foco
+ */
 input:focus, textarea:focus {
     outline: none;
     border-color: #4a90e2;
 }
 
+/**
+ * Campos de texto longo
+ * Define o estilo específico para textareas
+ */
 textarea {
     min-height: 100px;
     resize: vertical;
 }
 
+/* ==========================================================================
+   Botões
+   ========================================================================== */
+
+/**
+ * Botões
+ * Define o estilo base dos botões
+ */
 button {
     width: 100%;
     padding: 12px;
@@ -74,14 +138,34 @@ button {
     transition: background 0.3s ease;
 }
 
+/**
+ * Estados de hover dos botões
+ * Define o estilo quando o mouse está sobre os botões
+ */
 button:hover {
     background: #357abd;
 }
 
+/* ==========================================================================
+   Utilitários
+   ========================================================================== */
+
+/**
+ * Classe para elementos ocultos
+ * Define o estilo para elementos que devem estar ocultos
+ */
 .hidden {
     display: none;
 }
 
+/* ==========================================================================
+   Preview de Imagem
+   ========================================================================== */
+
+/**
+ * Container do preview de imagem
+ * Define o estilo do container que mostra a prévia da imagem
+ */
 #imagePreview {
     margin-top: 10px;
     max-width: 100%;
@@ -94,12 +178,24 @@ button:hover {
     overflow: hidden;
 }
 
+/**
+ * Imagem dentro do preview
+ * Define o estilo da imagem dentro do container de preview
+ */
 #imagePreview img {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
 }
 
+/* ==========================================================================
+   Media Queries
+   ========================================================================== */
+
+/**
+ * Responsividade para telas menores
+ * Ajusta o layout para dispositivos móveis
+ */
 @media (max-width: 600px) {
     .container {
         padding: 10px;
