@@ -73,41 +73,29 @@ function initializeVideo(stream) {
         try {
             video.srcObject = stream;
             video.style.display = 'block';
+            video.autoplay = true;
+            video.playsinline = true;
 
-            let attempts = 0;
-            const maxAttempts = 3;
-            const attemptPlay = () => {
-                attempts++;
-                console.log(`Tentativa ${attempts} de iniciar o vídeo`);
-
+            // Aguarda os metadados serem carregados
+            video.onloadedmetadata = () => {
+                console.log('Metadados do vídeo carregados');
                 video.play()
                     .then(() => {
                         console.log('Vídeo iniciado com sucesso');
                         resolve();
                     })
                     .catch(error => {
-                        console.error(`Erro na tentativa ${attempts}:`, error);
-                        if (attempts < maxAttempts) {
-                            // Espera um pouco antes de tentar novamente
-                            setTimeout(attemptPlay, 1000);
-                        } else {
-                            reject(new Error('Não foi possível iniciar o vídeo após várias tentativas'));
-                        }
+                        console.error('Erro ao iniciar vídeo:', error);
+                        reject(error);
                     });
-            };
-
-            // Aguarda os metadados serem carregados
-            video.onloadedmetadata = () => {
-                console.log('Metadados do vídeo carregados');
-                attemptPlay();
             };
 
             // Timeout para evitar que o código fique preso
             setTimeout(() => {
                 if (video.readyState < 2) {
-                    reject(new Error('Timeout ao carregar vídeo'));
+                    reject(new Error('A câmera demorou muito para responder'));
                 }
-            }, 20000); // 20 segundos
+            }, 10000);
 
         } catch (error) {
             console.error('Erro ao configurar stream:', error);
