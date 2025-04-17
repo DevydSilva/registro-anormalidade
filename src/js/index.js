@@ -20,83 +20,89 @@ function showCameraError(message) {
 }
 
 // Função para iniciar a câmera
-function startCamera() {
-    return new Promise(async (resolve, reject) => {
-        try {
-            // Verifica se o navegador suporta a API de mídia
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                throw new Error('Seu navegador não suporta acesso à câmera');
-            }
+async function startCamera() {
+    try {
+        // Verifica se o navegador suporta a API de mídia
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            throw new Error('Seu navegador não suporta acesso à câmera');
+        }
 
-            // Tenta acessar a câmera traseira
+        // Inicializa elementos se necessário
+        if (!video) {
+            video = document.getElementById('video');
+        }
+        if (!startCameraButton) {
+            startCameraButton = document.getElementById('startCamera');
+        }
+        if (!takePhotoButton) {
+            takePhotoButton = document.getElementById('takePhoto');
+        }
+        if (!retakePhotoButton) {
+            retakePhotoButton = document.getElementById('retakePhoto');
+        }
+
+        // Para qualquer stream existente
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+
+        // Tenta acessar a câmera traseira
+        try {
             stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: 'environment' }
             });
-            
-            if (!video) {
-                video = document.getElementById('video');
-            }
-            
+        } catch (error) {
+            console.error('Erro ao acessar câmera traseira:', error);
+            // Tenta a câmera frontal
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user' }
+            });
+        }
+
+        // Configura o vídeo
+        if (video) {
             video.srcObject = stream;
             video.style.display = 'block';
             
+            // Espera o vídeo estar pronto
+            await new Promise((resolve, reject) => {
+                video.onloadedmetadata = () => {
+                    video.play()
+                        .then(resolve)
+                        .catch(error => {
+                            console.error('Erro ao iniciar vídeo:', error);
+                            reject(error);
+                        });
+                };
+                video.onerror = reject;
+            });
+
             // Atualiza botões
-            if (!startCameraButton) {
-                startCameraButton = document.getElementById('startCamera');
-            }
-            if (!takePhotoButton) {
-                takePhotoButton = document.querySelector('.camera-button:nth-child(2)');
-            }
-            if (!retakePhotoButton) {
-                retakePhotoButton = document.querySelector('.camera-button:nth-child(3)');
-            }
-            
             if (startCameraButton) startCameraButton.style.display = 'none';
             if (takePhotoButton) {
                 takePhotoButton.style.display = 'block';
                 takePhotoButton.disabled = false;
             }
             if (retakePhotoButton) retakePhotoButton.style.display = 'none';
-            
-            if (!canvas) {
-                canvas = document.getElementById('canvas');
-            }
-            if (canvas) canvas.style.display = 'none';
-            
-            await video.play();
-            resolve();
-
-        } catch (error) {
-            console.error('Erro ao acessar a câmera:', error);
-            try {
-                // Tenta a câmera frontal
-                stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: 'user' }
-                });
-                
-                video.srcObject = stream;
-                video.style.display = 'block';
-                await video.play();
-                resolve();
-                
-            } catch (fallbackError) {
-                console.error('Erro ao tentar câmera frontal:', fallbackError);
-                showCameraError('Não foi possível acessar a câmera. Por favor:\n1. Verifique se você permitiu o acesso à câmera\n2. Se já negou a permissão, clique no ícone de cadeado/câmera na barra de endereços\n3. Limpe as permissões do site e tente novamente');
-                reject(fallbackError);
-            }
         }
-    });
+
+    } catch (error) {
+        console.error('Erro ao acessar a câmera:', error);
+        showCameraError('Não foi possível acessar a câmera. Por favor:\n1. Verifique se você permitiu o acesso à câmera\n2. Se já negou a permissão, clique no ícone de cadeado/câmera na barra de endereços\n3. Limpe as permissões do site e tente novamente');
+        throw error;
+    }
 }
 
 // Função para parar a câmera
 function stopCamera() {
     if (stream) {
         stream.getTracks().forEach(track => track.stop());
-        if (video) {
-            video.srcObject = null;
-            video.style.display = 'none';
-        }
         stream = null;
+    }
+    if (video) {
+        video.srcObject = null;
+        video.style.display = 'none';
     }
 }
 
@@ -129,10 +135,10 @@ function takePhoto() {
         stopCamera();
         
         if (!takePhotoButton) {
-            takePhotoButton = document.querySelector('.camera-button:nth-child(2)');
+            takePhotoButton = document.getElementById('takePhoto');
         }
         if (!retakePhotoButton) {
-            retakePhotoButton = document.querySelector('.camera-button:nth-child(3)');
+            retakePhotoButton = document.getElementById('retakePhoto');
         }
         
         if (takePhotoButton) takePhotoButton.style.display = 'none';
@@ -154,7 +160,7 @@ function retakePhoto() {
     }
     
     if (!retakePhotoButton) {
-        retakePhotoButton = document.querySelector('.camera-button:nth-child(3)');
+        retakePhotoButton = document.getElementById('retakePhoto');
     }
     if (!startCameraButton) {
         startCameraButton = document.getElementById('startCamera');
@@ -170,13 +176,17 @@ document.addEventListener('DOMContentLoaded', function() {
     video = document.getElementById('video');
     canvas = document.getElementById('canvas');
     startCameraButton = document.getElementById('startCamera');
-    takePhotoButton = document.querySelector('.camera-button:nth-child(2)');
-    retakePhotoButton = document.querySelector('.camera-button:nth-child(3)');
+    takePhotoButton = document.getElementById('takePhoto');
+    retakePhotoButton = document.getElementById('retakePhoto');
     imagePreview = document.getElementById('imagePreview');
 
     // Setup event listeners
     if (startCameraButton) {
-        startCameraButton.addEventListener('click', startCamera);
+        startCameraButton.addEventListener('click', function() {
+            startCamera().catch(error => {
+                console.error('Erro ao iniciar câmera:', error);
+            });
+        });
     }
 
     if (takePhotoButton) {
