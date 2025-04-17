@@ -19,6 +19,40 @@ function showCameraError(message) {
     if (retakePhotoButton) retakePhotoButton.style.display = 'none';
 }
 
+// Função para inicializar o vídeo
+async function initializeVideo(stream) {
+    return new Promise((resolve, reject) => {
+        if (!video) {
+            video = document.getElementById('video');
+        }
+
+        // Limpa o vídeo existente
+        if (video.srcObject) {
+            video.srcObject = null;
+        }
+
+        // Configura o novo stream
+        video.srcObject = stream;
+        video.style.display = 'block';
+
+        // Configura handlers de eventos
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    console.log('Vídeo iniciado com sucesso');
+                    resolve();
+                })
+                .catch(error => {
+                    console.error('Erro ao iniciar vídeo:', error);
+                    reject(error);
+                });
+        } else {
+            resolve();
+        }
+    });
+}
+
 // Função para iniciar a câmera
 async function startCamera() {
     try {
@@ -27,19 +61,11 @@ async function startCamera() {
             throw new Error('Seu navegador não suporta acesso à câmera');
         }
 
-        // Inicializa elementos se necessário
-        if (!video) {
-            video = document.getElementById('video');
-        }
-        if (!startCameraButton) {
-            startCameraButton = document.getElementById('startCamera');
-        }
-        if (!takePhotoButton) {
-            takePhotoButton = document.getElementById('takePhoto');
-        }
-        if (!retakePhotoButton) {
-            retakePhotoButton = document.getElementById('retakePhoto');
-        }
+        // Inicializa elementos
+        if (!video) video = document.getElementById('video');
+        if (!startCameraButton) startCameraButton = document.getElementById('startCamera');
+        if (!takePhotoButton) takePhotoButton = document.getElementById('takePhoto');
+        if (!retakePhotoButton) retakePhotoButton = document.getElementById('retakePhoto');
 
         // Para qualquer stream existente
         if (stream) {
@@ -47,63 +73,53 @@ async function startCamera() {
             stream = null;
         }
 
-        // Tenta acessar a câmera traseira
+        // Tenta acessar a câmera traseira primeiro
         try {
             stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' }
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
             });
+            
+            await initializeVideo(stream);
+            
+            // Atualiza botões somente após o vídeo estar pronto
+            if (startCameraButton) startCameraButton.style.display = 'none';
+            if (takePhotoButton) {
+                takePhotoButton.style.display = 'block';
+                takePhotoButton.disabled = false;
+            }
+            if (retakePhotoButton) retakePhotoButton.style.display = 'none';
+            
         } catch (error) {
             console.error('Erro ao acessar câmera traseira:', error);
+            
             // Tenta a câmera frontal
-            stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'user' }
-            });
-        }
-
-        // Configura o vídeo
-        if (video) {
-            // Primeiro, limpa qualquer stream existente
-            video.srcObject = null;
-            
-            // Aguarda um frame para garantir que o vídeo está limpo
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-            // Configura o novo stream
-            video.srcObject = stream;
-            video.style.display = 'block';
-            
-            // Espera o vídeo estar pronto
-            await new Promise((resolve, reject) => {
-                const timeout = setTimeout(() => {
-                    reject(new Error('Timeout ao carregar vídeo'));
-                }, 5000);
-
-                video.onloadedmetadata = () => {
-                    clearTimeout(timeout);
-                    video.play()
-                        .then(() => {
-                            // Atualiza botões
-                            if (startCameraButton) startCameraButton.style.display = 'none';
-                            if (takePhotoButton) {
-                                takePhotoButton.style.display = 'block';
-                                takePhotoButton.disabled = false;
-                            }
-                            if (retakePhotoButton) retakePhotoButton.style.display = 'none';
-                            resolve();
-                        })
-                        .catch(error => {
-                            clearTimeout(timeout);
-                            console.error('Erro ao iniciar vídeo:', error);
-                            reject(error);
-                        });
-                };
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'user',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
                 
-                video.onerror = (error) => {
-                    clearTimeout(timeout);
-                    console.error('Erro no elemento de vídeo:', error);
-                    reject(error);
-                };
-            });
+                await initializeVideo(stream);
+                
+                // Atualiza botões somente após o vídeo estar pronto
+                if (startCameraButton) startCameraButton.style.display = 'none';
+                if (takePhotoButton) {
+                    takePhotoButton.style.display = 'block';
+                    takePhotoButton.disabled = false;
+                }
+                if (retakePhotoButton) retakePhotoButton.style.display = 'none';
+                
+            } catch (frontError) {
+                console.error('Erro ao tentar câmera frontal:', frontError);
+                throw frontError;
+            }
         }
 
     } catch (error) {
@@ -115,13 +131,19 @@ async function startCamera() {
 
 // Função para parar a câmera
 function stopCamera() {
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
-        stream = null;
-    }
-    if (video) {
-        video.srcObject = null;
-        video.style.display = 'none';
+    try {
+        if (stream) {
+            stream.getTracks().forEach(track => {
+                track.stop();
+            });
+            stream = null;
+        }
+        if (video) {
+            video.srcObject = null;
+            video.style.display = 'none';
+        }
+    } catch (error) {
+        console.error('Erro ao parar câmera:', error);
     }
 }
 
