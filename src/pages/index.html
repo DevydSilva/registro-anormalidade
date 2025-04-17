@@ -20,6 +20,9 @@
             }
         })();
     </script>
+    <!-- Biblioteca QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="../js/index.js"></script>
 </head>
 <body>
     <header class="header-section">
@@ -66,13 +69,13 @@
                             <video id="video" autoplay playsinline style="display: none;"></video>
                             <canvas id="canvas" style="display: none;"></canvas>
                             <div class="camera-controls">
-                                <button type="button" onclick="startCamera()" class="camera-button" id="startCamera" title="Abrir câmera">
+                                <button type="button" class="camera-button" id="startCamera" title="Abrir câmera">
                                     <i class="fas fa-camera"></i> Abrir Câmera
                                 </button>
-                                <button type="button" onclick="takePhoto()" class="camera-button" style="display: none;" title="Tirar foto">
+                                <button type="button" class="camera-button" style="display: none;" title="Tirar foto">
                                     <i class="fas fa-camera"></i> Tirar Foto
                                 </button>
-                                <button type="button" onclick="retakePhoto()" class="camera-button" style="display: none;" title="Refazer foto">
+                                <button type="button" class="camera-button" style="display: none;" title="Refazer foto">
                                     <i class="fas fa-redo"></i> Refazer
                                 </button>
                             </div>
@@ -100,9 +103,29 @@
             // Aqui você pode adicionar a lógica de envio do formulário
             return false;
         }
+
+        // Inicializa os event listeners quando o DOM estiver carregado
+        document.addEventListener('DOMContentLoaded', function() {
+            const startCameraButton = document.getElementById('startCamera');
+            const takePhotoButton = document.querySelector('.camera-button:nth-child(2)');
+            const retakePhotoButton = document.querySelector('.camera-button:nth-child(3)');
+
+            if (startCameraButton) {
+                startCameraButton.addEventListener('click', function() {
+                    window.startCamera().catch(error => {
+                        console.error('Erro ao iniciar câmera:', error);
+                    });
+                });
+            }
+
+            if (takePhotoButton) {
+                takePhotoButton.addEventListener('click', window.takePhoto);
+            }
+
+            if (retakePhotoButton) {
+                retakePhotoButton.addEventListener('click', window.retakePhoto);
+            }
+        });
     </script>
-    <!-- Biblioteca QRCode.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="../js/index.js"></script>
 </body>
 </html> 
