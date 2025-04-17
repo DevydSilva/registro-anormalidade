@@ -61,7 +61,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="video">Foto:</label>
+                        <label for="photoInput">Foto:</label>
+                        <input type="hidden" id="photoInput" name="photo">
                         <div class="camera-container">
                             <video id="video" autoplay playsinline></video>
                             <canvas id="canvas" style="display: none;"></canvas>
@@ -99,7 +100,7 @@
         }
     </script>
     <!-- Biblioteca QRCode.js -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="../js/index.js"></script>
 </body>
 </html> 
