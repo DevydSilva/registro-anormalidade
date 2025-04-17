@@ -42,59 +42,75 @@ function initializeVideo(stream) {
             video.srcObject = stream;
             video.style.display = 'block';
 
-            // Aguarda os metadados serem carregados antes de tentar reproduzir
-            video.onloadedmetadata = () => {
-                console.log('Metadados do vídeo carregados');
-                
-                // Usa setTimeout para garantir que o navegador tenha tempo de processar os metadados
-                setTimeout(() => {
-                    video.play()
-                        .then(() => {
-                            console.log('Vídeo iniciado com sucesso');
-                            resolve();
-                        })
-                        .catch(error => {
-                            console.error('Erro ao iniciar vídeo:', error);
-                            // Tenta novamente uma vez se falhar
+            // Verifica o estado do vídeo periodicamente
+            const checkVideoState = setInterval(() => {
+                console.log('Estado do vídeo:', video.readyState);
+                if (video.readyState >= 2) { // HAVE_CURRENT_DATA
+                    clearInterval(checkVideoState);
+                    startVideoPlayback();
+                }
+            }, 100);
+
+            // Função para iniciar a reprodução
+            function startVideoPlayback() {
+                video.play()
+                    .then(() => {
+                        console.log('Vídeo iniciado com sucesso');
+                        clearInterval(checkVideoState);
+                        resolve();
+                    })
+                    .catch(error => {
+                        console.error('Erro ao iniciar vídeo:', error);
+                        // Tenta novamente uma vez se falhar
+                        setTimeout(() => {
                             video.play()
                                 .then(() => {
                                     console.log('Vídeo iniciado com sucesso na segunda tentativa');
+                                    clearInterval(checkVideoState);
                                     resolve();
                                 })
                                 .catch(retryError => {
                                     console.error('Erro na segunda tentativa:', retryError);
+                                    clearInterval(checkVideoState);
                                     reject(retryError);
                                 });
-                        });
-                }, 500); // Aumentado para 500ms
-            };
+                        }, 1000);
+                    });
+            }
 
-            video.onerror = (error) => {
-                console.error('Erro no elemento de vídeo:', error);
-                reject(error);
-            };
-
-            // Timeout para evitar que o código fique preso
+            // Timeout principal
             const timeoutId = setTimeout(() => {
-                if (video.readyState < 2) { // 2 = HAVE_CURRENT_DATA
-                    console.error('Timeout ao carregar vídeo - Estado:', video.readyState);
-                    // Tenta uma última vez antes de rejeitar
+                console.error('Timeout ao carregar vídeo - Estado:', video.readyState);
+                clearInterval(checkVideoState);
+                
+                // Tenta uma última vez antes de rejeitar
+                if (video.readyState >= 2) {
                     video.play()
                         .then(() => {
                             console.log('Vídeo iniciado com sucesso após timeout');
-                            clearTimeout(timeoutId);
                             resolve();
                         })
                         .catch(finalError => {
                             console.error('Erro na tentativa final:', finalError);
                             reject(new Error('Não foi possível iniciar a câmera. Por favor, tente novamente.'));
                         });
+                } else {
+                    reject(new Error('A câmera demorou muito para responder. Por favor, tente novamente.'));
                 }
-            }, 15000); // Aumentado para 15 segundos
+            }, 20000); // Aumentado para 20 segundos
 
             // Limpa o timeout se o vídeo carregar com sucesso
             video.oncanplay = () => {
+                console.log('Vídeo pronto para reprodução');
                 clearTimeout(timeoutId);
+                clearInterval(checkVideoState);
+            };
+
+            video.onerror = (error) => {
+                console.error('Erro no elemento de vídeo:', error);
+                clearTimeout(timeoutId);
+                clearInterval(checkVideoState);
+                reject(error);
             };
 
         } catch (error) {
