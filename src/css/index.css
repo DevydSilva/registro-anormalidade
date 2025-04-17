@@ -22,9 +22,9 @@ body {
 
 /* Header Azul */
 .header-section {
-    background: #003399;
+    background: #00247D;
     padding: 1.5rem 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
     z-index: 1;
 }
@@ -45,15 +45,18 @@ body {
 }
 
 .header-logo img {
-    height: 80px;
+    height: 60px;
     width: auto;
+    object-fit: contain;
+    display: block;
 }
 
 .header-logo h1 {
     color: white;
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 600;
     margin: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Conteúdo Principal */
