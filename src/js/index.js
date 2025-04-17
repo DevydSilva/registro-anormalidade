@@ -1,211 +1,125 @@
 /* ==========================================================================
-   Inicialização e Verificação de Login
+   Initialization and Login Verification
    ========================================================================== */
 
-// Elementos do DOM
-let video = null;
-let canvas = null;
-let takePhotoButton = null;
-let retakePhotoButton = null;
-let startCameraButton = null;
-let imagePreview = null;
-let uploadButton = null;
-let fileInput = null;
-let logoutButton = null;
-let anomalyForm = null;
-let downloadQRButton = null;
-let stream = null;
+// Global DOM Elements
+const elements = {
+    video: null,
+    canvas: null,
+    takePhotoButton: null,
+    retakePhotoButton: null,
+    startCameraButton: null,
+    imagePreview: null,
+    uploadButton: null,
+    fileInput: null,
+    logoutButton: null,
+    anomalyForm: null,
+    downloadQRButton: null,
+    stream: null
+};
 
-/**
- * Inicializa os elementos do DOM
- */
-function initializeElements() {
-    video = document.getElementById('video');
-    canvas = document.getElementById('canvas');
-    takePhotoButton = document.querySelector('.camera-button');
-    retakePhotoButton = document.querySelector('.camera-button:nth-child(2)');
-    startCameraButton = document.getElementById('startCamera');
-    imagePreview = document.getElementById('imagePreview');
-    uploadButton = document.getElementById('uploadButton');
-    fileInput = document.getElementById('image');
-    logoutButton = document.getElementById('logoutButton');
-    anomalyForm = document.getElementById('anormalidadeForm');
-    downloadQRButton = document.getElementById('downloadQR');
-
-    // Configurar event listeners
-    setupEventListeners();
-}
-
-/**
- * Configura os event listeners
- */
-function setupEventListeners() {
-    if (logoutButton) {
-        logoutButton.addEventListener('click', logout);
-    }
-
-    if (startCameraButton) {
-        startCameraButton.addEventListener('click', startCamera);
-    }
-
-    if (takePhotoButton) {
-        takePhotoButton.addEventListener('click', takePhoto);
-    }
-
-    if (retakePhotoButton) {
-        retakePhotoButton.addEventListener('click', retakePhoto);
-    }
-
-    if (downloadQRButton) {
-        downloadQRButton.addEventListener('click', downloadQRCode);
-    }
-
-    if (anomalyForm) {
-        anomalyForm.addEventListener('submit', handleFormSubmit);
-    }
-
-    if (fileInput) {
-        fileInput.addEventListener('change', handleFileUpload);
-    }
-
-    // Adicionar evento de limpeza ao sair
-    window.addEventListener('beforeunload', stopCamera);
-}
-
-/**
- * Manipula o envio do formulário
- */
-async function handleFormSubmit(e) {
-    e.preventDefault();
-    if (!checkLogin()) return;
-
-    try {
-        const formData = new FormData(anomalyForm);
-        const anomalyData = {
-            id: Math.random().toString(36).substr(2, 9),
-            location: formData.get('local'),
-            description: formData.get('descricao'),
-            timestamp: new Date().toISOString(),
-            image: imagePreview?.querySelector('img')?.src || null
-        };
-
-        const qrCodeImage = await generateQRCode(anomalyData);
-        const infoImage = await createInfoImage(anomalyData);
-        
-        await sendEmail(anomalyData, infoImage);
-        saveImageLocally(infoImage);
-        
-        alert('Anomalia registrada com sucesso!');
-        anomalyForm.reset();
-        if (imagePreview) {
-            imagePreview.innerHTML = '';
-        }
-    } catch (error) {
-        console.error('Erro ao registrar anomalia:', error);
-        alert('Erro ao registrar a anomalia. Por favor, tente novamente.');
-    }
-}
-
-/**
- * Manipula o upload de arquivo
- */
-function handleFileUpload(e) {
-    try {
-        const file = e.target.files[0];
-        if (file && imagePreview) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                stopCamera();
-                if (video) video.style.display = 'none';
-                if (takePhotoButton) takePhotoButton.style.display = 'none';
-                if (retakePhotoButton) retakePhotoButton.style.display = 'none';
-                if (startCameraButton) startCameraButton.style.display = 'block';
-            };
-            reader.readAsDataURL(file);
-        }
-    } catch (error) {
-        console.error('Erro ao fazer upload da imagem:', error);
-        alert('Erro ao fazer upload da imagem. Por favor, tente novamente.');
-    }
-}
-
-// Inicializa quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', function() {
-    const fileInput = document.getElementById('image');
-    const anomalyForm = document.getElementById('anormalidadeForm');
-    const imagePreview = document.getElementById('imagePreview');
-    
-    if (fileInput) {
-        fileInput.addEventListener('change', handleFileUpload);
+    // Initialize elements
+    elements.video = document.getElementById('video');
+    elements.canvas = document.getElementById('canvas');
+    elements.takePhotoButton = document.querySelector('.camera-button');
+    elements.retakePhotoButton = document.querySelector('.camera-button:nth-child(2)');
+    elements.startCameraButton = document.getElementById('startCamera');
+    elements.imagePreview = document.getElementById('imagePreview');
+    elements.uploadButton = document.getElementById('uploadButton');
+    elements.fileInput = document.getElementById('image');
+    elements.logoutButton = document.getElementById('logoutButton');
+    elements.anomalyForm = document.getElementById('anormalidadeForm');
+    elements.downloadQRButton = document.getElementById('downloadQR');
+
+    // Setup event listeners
+    if (elements.logoutButton) {
+        elements.logoutButton.addEventListener('click', logout);
     }
-    
-    if (anomalyForm) {
-        anomalyForm.addEventListener('submit', handleFormSubmit);
+
+    if (elements.startCameraButton) {
+        elements.startCameraButton.addEventListener('click', startCamera);
+    }
+
+    if (elements.takePhotoButton) {
+        elements.takePhotoButton.addEventListener('click', takePhoto);
+    }
+
+    if (elements.retakePhotoButton) {
+        elements.retakePhotoButton.addEventListener('click', retakePhoto);
+    }
+
+    if (elements.downloadQRButton) {
+        elements.downloadQRButton.addEventListener('click', downloadQRCode);
+    }
+
+    if (elements.fileInput) {
+        elements.fileInput.addEventListener('change', handleFileUpload);
+    }
+
+    if (elements.anomalyForm) {
+        elements.anomalyForm.addEventListener('submit', handleFormSubmit);
+    }
+
+    // Add cleanup event
+    window.addEventListener('beforeunload', stopCamera);
+
+    // Check login and initialize camera
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData || !userData.email) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        checkCameraPermission();
+    } else {
+        console.error('Browser does not support camera access');
+        showCameraError('Your browser does not support camera access. Please use a modern browser.');
     }
 });
 
 /**
- * Verifica a permissão da câmera
+ * Inicializa todos os elementos do DOM
  */
-async function checkCameraPermission() {
-    try {
-        const result = await navigator.permissions.query({ name: 'camera' });
-        switch (result.state) {
-            case 'granted':
-                await startCamera();
-                break;
-            case 'prompt':
-                showCameraPrompt();
-                break;
-            case 'denied':
-                showCameraError('Acesso à câmera foi negado. Por favor, permita o acesso nas configurações do seu navegador.');
-                break;
-        }
-    } catch (error) {
-        console.log('Não foi possível verificar permissão da câmera:', error);
-        // Tenta iniciar a câmera mesmo assim
-        try {
-            await startCamera();
-        } catch (err) {
-            showCameraError('Não foi possível acessar a câmera. Verifique as permissões do seu navegador.');
-        }
+window.addEventListener('load', () => {
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData || !userData.email) {
+        window.location.href = 'login.html';
+        return;
     }
-}
+
+    // Inicializa câmera se suportado pelo navegador
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        verificarPermissaoCamera();
+    } else {
+        console.error('Navegador não suporta acesso à câmera');
+        mostrarErroCamera('Seu navegador não suporta acesso à câmera. Por favor, use um navegador mais recente.');
+    }
+});
+
+/* ==========================================================================
+   Elementos do DOM
+   ========================================================================== */
 
 /**
- * Mostra mensagem de erro da câmera
+ * Manipula o upload de arquivo
  */
-function showCameraError(message) {
-    const cameraContainer = document.querySelector('.camera-container');
-    if (cameraContainer) {
-        cameraContainer.innerHTML = `
-            <div class="camera-error">
-                <p>${message}</p>
-                <button onclick="retryCamera()" class="camera-button">
-                    <i class="fas fa-redo"></i> Tentar Novamente
-                </button>
-            </div>
-        `;
-    }
-}
+const anomalyForm = document.getElementById('anormalidadeForm');
+const imagePreview = document.getElementById('imagePreview');
+const downloadQRButton = document.getElementById('downloadQR');
+const startCameraButton = document.getElementById('startCamera');
+const takePhotoButton = document.querySelector('.camera-button');
+const retakePhotoButton = document.querySelector('.camera-button:nth-child(2)');
+const uploadButton = document.getElementById('uploadButton');
+const fileInput = document.getElementById('image');
+const video = document.getElementById('video');
+const canvas = document.getElementById('canvas');
+const logoutButton = document.getElementById('logoutButton');
 
-/**
- * Mostra prompt para permitir a câmera
- */
-function showCameraPrompt() {
-    const cameraContainer = document.querySelector('.camera-container');
-    if (cameraContainer) {
-        cameraContainer.innerHTML = `
-            <div class="camera-prompt">
-                <p>Para tirar fotos, precisamos da sua permissão para acessar a câmera.</p>
-                <button onclick="requestCamera()" class="camera-button">
-                    <i class="fas fa-camera"></i> Permitir Câmera
-                </button>
-            </div>
-        `;
-    }
-}
+/* ==========================================================================
+   Funções de Autenticação
+   ========================================================================== */
 
 /**
  * Solicita permissão da câmera
@@ -214,7 +128,7 @@ async function requestCamera() {
     try {
         await startCamera();
     } catch (error) {
-        showCameraError('Não foi possível acessar a câmera. Por favor, verifique as permissões do seu navegador.');
+        mostrarErroCamera('Não foi possível acessar a câmera. Por favor, verifique as permissões do seu navegador.');
     }
 }
 
@@ -225,7 +139,7 @@ async function retryCamera() {
     try {
         await startCamera();
     } catch (error) {
-        showCameraError('Não foi possível acessar a câmera. Por favor, verifique as permissões do seu navegador.');
+        mostrarErroCamera('Não foi possível acessar a câmera. Por favor, verifique as permissões do seu navegador.');
     }
 }
 
@@ -233,54 +147,42 @@ async function retryCamera() {
  * Inicia a câmera
  */
 async function startCamera() {
-    if (!video) return;
-    
     try {
-        if (stream) {
-            stopCamera();
-        }
-
-        stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: { ideal: 'environment' },
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            }
+        elements.stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: 'environment' }
         });
-
-        video.srcObject = stream;
-        video.style.display = 'block';
+        elements.video.srcObject = elements.stream;
+        elements.video.style.display = 'block';
+        startCameraButton.style.display = 'none';
+        takePhotoButton.style.display = 'block';
+        takePhotoButton.disabled = false;
+        uploadButton.style.display = 'none';
         
         if (canvas) canvas.style.display = 'none';
-        if (takePhotoButton) {
-            takePhotoButton.style.display = 'block';
-            takePhotoButton.disabled = false;
+        if (botaoTirarFoto) {
+            botaoTirarFoto.style.display = 'block';
+            botaoTirarFoto.disabled = false;
         }
-        if (retakePhotoButton) {
-            retakePhotoButton.style.display = 'none';
+        if (botaoRepetirFoto) {
+            botaoRepetirFoto.style.display = 'none';
         }
 
-        await video.play();
+        await elements.video.play();
 
     } catch (error) {
         console.error('Erro ao acessar a câmera:', error);
         try {
-            // Tenta câmera frontal como fallback
-            stream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: 'user',
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                }
+            elements.stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user' }
             });
             
-            video.srcObject = stream;
-            video.style.display = 'block';
-            await video.play();
+            elements.video.srcObject = elements.stream;
+            elements.video.style.display = 'block';
+            await elements.video.play();
             
-        } catch (frontError) {
-            console.error('Erro ao acessar câmera frontal:', frontError);
-            showCameraError('Não foi possível acessar nenhuma câmera. Verifique as permissões do navegador.');
+        } catch (fallbackError) {
+            console.error('Erro ao tentar câmera frontal:', fallbackError);
+            mostrarErroCamera('Não foi possível acessar nenhuma câmera. Verifique as permissões do navegador.');
         }
     }
 }
@@ -288,21 +190,21 @@ async function startCamera() {
 /**
  * Para a câmera
  */
-function stopCamera() {
-    if (stream) {
-        stream.getTracks().forEach(track => track.stop());
+function pararCamera() {
+    if (elements.stream) {
+        elements.stream.getTracks().forEach(track => track.stop());
         if (video) {
             video.srcObject = null;
             video.style.display = 'none';
         }
-        stream = null;
+        elements.stream = null;
     }
 }
 
 /**
  * Tira foto
  */
-function takePhoto() {
+function tirarFoto() {
     if (!video || !canvas) return;
     
     try {
@@ -314,14 +216,14 @@ function takePhoto() {
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
         const photoData = canvas.toDataURL('image/jpeg', 0.8);
-        if (imagePreview) {
-            imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
+        if (previewImagem) {
+            previewImagem.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
         }
         
-        stopCamera();
+        pararCamera();
         
-        if (takePhotoButton) takePhotoButton.style.display = 'none';
-        if (retakePhotoButton) retakePhotoButton.style.display = 'block';
+        if (botaoTirarFoto) botaoTirarFoto.style.display = 'none';
+        if (botaoRepetirFoto) botaoRepetirFoto.style.display = 'block';
         canvas.style.display = 'none';
     } catch (error) {
         console.error('Erro ao tirar foto:', error);
@@ -332,12 +234,12 @@ function takePhoto() {
 /**
  * Reinicia o processo de foto
  */
-function retakePhoto() {
-    if (imagePreview) {
-        imagePreview.innerHTML = '';
+function repetirFoto() {
+    if (previewImagem) {
+        previewImagem.innerHTML = '';
     }
-    if (retakePhotoButton) {
-        retakePhotoButton.style.display = 'none';
+    if (botaoRepetirFoto) {
+        botaoRepetirFoto.style.display = 'none';
     }
     startCamera();
 }
@@ -345,8 +247,8 @@ function retakePhoto() {
 // Expõe funções necessárias globalmente
 window.requestCamera = requestCamera;
 window.retryCamera = retryCamera;
-window.takePhoto = takePhoto;
-window.retakePhoto = retakePhoto;
+window.tirarFoto = tirarFoto;
+window.repetirFoto = repetirFoto;
 
 /* ==========================================================================
    Funções do QR Code
@@ -357,7 +259,7 @@ window.retakePhoto = retakePhoto;
  * @param {Object} data - Dados da anomalia
  * @returns {Promise<string>} Promessa com a URL da imagem do QR Code
  */
-function generateQRCode(data) {
+function gerarQRCode(data) {
     return new Promise((resolve, reject) => {
         try {
             const qrcodeElement = document.getElementById('qrcode');
@@ -396,7 +298,7 @@ function generateQRCode(data) {
 /**
  * Baixa o QR Code gerado
  */
-function downloadQRCode() {
+function baixarQRCode() {
     try {
         const canvas = document.querySelector('#qrcode canvas');
         if (canvas) {
@@ -484,7 +386,7 @@ function compressImage(imageData, maxWidth = 800, maxHeight = 600, quality = 0.7
  * @param {Object} data - Dados do formulário
  * @returns {Promise<string>} Promessa com os dados da imagem gerada
  */
-function createInfoImage(data) {
+function criarImagemInfo(data) {
     return new Promise((resolve, reject) => {
         try {
             const canvas = document.createElement('canvas');
@@ -615,7 +517,7 @@ function wrapText(context, text, maxWidth, lineHeight) {
  * Salva a imagem localmente
  * @param {string} imageData - Dados da imagem em base64
  */
-function saveImageLocally(imageData) {
+function salvarImagemLocalmente(imageData) {
     try {
         const link = document.createElement('a');
         link.download = 'anomalia-info.png';
@@ -633,7 +535,7 @@ function saveImageLocally(imageData) {
  * @param {string} infoImage - Dados da imagem em base64
  * @returns {Promise<void>}
  */
-async function sendEmail(anomalyData, infoImage) {
+async function enviarEmail(anomalyData, infoImage) {
     try {
         console.log('Iniciando envio de email...');
         
@@ -644,7 +546,7 @@ async function sendEmail(anomalyData, infoImage) {
 
         console.log('Dados do usuário:', userData);
 
-        await saveImageLocally(infoImage);
+        await salvarImagemLocalmente(infoImage);
 
         const emailParams = {
             to_email: userData.email,
@@ -708,7 +610,7 @@ async function sendEmail(anomalyData, infoImage) {
 /**
  * Realiza o logout do usuário
  */
-function logout() {
+function fazerLogout() {
     localStorage.removeItem('userData');
     window.location.href = 'login.html';
 }
@@ -717,34 +619,26 @@ function logout() {
    Event Listeners
    ========================================================================== */
 
-// Adiciona os event listeners necessários
-if (logoutButton) {
-    logoutButton.addEventListener('click', logout);
-}
-
-if (startCameraButton) {
-    startCameraButton.addEventListener('click', startCamera);
-}
-
-if (takePhotoButton) {
-    takePhotoButton.addEventListener('click', takePhoto);
-}
-
-if (retakePhotoButton) {
-    retakePhotoButton.addEventListener('click', retakePhoto);
-}
-
-if (downloadQRButton) {
-    downloadQRButton.addEventListener('click', downloadQRCode);
-}
-
-if (anomalyForm) {
-    anomalyForm.addEventListener('submit', handleFormSubmit);
-}
-
-if (fileInput) {
-    fileInput.addEventListener('change', handleFileUpload);
-}
-
-// Limpar recursos ao sair da página
-window.addEventListener('beforeunload', stopCamera); 
+/**
+ * Manipula o upload de arquivo
+ */
+function handleFileUpload(e) {
+    try {
+        const file = e.target.files[0];
+        if (file && previewImagem) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImagem.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                pararCamera();
+                if (video) video.style.display = 'none';
+                if (botaoTirarFoto) botaoTirarFoto.style.display = 'none';
+                if (botaoRepetirFoto) botaoRepetirFoto.style.display = 'none';
+                if (botaoIniciarCamera) botaoIniciarCamera.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+    } catch (error) {
+        console.error('Erro ao fazer upload da imagem:', error);
+        alert('Erro ao fazer upload da imagem. Por favor, tente novamente.');
+    }
+} 
