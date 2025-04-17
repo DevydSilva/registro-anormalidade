@@ -8,21 +8,6 @@
     <title>Registro de Anormalidade</title>
     <link rel="stylesheet" href="../css/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Biblioteca EmailJS -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-        (function() {
-            try {
-                emailjs.init("UhX1NQMUijjOeEFNH");
-                console.log('EmailJS inicializado com sucesso');
-            } catch (error) {
-                console.error('Erro ao inicializar EmailJS:', error);
-            }
-        })();
-    </script>
-    <!-- Biblioteca QRCode.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="../js/index.js"></script>
 </head>
 <body>
     <header class="header-section">
@@ -30,7 +15,7 @@
             <div class="header-logo">
                 <img src="../assets/logo-azul-senai.png" alt="Logo SENAI">
             </div>
-            <button class="logout-button" onclick="logout()" title="Sair do sistema">
+            <button class="logout-button" id="logoutButton" title="Sair do sistema">
                 <i class="fas fa-sign-out-alt"></i> Sair
             </button>
         </div>
@@ -42,7 +27,7 @@
                 <div class="form-header">
                     <h2>Registrar Nova Anormalidade</h2>
                 </div>
-                <form id="anormalidadeForm" onsubmit="return handleSubmit(event)">
+                <form id="anormalidadeForm">
                     <div class="form-group">
                         <label for="data">Data:</label>
                         <input type="date" id="data" required max="2024-12-31">
@@ -72,10 +57,10 @@
                                 <button type="button" class="camera-button" id="startCamera" title="Abrir câmera">
                                     <i class="fas fa-camera"></i> Abrir Câmera
                                 </button>
-                                <button type="button" class="camera-button" style="display: none;" title="Tirar foto">
+                                <button type="button" class="camera-button" id="takePhoto" style="display: none;" title="Tirar foto">
                                     <i class="fas fa-camera"></i> Tirar Foto
                                 </button>
-                                <button type="button" class="camera-button" style="display: none;" title="Refazer foto">
+                                <button type="button" class="camera-button" id="retakePhoto" style="display: none;" title="Refazer foto">
                                     <i class="fas fa-redo"></i> Refazer
                                 </button>
                             </div>
@@ -90,40 +75,78 @@
         </div>
     </main>
 
+    <!-- Biblioteca EmailJS -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        (function() {
+            try {
+                emailjs.init("UhX1NQMUijjOeEFNH");
+                console.log('EmailJS inicializado com sucesso');
+            } catch (error) {
+                console.error('Erro ao inicializar EmailJS:', error);
+            }
+        })();
+    </script>
+    <!-- Biblioteca QRCode.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSQX0FslNhTDadL4O5SAGapGt4FodqL8My0mA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="../js/index.js"></script>
     <script>
-        // Função de logout global
-        function logout() {
-            localStorage.removeItem('userData');
-            window.location.href = 'login.html';
-        }
-
-        // Função para lidar com o envio do formulário
-        function handleSubmit(event) {
-            event.preventDefault();
-            // Aqui você pode adicionar a lógica de envio do formulário
-            return false;
-        }
-
-        // Inicializa os event listeners quando o DOM estiver carregado
+        // Inicialização quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', function() {
+            // Função de logout
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function() {
+                    localStorage.removeItem('userData');
+                    window.location.href = 'login.html';
+                });
+            }
+
+            // Função para lidar com o envio do formulário
+            const form = document.getElementById('anormalidadeForm');
+            if (form) {
+                form.addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    // Aqui você pode adicionar a lógica de envio do formulário
+                    return false;
+                });
+            }
+
+            // Event listeners da câmera
             const startCameraButton = document.getElementById('startCamera');
-            const takePhotoButton = document.querySelector('.camera-button:nth-child(2)');
-            const retakePhotoButton = document.querySelector('.camera-button:nth-child(3)');
+            const takePhotoButton = document.getElementById('takePhoto');
+            const retakePhotoButton = document.getElementById('retakePhoto');
 
             if (startCameraButton) {
                 startCameraButton.addEventListener('click', function() {
-                    window.startCamera().catch(error => {
-                        console.error('Erro ao iniciar câmera:', error);
-                    });
+                    if (typeof window.startCamera === 'function') {
+                        window.startCamera().catch(error => {
+                            console.error('Erro ao iniciar câmera:', error);
+                        });
+                    } else {
+                        console.error('Função startCamera não está disponível');
+                    }
                 });
             }
 
             if (takePhotoButton) {
-                takePhotoButton.addEventListener('click', window.takePhoto);
+                takePhotoButton.addEventListener('click', function() {
+                    if (typeof window.takePhoto === 'function') {
+                        window.takePhoto();
+                    } else {
+                        console.error('Função takePhoto não está disponível');
+                    }
+                });
             }
 
             if (retakePhotoButton) {
-                retakePhotoButton.addEventListener('click', window.retakePhoto);
+                retakePhotoButton.addEventListener('click', function() {
+                    if (typeof window.retakePhoto === 'function') {
+                        window.retakePhoto();
+                    } else {
+                        console.error('Função retakePhoto não está disponível');
+                    }
+                });
             }
         });
     </script>
