@@ -13,6 +13,14 @@ const elements = {
     stream: null
 };
 
+// Função para mostrar erros da câmera
+function showCameraError(message) {
+    alert(message);
+    elements.startCameraButton.style.display = 'block';
+    elements.takePhotoButton.style.display = 'none';
+    elements.retakePhotoButton.style.display = 'none';
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize elements
     elements.video = document.getElementById('video');
@@ -51,6 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
  */
 async function startCamera() {
     try {
+        // Primeiro tenta acessar a câmera traseira
         elements.stream = await navigator.mediaDevices.getUserMedia({
             video: { facingMode: 'environment' }
         });
@@ -69,6 +78,7 @@ async function startCamera() {
     } catch (error) {
         console.error('Erro ao acessar a câmera:', error);
         try {
+            // Se falhar, tenta a câmera frontal
             elements.stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: 'user' }
             });
@@ -79,7 +89,7 @@ async function startCamera() {
             
         } catch (fallbackError) {
             console.error('Erro ao tentar câmera frontal:', fallbackError);
-            showCameraError('Não foi possível acessar nenhuma câmera. Verifique as permissões do navegador.');
+            showCameraError('Não foi possível acessar a câmera. Por favor, verifique se você permitiu o acesso à câmera no seu navegador.');
         }
     }
 }
