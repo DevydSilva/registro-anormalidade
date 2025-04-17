@@ -74,37 +74,40 @@ function initializeVideo(stream) {
             video.srcObject = stream;
             video.style.display = 'block';
 
-            // Verifica periodicamente o estado do vídeo
-            const checkInterval = setInterval(() => {
-                if (video.readyState >= 2) { // HAVE_CURRENT_DATA
-                    clearInterval(checkInterval);
-                    console.log('Vídeo pronto para reprodução');
-                    video.play()
-                        .then(() => {
-                            console.log('Vídeo iniciado com sucesso');
-                            resolve();
-                        })
-                        .catch(error => {
-                            console.error('Erro ao iniciar vídeo:', error);
-                            reject(error);
-                        });
-                }
-            }, 100);
+            let attempts = 0;
+            const maxAttempts = 3;
+            const attemptPlay = () => {
+                attempts++;
+                console.log(`Tentativa ${attempts} de iniciar o vídeo`);
 
-            // Timeout para evitar que o código fique preso
-            const timeout = setTimeout(() => {
-                clearInterval(checkInterval);
-                if (video.readyState < 2) {
-                    console.error('Timeout: Vídeo não carregou a tempo');
-                    reject(new Error('Timeout ao carregar vídeo'));
-                }
-            }, 15000); // 15 segundos
+                video.play()
+                    .then(() => {
+                        console.log('Vídeo iniciado com sucesso');
+                        resolve();
+                    })
+                    .catch(error => {
+                        console.error(`Erro na tentativa ${attempts}:`, error);
+                        if (attempts < maxAttempts) {
+                            // Espera um pouco antes de tentar novamente
+                            setTimeout(attemptPlay, 1000);
+                        } else {
+                            reject(new Error('Não foi possível iniciar o vídeo após várias tentativas'));
+                        }
+                    });
+            };
 
-            // Limpa o timeout se o vídeo carregar
+            // Aguarda os metadados serem carregados
             video.onloadedmetadata = () => {
                 console.log('Metadados do vídeo carregados');
-                clearTimeout(timeout);
+                attemptPlay();
             };
+
+            // Timeout para evitar que o código fique preso
+            setTimeout(() => {
+                if (video.readyState < 2) {
+                    reject(new Error('Timeout ao carregar vídeo'));
+                }
+            }, 20000); // 20 segundos
 
         } catch (error) {
             console.error('Erro ao configurar stream:', error);
