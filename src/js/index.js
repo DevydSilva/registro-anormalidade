@@ -44,6 +44,8 @@ function initializeVideo(stream) {
 
             // Aguarda os metadados serem carregados antes de tentar reproduzir
             video.onloadedmetadata = () => {
+                console.log('Metadados do vídeo carregados');
+                
                 // Usa setTimeout para garantir que o navegador tenha tempo de processar os metadados
                 setTimeout(() => {
                     video.play()
@@ -53,9 +55,18 @@ function initializeVideo(stream) {
                         })
                         .catch(error => {
                             console.error('Erro ao iniciar vídeo:', error);
-                            reject(error);
+                            // Tenta novamente uma vez se falhar
+                            video.play()
+                                .then(() => {
+                                    console.log('Vídeo iniciado com sucesso na segunda tentativa');
+                                    resolve();
+                                })
+                                .catch(retryError => {
+                                    console.error('Erro na segunda tentativa:', retryError);
+                                    reject(retryError);
+                                });
                         });
-                }, 100);
+                }, 500); // Aumentado para 500ms
             };
 
             video.onerror = (error) => {
@@ -64,11 +75,28 @@ function initializeVideo(stream) {
             };
 
             // Timeout para evitar que o código fique preso
-            setTimeout(() => {
+            const timeoutId = setTimeout(() => {
                 if (video.readyState < 2) { // 2 = HAVE_CURRENT_DATA
-                    reject(new Error('Timeout ao carregar vídeo'));
+                    console.error('Timeout ao carregar vídeo - Estado:', video.readyState);
+                    // Tenta uma última vez antes de rejeitar
+                    video.play()
+                        .then(() => {
+                            console.log('Vídeo iniciado com sucesso após timeout');
+                            clearTimeout(timeoutId);
+                            resolve();
+                        })
+                        .catch(finalError => {
+                            console.error('Erro na tentativa final:', finalError);
+                            reject(new Error('Não foi possível iniciar a câmera. Por favor, tente novamente.'));
+                        });
                 }
-            }, 10000); // Aumentado para 10 segundos
+            }, 15000); // Aumentado para 15 segundos
+
+            // Limpa o timeout se o vídeo carregar com sucesso
+            video.oncanplay = () => {
+                clearTimeout(timeoutId);
+            };
+
         } catch (error) {
             console.error('Erro ao configurar stream:', error);
             reject(error);
@@ -115,17 +143,21 @@ async function startCamera() {
         // Desabilita o botão durante a inicialização
         if (startCameraButton) {
             startCameraButton.disabled = true;
+            startCameraButton.textContent = 'Iniciando câmera...';
         }
 
         try {
             // Tenta acessar a câmera traseira primeiro
+            console.log('Tentando acessar câmera traseira...');
             stream = await getCameraStream('environment');
+            console.log('Stream obtido, inicializando vídeo...');
             await initializeVideo(stream);
             
             // Atualiza botões somente após o vídeo estar pronto
             if (startCameraButton) {
                 startCameraButton.style.display = 'none';
                 startCameraButton.disabled = false;
+                startCameraButton.textContent = 'Abrir Câmera';
             }
             if (takePhotoButton) {
                 takePhotoButton.style.display = 'block';
@@ -138,13 +170,16 @@ async function startCamera() {
             
             try {
                 // Tenta a câmera frontal
+                console.log('Tentando acessar câmera frontal...');
                 stream = await getCameraStream('user');
+                console.log('Stream obtido, inicializando vídeo...');
                 await initializeVideo(stream);
                 
                 // Atualiza botões somente após o vídeo estar pronto
                 if (startCameraButton) {
                     startCameraButton.style.display = 'none';
                     startCameraButton.disabled = false;
+                    startCameraButton.textContent = 'Abrir Câmera';
                 }
                 if (takePhotoButton) {
                     takePhotoButton.style.display = 'block';
@@ -154,14 +189,20 @@ async function startCamera() {
                 
             } catch (frontError) {
                 console.error('Erro ao tentar câmera frontal:', frontError);
-                if (startCameraButton) startCameraButton.disabled = false;
+                if (startCameraButton) {
+                    startCameraButton.disabled = false;
+                    startCameraButton.textContent = 'Abrir Câmera';
+                }
                 throw frontError;
             }
         }
 
     } catch (error) {
         console.error('Erro ao acessar a câmera:', error);
-        if (startCameraButton) startCameraButton.disabled = false;
+        if (startCameraButton) {
+            startCameraButton.disabled = false;
+            startCameraButton.textContent = 'Abrir Câmera';
+        }
         showCameraError('Não foi possível acessar a câmera. Por favor:\n1. Verifique se você permitiu o acesso à câmera\n2. Se já negou a permissão, clique no ícone de cadeado/câmera na barra de endereços\n3. Limpe as permissões do site e tente novamente');
         throw error;
     }
