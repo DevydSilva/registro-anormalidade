@@ -22,7 +22,7 @@ body {
 
 /* Header Azul */
 .header-section {
-    background: #00247D;
+    background: #ffffff;
     padding: 1.5rem 0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: relative;
@@ -45,18 +45,18 @@ body {
 }
 
 .header-logo img {
-    height: 60px;
+    height: 80px;
     width: auto;
     object-fit: contain;
     display: block;
+    max-width: none;
 }
 
 .header-logo h1 {
-    color: white;
+    color: #00247D;
     font-size: 2rem;
     font-weight: 600;
     margin: 0;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Conteúdo Principal */
@@ -202,9 +202,9 @@ textarea {
 
 /* Botão de Logout */
 .logout-button {
-    background: transparent;
+    background: #00247D;
     color: white;
-    border: 1px solid white;
+    border: none;
     padding: 0.5rem 1rem;
     border-radius: 4px;
     cursor: pointer;
@@ -212,10 +212,12 @@ textarea {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-weight: 500;
 }
 
 .logout-button:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: #001a5c;
+    transform: translateY(-1px);
 }
 
 /* Media Queries */
