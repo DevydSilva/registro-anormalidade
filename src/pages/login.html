@@ -3,37 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sistema de Registro de Anormalidades - Página de Login">
     <meta http-equiv="Content-Security-Policy" content="default-src * 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' *; script-src 'self' 'unsafe-inline' 'unsafe-eval' *; img-src * data: 'self'">
     <title>Login - Sistema de Registro de Anormalidades</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/login.css">
 </head>
 <body>
-    <main class="container" id="loginScreen">
+    <div class="container" id="loginScreen">
         <div class="form-container">
-            <h1 class="visually-hidden">Sistema de Registro de Anormalidades</h1>
             <h2>Login</h2>
-            <form id="loginForm" novalidate>
+            <form id="loginForm">
                 <div class="form-group">
                     <label for="name">Nome:</label>
-                    <input type="text" id="name" name="name" required 
-                           aria-required="true" autocomplete="name">
+                    <input type="text" id="name" required>
                 </div>
                 <div class="form-group">
                     <label for="email">E-mail:</label>
-                    <input type="email" id="email" name="email" required 
-                           aria-required="true" autocomplete="email">
+                    <input type="email" id="email" required>
                 </div>
                 <div class="form-group">
                     <label for="password">Senha:</label>
-                    <input type="password" id="password" name="password" required 
-                           aria-required="true" autocomplete="current-password">
+                    <input type="password" id="password" required>
                 </div>
-                <button type="submit" aria-label="Entrar no sistema">
-                    Entrar
-                </button>
-                <div class="register-message" role="alert" aria-live="polite">
+                <button type="submit">Entrar</button>
+                <div class="register-message" style="display: none;">
                     <p>Você não está cadastrado. Se cadastre abaixo.</p>
                 </div>
                 <div class="register-link">
@@ -44,7 +37,105 @@
                 </div>
             </form>
         </div>
-    </main>
-    <script src="../js/login.js"></script>
+    </div>
+    <script>
+        // Aguardar o carregamento completo do DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elementos do DOM
+            const loginForm = document.getElementById('loginForm');
+            const nameInput = document.getElementById('name');
+            const emailInput = document.getElementById('email');
+            const passwordInput = document.getElementById('password');
+
+            // Verificar se os elementos foram encontrados
+            if (!loginForm || !nameInput || !emailInput || !passwordInput) {
+                console.error('Elementos do formulário não encontrados!');
+                return;
+            }
+
+            // Verificar se o usuário já está logado
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            if (userData && userData.email) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Função para verificar se o usuário existe
+            function checkUserExists(email) {
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                return users.some(user => user.email === email);
+            }
+
+            // Função para verificar as credenciais
+            function checkCredentials(name, email, password) {
+                const users = JSON.parse(localStorage.getItem('users')) || [];
+                return users.find(user => 
+                    user.name === name && 
+                    user.email === email && 
+                    user.password === password
+                );
+            }
+
+            // Manipula o envio do formulário
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const name = nameInput.value;
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                
+                // Verificar se o usuário existe
+                if (!checkUserExists(email)) {
+                    // Mostrar a mensagem de cadastro
+                    const messageElement = document.querySelector('.register-message');
+                    if (messageElement) {
+                        messageElement.style.display = 'block';
+                        messageElement.style.color = 'red';
+                        messageElement.style.margin = '10px 0';
+                        messageElement.style.padding = '10px';
+                        messageElement.style.backgroundColor = '#ffe6e6';
+                        messageElement.style.border = '1px solid #ff9999';
+                        messageElement.style.borderRadius = '5px';
+                    }
+                    return;
+                }
+                
+                // Verificar as credenciais
+                const user = checkCredentials(name, email, password);
+                if (user) {
+                    // Salvar dados do usuário logado
+                    localStorage.setItem('userData', JSON.stringify({
+                        name: user.name,
+                        email: user.email
+                    }));
+                    
+                    // Redirecionar para a página de registro
+                    window.location.href = 'index.html';
+                } else {
+                    alert('Nome, email ou senha incorretos!');
+                }
+            });
+        });
+    </script>
+    <style>
+        .register-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .recovery-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .recovery-link a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+
+        .recovery-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </body>
 </html> 
