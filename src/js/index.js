@@ -19,6 +19,38 @@ function showCameraError(message) {
     if (retakePhotoButton) retakePhotoButton.style.display = 'none';
 }
 
+// Função para verificar suporte à câmera
+function checkCameraSupport() {
+    return new Promise((resolve, reject) => {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            reject(new Error('Seu navegador não suporta acesso à câmera'));
+            return;
+        }
+
+        // Verifica se o navegador suporta a API de mídia
+        if (!navigator.mediaDevices.enumerateDevices) {
+            reject(new Error('Seu navegador não suporta listagem de dispositivos'));
+            return;
+        }
+
+        // Lista os dispositivos disponíveis
+        navigator.mediaDevices.enumerateDevices()
+            .then(devices => {
+                const videoDevices = devices.filter(device => device.kind === 'videoinput');
+                if (videoDevices.length === 0) {
+                    reject(new Error('Nenhuma câmera encontrada'));
+                    return;
+                }
+                console.log('Dispositivos de vídeo encontrados:', videoDevices);
+                resolve(videoDevices);
+            })
+            .catch(error => {
+                console.error('Erro ao listar dispositivos:', error);
+                reject(error);
+            });
+    });
+}
+
 // Função para inicializar o vídeo
 function initializeVideo(stream) {
     return new Promise((resolve, reject) => {
@@ -26,7 +58,7 @@ function initializeVideo(stream) {
             video = document.getElementById('video');
         }
 
-        // Remove qualquer stream existente e para a reprodução
+        // Remove qualquer stream existente
         if (video.srcObject) {
             try {
                 video.pause();
@@ -42,76 +74,26 @@ function initializeVideo(stream) {
             video.srcObject = stream;
             video.style.display = 'block';
 
-            // Verifica o estado do vídeo periodicamente
-            const checkVideoState = setInterval(() => {
-                console.log('Estado do vídeo:', video.readyState);
-                if (video.readyState >= 2) { // HAVE_CURRENT_DATA
-                    clearInterval(checkVideoState);
-                    startVideoPlayback();
-                }
-            }, 100);
-
-            // Função para iniciar a reprodução
-            function startVideoPlayback() {
+            // Aguarda os metadados serem carregados
+            video.onloadedmetadata = () => {
+                console.log('Metadados do vídeo carregados');
                 video.play()
                     .then(() => {
                         console.log('Vídeo iniciado com sucesso');
-                        clearInterval(checkVideoState);
                         resolve();
                     })
                     .catch(error => {
                         console.error('Erro ao iniciar vídeo:', error);
-                        // Tenta novamente uma vez se falhar
-                        setTimeout(() => {
-                            video.play()
-                                .then(() => {
-                                    console.log('Vídeo iniciado com sucesso na segunda tentativa');
-                                    clearInterval(checkVideoState);
-                                    resolve();
-                                })
-                                .catch(retryError => {
-                                    console.error('Erro na segunda tentativa:', retryError);
-                                    clearInterval(checkVideoState);
-                                    reject(retryError);
-                                });
-                        }, 1000);
+                        reject(error);
                     });
-            }
+            };
 
-            // Timeout principal
-            const timeoutId = setTimeout(() => {
-                console.error('Timeout ao carregar vídeo - Estado:', video.readyState);
-                clearInterval(checkVideoState);
-                
-                // Tenta uma última vez antes de rejeitar
-                if (video.readyState >= 2) {
-                    video.play()
-                        .then(() => {
-                            console.log('Vídeo iniciado com sucesso após timeout');
-                            resolve();
-                        })
-                        .catch(finalError => {
-                            console.error('Erro na tentativa final:', finalError);
-                            reject(new Error('Não foi possível iniciar a câmera. Por favor, tente novamente.'));
-                        });
-                } else {
-                    reject(new Error('A câmera demorou muito para responder. Por favor, tente novamente.'));
+            // Timeout para evitar que o código fique preso
+            setTimeout(() => {
+                if (video.readyState < 2) {
+                    reject(new Error('A câmera demorou muito para responder'));
                 }
-            }, 20000); // Aumentado para 20 segundos
-
-            // Limpa o timeout se o vídeo carregar com sucesso
-            video.oncanplay = () => {
-                console.log('Vídeo pronto para reprodução');
-                clearTimeout(timeoutId);
-                clearInterval(checkVideoState);
-            };
-
-            video.onerror = (error) => {
-                console.error('Erro no elemento de vídeo:', error);
-                clearTimeout(timeoutId);
-                clearInterval(checkVideoState);
-                reject(error);
-            };
+            }, 10000);
 
         } catch (error) {
             console.error('Erro ao configurar stream:', error);
@@ -123,13 +105,18 @@ function initializeVideo(stream) {
 // Função para obter stream da câmera
 async function getCameraStream(facingMode) {
     try {
-        return await navigator.mediaDevices.getUserMedia({
+        const constraints = {
             video: {
                 facingMode: facingMode,
                 width: { ideal: 1280 },
                 height: { ideal: 720 }
             }
-        });
+        };
+
+        console.log('Tentando acessar câmera com constraints:', constraints);
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        console.log('Stream obtido com sucesso');
+        return stream;
     } catch (error) {
         console.error(`Erro ao acessar câmera ${facingMode}:`, error);
         throw error;
@@ -139,10 +126,8 @@ async function getCameraStream(facingMode) {
 // Função para iniciar a câmera
 async function startCamera() {
     try {
-        // Verifica se o navegador suporta a API de mídia
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            throw new Error('Seu navegador não suporta acesso à câmera');
-        }
+        // Verifica suporte à câmera
+        await checkCameraSupport();
 
         // Inicializa elementos
         if (!video) video = document.getElementById('video');
@@ -266,6 +251,9 @@ function takePhoto() {
         if (imagePreview) {
             const photoData = canvas.toDataURL('image/jpeg', 0.8);
             imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
+            
+            // Armazena a foto no localStorage para uso posterior
+            localStorage.setItem('lastPhoto', photoData);
         }
         
         stopCamera();
@@ -755,7 +743,6 @@ async function processForm(event) {
         const hora = document.getElementById('hora').value;
         const local = document.getElementById('local').value;
         const descricao = document.getElementById('descricao').value;
-        const imagePreview = document.getElementById('imagePreview');
         
         // Verifica se todos os campos obrigatórios foram preenchidos
         if (!data || !hora || !local || !descricao) {
@@ -763,10 +750,20 @@ async function processForm(event) {
             return;
         }
         
-        // Obtém a imagem do preview
+        // Obtém a foto do localStorage ou do preview
         let imageData = null;
-        if (imagePreview && imagePreview.querySelector('img')) {
+        const lastPhoto = localStorage.getItem('lastPhoto');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        if (lastPhoto) {
+            imageData = lastPhoto;
+        } else if (imagePreview && imagePreview.querySelector('img')) {
             imageData = imagePreview.querySelector('img').src;
+        }
+        
+        if (!imageData) {
+            alert('Por favor, tire uma foto antes de enviar o registro.');
+            return;
         }
         
         // Cria o objeto com os dados da anomalia
@@ -789,6 +786,7 @@ async function processForm(event) {
         if (imagePreview) {
             imagePreview.innerHTML = '';
         }
+        localStorage.removeItem('lastPhoto');
         
         alert('Registro enviado com sucesso!');
         
