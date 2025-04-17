@@ -51,6 +51,62 @@ function checkCameraSupport() {
     });
 }
 
+// Função para obter stream da câmera
+async function getCameraStream(facingMode) {
+    try {
+        // Primeiro, tenta obter a lista de dispositivos
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+        console.log('Dispositivos de vídeo encontrados:', videoDevices);
+
+        let constraints;
+        
+        if (facingMode === 'environment') {
+            // Tenta encontrar a câmera traseira pelo deviceId
+            const rearCamera = videoDevices.find(device => {
+                const label = device.label.toLowerCase();
+                return label.includes('back') || label.includes('traseira') || label.includes('rear');
+            });
+
+            if (rearCamera) {
+                console.log('Câmera traseira encontrada:', rearCamera);
+                constraints = {
+                    video: {
+                        deviceId: { exact: rearCamera.deviceId },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                };
+            } else {
+                // Se não encontrar pelo label, tenta pelo facingMode
+                constraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                };
+            }
+        } else {
+            constraints = {
+                video: {
+                    facingMode: 'user',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
+            };
+        }
+
+        console.log('Tentando acessar câmera com constraints:', constraints);
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        console.log('Stream obtido com sucesso');
+        return stream;
+    } catch (error) {
+        console.error(`Erro ao acessar câmera ${facingMode}:`, error);
+        throw error;
+    }
+}
+
 // Função para inicializar o vídeo
 function initializeVideo(stream) {
     return new Promise((resolve, reject) => {
@@ -75,6 +131,7 @@ function initializeVideo(stream) {
             video.style.display = 'block';
             video.autoplay = true;
             video.playsinline = true;
+            video.muted = true; // Adiciona muted para evitar problemas de autoplay
 
             // Aguarda os metadados serem carregados
             video.onloadedmetadata = () => {
@@ -104,30 +161,30 @@ function initializeVideo(stream) {
     });
 }
 
-// Função para obter stream da câmera
-async function getCameraStream(facingMode) {
-    try {
-        const constraints = {
-            video: {
-                facingMode: facingMode,
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            }
-        };
+// Função para verificar se todos os campos obrigatórios estão preenchidos
+function verificarCamposObrigatorios() {
+    const data = document.getElementById('data').value;
+    const hora = document.getElementById('hora').value;
+    const local = document.getElementById('local').value;
+    const descricao = document.getElementById('descricao').value;
+    
+    return data && hora && local && descricao;
+}
 
-        console.log('Tentando acessar câmera com constraints:', constraints);
-        const stream = await navigator.mediaDevices.getUserMedia(constraints);
-        console.log('Stream obtido com sucesso');
-        return stream;
-    } catch (error) {
-        console.error(`Erro ao acessar câmera ${facingMode}:`, error);
-        throw error;
-    }
+// Função para mostrar mensagem de campos obrigatórios
+function mostrarMensagemCamposObrigatorios() {
+    alert('Por favor, preencha todos os campos obrigatórios (Data, Hora, Local e Descrição) antes de tirar a foto.');
 }
 
 // Função para iniciar a câmera
 async function startCamera() {
     try {
+        // Verifica se todos os campos obrigatórios estão preenchidos
+        if (!verificarCamposObrigatorios()) {
+            mostrarMensagemCamposObrigatorios();
+            return;
+        }
+
         // Verifica suporte à câmera
         await checkCameraSupport();
 
@@ -337,6 +394,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('anormalidadeForm');
     if (form) {
         form.addEventListener('submit', processForm);
+    }
+
+    // Adiciona event listeners para os campos
+    const campos = ['data', 'hora', 'local', 'descricao'];
+    campos.forEach(campoId => {
+        const campo = document.getElementById(campoId);
+        if (campo) {
+            campo.addEventListener('change', function() {
+                const startCameraButton = document.getElementById('startCamera');
+                if (startCameraButton) {
+                    startCameraButton.disabled = !verificarCamposObrigatorios();
+                }
+            });
+        }
+    });
+
+    // Inicializa o botão da câmera como desabilitado
+    if (startCameraButton) {
+        startCameraButton.disabled = true;
     }
 });
 
@@ -732,10 +808,157 @@ function handleFileUpload(e) {
     }
 }
 
-/**
- * Processa o formulário e envia os dados
- * @param {Event} event - Evento do formulário
- */
+// Função para salvar registro no histórico
+function salvarRegistroNoHistorico(anomalyData) {
+    // Obtém o histórico atual do localStorage
+    let historico = JSON.parse(localStorage.getItem('historicoRegistros') || '[]');
+    
+    // Adiciona o novo registro
+    historico.unshift(anomalyData);
+    
+    // Limita o histórico aos últimos 50 registros
+    if (historico.length > 50) {
+        historico = historico.slice(0, 50);
+    }
+    
+    // Salva no localStorage
+    localStorage.setItem('historicoRegistros', JSON.stringify(historico));
+    
+    // Atualiza a exibição
+    atualizarExibicaoHistorico();
+}
+
+// Função para atualizar a exibição do histórico
+function atualizarExibicaoHistorico() {
+    const historicoContainer = document.getElementById('historicoRegistros');
+    if (!historicoContainer) return;
+    
+    // Obtém o histórico do localStorage
+    const historico = JSON.parse(localStorage.getItem('historicoRegistros') || '[]');
+    
+    // Limpa o container
+    historicoContainer.innerHTML = '';
+    
+    // Adiciona cada registro
+    historico.forEach((registro, index) => {
+        const card = document.createElement('div');
+        card.className = 'col-md-4 mb-3';
+        card.innerHTML = `
+            <div class="card h-100">
+                <img src="${registro.image}" class="card-img-top" alt="Foto do registro">
+                <div class="card-body">
+                    <h5 class="card-title">Registro #${registro.id}</h5>
+                    <p class="card-text">
+                        <strong>Data:</strong> ${new Date(registro.timestamp).toLocaleString('pt-BR')}<br>
+                        <strong>Local:</strong> ${registro.location}<br>
+                        <strong>Descrição:</strong> ${registro.description}
+                    </p>
+                    <button class="btn btn-primary btn-sm enviar-email" data-index="${index}">
+                        Enviar por Email
+                    </button>
+                </div>
+            </div>
+        `;
+        historicoContainer.appendChild(card);
+    });
+    
+    // Adiciona event listeners aos botões de envio
+    document.querySelectorAll('.enviar-email').forEach(button => {
+        button.addEventListener('click', function() {
+            const index = this.getAttribute('data-index');
+            abrirModalEmail(historico[index]);
+        });
+    });
+}
+
+// Função para abrir o modal de email
+function abrirModalEmail(registro) {
+    const modal = new bootstrap.Modal(document.getElementById('emailModal'));
+    const enviarEmailBtn = document.getElementById('enviarEmailBtn');
+    
+    // Armazena o registro atual no botão
+    enviarEmailBtn.dataset.registro = JSON.stringify(registro);
+    
+    // Limpa o formulário
+    document.getElementById('emailForm').reset();
+    
+    // Abre o modal
+    modal.show();
+}
+
+// Função para enviar email
+async function enviarEmailRegistro(registro, emailDestino, mensagemAdicional) {
+    try {
+        const emailParams = {
+            to_email: emailDestino,
+            subject: `Registro de Anormalidade - ${new Date(registro.timestamp).toLocaleString('pt-BR')}`,
+            message: `
+                <h2>Registro de Anormalidade</h2>
+                <p><strong>Data:</strong> ${new Date(registro.timestamp).toLocaleString('pt-BR')}</p>
+                <p><strong>Local:</strong> ${registro.location}</p>
+                <p><strong>Descrição:</strong> ${registro.description}</p>
+                ${mensagemAdicional ? `<p><strong>Mensagem Adicional:</strong> ${mensagemAdicional}</p>` : ''}
+                <p>A imagem está anexada a este email.</p>
+            `,
+            image: registro.image
+        };
+
+        const response = await emailjs.send(
+            "service_2g8768o",
+            "template_gvn13j7",
+            emailParams
+        );
+
+        if (response.status === 200) {
+            alert('Email enviado com sucesso!');
+            return true;
+        } else {
+            throw new Error('Falha no envio do email');
+        }
+    } catch (error) {
+        console.error('Erro ao enviar email:', error);
+        throw error;
+    }
+}
+
+// Event listener para o botão de enviar email
+document.addEventListener('DOMContentLoaded', function() {
+    const enviarEmailBtn = document.getElementById('enviarEmailBtn');
+    if (enviarEmailBtn) {
+        enviarEmailBtn.addEventListener('click', async function() {
+            try {
+                const registro = JSON.parse(this.dataset.registro);
+                const emailDestino = document.getElementById('emailDestino').value;
+                const mensagemAdicional = document.getElementById('mensagemEmail').value;
+                
+                if (!emailDestino) {
+                    alert('Por favor, insira um email de destino');
+                    return;
+                }
+                
+                this.disabled = true;
+                this.textContent = 'Enviando...';
+                
+                await enviarEmailRegistro(registro, emailDestino, mensagemAdicional);
+                
+                // Fecha o modal
+                bootstrap.Modal.getInstance(document.getElementById('emailModal')).hide();
+                
+            } catch (error) {
+                console.error('Erro ao enviar email:', error);
+                alert('Erro ao enviar email. Por favor, tente novamente.');
+            } finally {
+                this.disabled = false;
+                this.textContent = 'Enviar';
+            }
+        });
+    }
+    
+    // Atualiza a exibição do histórico quando a página carrega
+    atualizarExibicaoHistorico();
+});
+
+// Modifica a função processForm para salvar no histórico
 async function processForm(event) {
     event.preventDefault();
     
@@ -776,6 +999,9 @@ async function processForm(event) {
             description: descricao,
             image: imageData
         };
+        
+        // Salva no histórico
+        salvarRegistroNoHistorico(anomalyData);
         
         // Cria a imagem com as informações
         const infoImage = await criarImagemInfo(anomalyData);
