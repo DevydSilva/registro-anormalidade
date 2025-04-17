@@ -8,13 +8,7 @@ const elements = {
     canvas: null,
     takePhotoButton: null,
     retakePhotoButton: null,
-    startCameraButton: null,
     imagePreview: null,
-    uploadButton: null,
-    fileInput: null,
-    logoutButton: null,
-    anomalyForm: null,
-    downloadQRButton: null,
     stream: null
 };
 
@@ -24,41 +18,15 @@ document.addEventListener('DOMContentLoaded', function() {
     elements.canvas = document.getElementById('canvas');
     elements.takePhotoButton = document.querySelector('.camera-button');
     elements.retakePhotoButton = document.querySelector('.camera-button:nth-child(2)');
-    elements.startCameraButton = document.getElementById('startCamera');
     elements.imagePreview = document.getElementById('imagePreview');
-    elements.uploadButton = document.getElementById('uploadButton');
-    elements.fileInput = document.getElementById('image');
-    elements.logoutButton = document.getElementById('logoutButton');
-    elements.anomalyForm = document.getElementById('anormalidadeForm');
-    elements.downloadQRButton = document.getElementById('downloadQR');
 
     // Setup event listeners
-    if (elements.logoutButton) {
-        elements.logoutButton.addEventListener('click', logout);
-    }
-
-    if (elements.startCameraButton) {
-        elements.startCameraButton.addEventListener('click', startCamera);
-    }
-
     if (elements.takePhotoButton) {
         elements.takePhotoButton.addEventListener('click', takePhoto);
     }
 
     if (elements.retakePhotoButton) {
         elements.retakePhotoButton.addEventListener('click', retakePhoto);
-    }
-
-    if (elements.downloadQRButton) {
-        elements.downloadQRButton.addEventListener('click', downloadQRCode);
-    }
-
-    if (elements.fileInput) {
-        elements.fileInput.addEventListener('change', handleFileUpload);
-    }
-
-    if (elements.anomalyForm) {
-        elements.anomalyForm.addEventListener('submit', handleFormSubmit);
     }
 
     // Add cleanup event
@@ -71,77 +39,14 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
+    // Inicializa câmera automaticamente
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        checkCameraPermission();
-    } else {
-        console.error('Browser does not support camera access');
-        showCameraError('Your browser does not support camera access. Please use a modern browser.');
-    }
-});
-
-/**
- * Inicializa todos os elementos do DOM
- */
-window.addEventListener('load', () => {
-    const userData = JSON.parse(localStorage.getItem('userData'));
-    if (!userData || !userData.email) {
-        window.location.href = 'login.html';
-        return;
-    }
-
-    // Inicializa câmera se suportado pelo navegador
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        verificarPermissaoCamera();
+        startCamera();
     } else {
         console.error('Navegador não suporta acesso à câmera');
-        mostrarErroCamera('Seu navegador não suporta acesso à câmera. Por favor, use um navegador mais recente.');
+        showCameraError('Seu navegador não suporta acesso à câmera. Por favor, use um navegador mais recente.');
     }
 });
-
-/* ==========================================================================
-   Elementos do DOM
-   ========================================================================== */
-
-/**
- * Manipula o upload de arquivo
- */
-const anomalyForm = document.getElementById('anormalidadeForm');
-const imagePreview = document.getElementById('imagePreview');
-const downloadQRButton = document.getElementById('downloadQR');
-const startCameraButton = document.getElementById('startCamera');
-const takePhotoButton = document.querySelector('.camera-button');
-const retakePhotoButton = document.querySelector('.camera-button:nth-child(2)');
-const uploadButton = document.getElementById('uploadButton');
-const fileInput = document.getElementById('image');
-const video = document.getElementById('video');
-const canvas = document.getElementById('canvas');
-const logoutButton = document.getElementById('logoutButton');
-
-/* ==========================================================================
-   Funções de Autenticação
-   ========================================================================== */
-
-/**
- * Solicita permissão da câmera
- */
-async function requestCamera() {
-    try {
-        await startCamera();
-    } catch (error) {
-        mostrarErroCamera('Não foi possível acessar a câmera. Por favor, verifique as permissões do seu navegador.');
-    }
-}
-
-/**
- * Tenta iniciar a câmera novamente
- */
-async function retryCamera() {
-    try {
-        await startCamera();
-    } catch (error) {
-        mostrarErroCamera('Não foi possível acessar a câmera. Por favor, verifique as permissões do seu navegador.');
-    }
-}
 
 /**
  * Inicia a câmera
@@ -153,20 +58,11 @@ async function startCamera() {
         });
         elements.video.srcObject = elements.stream;
         elements.video.style.display = 'block';
-        startCameraButton.style.display = 'none';
-        takePhotoButton.style.display = 'block';
-        takePhotoButton.disabled = false;
-        uploadButton.style.display = 'none';
+        elements.takePhotoButton.style.display = 'block';
+        elements.takePhotoButton.disabled = false;
+        elements.retakePhotoButton.style.display = 'none';
         
-        if (canvas) canvas.style.display = 'none';
-        if (botaoTirarFoto) {
-            botaoTirarFoto.style.display = 'block';
-            botaoTirarFoto.disabled = false;
-        }
-        if (botaoRepetirFoto) {
-            botaoRepetirFoto.style.display = 'none';
-        }
-
+        if (elements.canvas) elements.canvas.style.display = 'none';
         await elements.video.play();
 
     } catch (error) {
@@ -182,7 +78,7 @@ async function startCamera() {
             
         } catch (fallbackError) {
             console.error('Erro ao tentar câmera frontal:', fallbackError);
-            mostrarErroCamera('Não foi possível acessar nenhuma câmera. Verifique as permissões do navegador.');
+            showCameraError('Não foi possível acessar nenhuma câmera. Verifique as permissões do navegador.');
         }
     }
 }
@@ -190,12 +86,12 @@ async function startCamera() {
 /**
  * Para a câmera
  */
-function pararCamera() {
+function stopCamera() {
     if (elements.stream) {
         elements.stream.getTracks().forEach(track => track.stop());
-        if (video) {
-            video.srcObject = null;
-            video.style.display = 'none';
+        if (elements.video) {
+            elements.video.srcObject = null;
+            elements.video.style.display = 'none';
         }
         elements.stream = null;
     }
@@ -204,27 +100,27 @@ function pararCamera() {
 /**
  * Tira foto
  */
-function tirarFoto() {
-    if (!video || !canvas) return;
+function takePhoto() {
+    if (!elements.video || !elements.canvas) return;
     
     try {
-        canvas.style.display = 'block';
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
+        elements.canvas.style.display = 'block';
+        elements.canvas.width = elements.video.videoWidth;
+        elements.canvas.height = elements.video.videoHeight;
         
-        const context = canvas.getContext('2d');
-        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const context = elements.canvas.getContext('2d');
+        context.drawImage(elements.video, 0, 0, elements.canvas.width, elements.canvas.height);
         
-        const photoData = canvas.toDataURL('image/jpeg', 0.8);
-        if (previewImagem) {
-            previewImagem.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
+        const photoData = elements.canvas.toDataURL('image/jpeg', 0.8);
+        if (elements.imagePreview) {
+            elements.imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
         }
         
-        pararCamera();
+        stopCamera();
         
-        if (botaoTirarFoto) botaoTirarFoto.style.display = 'none';
-        if (botaoRepetirFoto) botaoRepetirFoto.style.display = 'block';
-        canvas.style.display = 'none';
+        elements.takePhotoButton.style.display = 'none';
+        elements.retakePhotoButton.style.display = 'block';
+        elements.canvas.style.display = 'none';
     } catch (error) {
         console.error('Erro ao tirar foto:', error);
         alert('Erro ao capturar a foto. Por favor, tente novamente.');
@@ -234,21 +130,17 @@ function tirarFoto() {
 /**
  * Reinicia o processo de foto
  */
-function repetirFoto() {
-    if (previewImagem) {
-        previewImagem.innerHTML = '';
+function retakePhoto() {
+    if (elements.imagePreview) {
+        elements.imagePreview.innerHTML = '';
     }
-    if (botaoRepetirFoto) {
-        botaoRepetirFoto.style.display = 'none';
-    }
+    elements.retakePhotoButton.style.display = 'none';
     startCamera();
 }
 
 // Expõe funções necessárias globalmente
-window.requestCamera = requestCamera;
-window.retryCamera = retryCamera;
-window.tirarFoto = tirarFoto;
-window.repetirFoto = repetirFoto;
+window.takePhoto = takePhoto;
+window.retakePhoto = retakePhoto;
 
 /* ==========================================================================
    Funções do QR Code
@@ -625,15 +517,14 @@ function fazerLogout() {
 function handleFileUpload(e) {
     try {
         const file = e.target.files[0];
-        if (file && previewImagem) {
+        if (file && elements.imagePreview) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                previewImagem.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                pararCamera();
-                if (video) video.style.display = 'none';
-                if (botaoTirarFoto) botaoTirarFoto.style.display = 'none';
-                if (botaoRepetirFoto) botaoRepetirFoto.style.display = 'none';
-                if (botaoIniciarCamera) botaoIniciarCamera.style.display = 'block';
+                elements.imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                stopCamera();
+                if (elements.video) elements.video.style.display = 'none';
+                if (elements.takePhotoButton) elements.takePhotoButton.style.display = 'none';
+                if (elements.retakePhotoButton) elements.retakePhotoButton.style.display = 'none';
             };
             reader.readAsDataURL(file);
         }
