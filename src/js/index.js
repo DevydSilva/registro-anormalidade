@@ -16,9 +16,9 @@ const elements = {
 // Função para mostrar erros da câmera
 function showCameraError(message) {
     alert(message);
-    elements.startCameraButton.style.display = 'block';
-    elements.takePhotoButton.style.display = 'none';
-    elements.retakePhotoButton.style.display = 'none';
+    if (elements.startCameraButton) elements.startCameraButton.style.display = 'block';
+    if (elements.takePhotoButton) elements.takePhotoButton.style.display = 'none';
+    if (elements.retakePhotoButton) elements.retakePhotoButton.style.display = 'none';
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -67,10 +67,12 @@ async function startCamera() {
         elements.video.style.display = 'block';
         
         // Esconde botão de abrir câmera e mostra botão de tirar foto
-        elements.startCameraButton.style.display = 'none';
-        elements.takePhotoButton.style.display = 'block';
-        elements.takePhotoButton.disabled = false;
-        elements.retakePhotoButton.style.display = 'none';
+        if (elements.startCameraButton) elements.startCameraButton.style.display = 'none';
+        if (elements.takePhotoButton) {
+            elements.takePhotoButton.style.display = 'block';
+            elements.takePhotoButton.disabled = false;
+        }
+        if (elements.retakePhotoButton) elements.retakePhotoButton.style.display = 'none';
         
         if (elements.canvas) elements.canvas.style.display = 'none';
         await elements.video.play();
@@ -89,7 +91,7 @@ async function startCamera() {
             
         } catch (fallbackError) {
             console.error('Erro ao tentar câmera frontal:', fallbackError);
-            showCameraError('Não foi possível acessar a câmera. Por favor, verifique se você permitiu o acesso à câmera no seu navegador.');
+            showCameraError('Não foi possível acessar a câmera. Por favor:\n1. Verifique se você permitiu o acesso à câmera\n2. Se já negou a permissão, clique no ícone de cadeado/câmera na barra de endereços\n3. Limpe as permissões do site e tente novamente');
         }
     }
 }
@@ -129,8 +131,8 @@ function takePhoto() {
         
         stopCamera();
         
-        elements.takePhotoButton.style.display = 'none';
-        elements.retakePhotoButton.style.display = 'block';
+        if (elements.takePhotoButton) elements.takePhotoButton.style.display = 'none';
+        if (elements.retakePhotoButton) elements.retakePhotoButton.style.display = 'block';
         elements.canvas.style.display = 'none';
     } catch (error) {
         console.error('Erro ao tirar foto:', error);
@@ -145,8 +147,8 @@ function retakePhoto() {
     if (elements.imagePreview) {
         elements.imagePreview.innerHTML = '';
     }
-    elements.retakePhotoButton.style.display = 'none';
-    elements.startCameraButton.style.display = 'block';
+    if (elements.retakePhotoButton) elements.retakePhotoButton.style.display = 'none';
+    if (elements.startCameraButton) elements.startCameraButton.style.display = 'block';
 }
 
 // Expõe funções necessárias globalmente
