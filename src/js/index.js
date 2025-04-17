@@ -74,26 +74,37 @@ function initializeVideo(stream) {
             video.srcObject = stream;
             video.style.display = 'block';
 
-            // Aguarda os metadados serem carregados
-            video.onloadedmetadata = () => {
-                console.log('Metadados do vídeo carregados');
-                video.play()
-                    .then(() => {
-                        console.log('Vídeo iniciado com sucesso');
-                        resolve();
-                    })
-                    .catch(error => {
-                        console.error('Erro ao iniciar vídeo:', error);
-                        reject(error);
-                    });
-            };
+            // Verifica periodicamente o estado do vídeo
+            const checkInterval = setInterval(() => {
+                if (video.readyState >= 2) { // HAVE_CURRENT_DATA
+                    clearInterval(checkInterval);
+                    console.log('Vídeo pronto para reprodução');
+                    video.play()
+                        .then(() => {
+                            console.log('Vídeo iniciado com sucesso');
+                            resolve();
+                        })
+                        .catch(error => {
+                            console.error('Erro ao iniciar vídeo:', error);
+                            reject(error);
+                        });
+                }
+            }, 100);
 
             // Timeout para evitar que o código fique preso
-            setTimeout(() => {
+            const timeout = setTimeout(() => {
+                clearInterval(checkInterval);
                 if (video.readyState < 2) {
-                    reject(new Error('A câmera demorou muito para responder'));
+                    console.error('Timeout: Vídeo não carregou a tempo');
+                    reject(new Error('Timeout ao carregar vídeo'));
                 }
-            }, 10000);
+            }, 15000); // 15 segundos
+
+            // Limpa o timeout se o vídeo carregar
+            video.onloadedmetadata = () => {
+                console.log('Metadados do vídeo carregados');
+                clearTimeout(timeout);
+            };
 
         } catch (error) {
             console.error('Erro ao configurar stream:', error);
