@@ -1,112 +1,162 @@
+:root {
+    /* Colors */
+    --color-primary: #4a90e2;
+    --color-primary-dark: #357abd;
+    --color-secondary: #f5f5f5;
+    --color-text: #333;
+    --color-text-light: #666;
+    --color-error: #e74c3c;
+    --color-success: #2ecc71;
+    --color-white: #fff;
+    --color-shadow: rgba(0, 0, 0, 0.1);
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+
+    /* Border */
+    --border-radius: 4px;
+    --border-color: #ddd;
+
+    /* Shadow */
+    --shadow-sm: 0 2px 4px var(--color-shadow);
+    --shadow-md: 0 4px 8px var(--color-shadow);
+}
+
+/* Reset and Base Styles */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background: linear-gradient(135deg, #43cea2  0%, #185a9d 100%);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--color-text);
+    background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
     min-height: 100vh;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
 }
 
+/* Container Styles */
 .container {
     width: 100%;
-    max-width: 500px;
-    padding: 20px;
+    max-width: 400px;
+    padding: var(--spacing-xl);
 }
 
 .form-container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    background: var(--color-white);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
 }
 
-h2 {
-    color: #333;
+/* Typography */
+h1, h2 {
+    color: var(--color-text);
+    margin-bottom: var(--spacing-lg);
     text-align: center;
-    margin-bottom: 30px;
 }
 
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Form Styles */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: var(--spacing-md);
 }
 
 label {
     display: block;
-    margin-bottom: 5px;
-    color: #666;
-    font-weight: 500;
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-text-light);
+    font-size: 0.9rem;
 }
 
 input {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
     transition: border-color 0.3s ease;
 }
 
 input:focus {
     outline: none;
-    border-color: #4a90e2;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 
+/* Button Styles */
 button {
     width: 100%;
-    padding: 12px;
-    background: #4a90e2;
-    color: white;
+    padding: var(--spacing-sm);
+    background: var(--color-primary);
+    color: var(--color-white);
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: background-color 0.3s ease;
 }
 
 button:hover {
-    background: #357abd;
+    background: var(--color-primary-dark);
 }
 
-.register-message {
-    margin-top: 20px;
+button:active {
+    transform: translateY(1px);
+}
+
+/* Message Styles */
+.register-message,
+.recovery-link {
+    margin-top: var(--spacing-md);
     text-align: center;
-    color: #666;
-    font-size: 14px;
-    font-style: italic;
+    font-size: 0.9rem;
+    color: var(--color-text-light);
 }
 
-.register-link {
-    margin-top: 10px;
-    text-align: center;
+.register-message[role="alert"] {
+    color: var(--color-error);
 }
 
-.register-link p {
-    color: #666;
-    font-size: 14px;
-}
-
-.register-link a {
-    color: #4CAF50;
+/* Link Styles */
+a {
+    color: var(--color-primary);
     text-decoration: none;
-    font-weight: bold;
+    transition: color 0.3s ease;
 }
 
-.register-link a:hover {
+a:hover {
+    color: var(--color-primary-dark);
     text-decoration: underline;
 }
 
-@media (max-width: 600px) {
+/* Responsive Design */
+@media (max-width: 480px) {
     .container {
-        padding: 10px;
+        padding: var(--spacing-md);
     }
-    
+
     .form-container {
-        padding: 20px;
+        padding: var(--spacing-lg);
     }
 } 
