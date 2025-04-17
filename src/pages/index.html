@@ -74,50 +74,142 @@
                     </button>
                 </form>
             </div>
-        </div>
 
-        <!-- Seção de Histórico -->
-        <div class="container mt-4">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">Histórico de Registros</h5>
-                </div>
-                <div class="card-body">
-                    <div id="historicoRegistros" class="row">
-                        <!-- Os registros serão adicionados aqui dinamicamente -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal para Envio de Email -->
-        <div class="modal fade" id="emailModal" tabindex="-1" aria-labelledby="emailModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="emailModalLabel">Enviar Registro por Email</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form id="emailForm">
-                            <div class="mb-3">
-                                <label for="emailDestino" class="form-label">Email de Destino</label>
-                                <input type="email" class="form-control" id="emailDestino" required>
+            <!-- Seção de Texto e Item Disponível -->
+            <div class="info-section">
+                <div class="info-content">
+                    <h3>Itens Disponíveis</h3>
+                    <div class="item-list">
+                        <div class="item-card">
+                            <div class="item-icon">
+                                <i class="fas fa-tools"></i>
                             </div>
-                            <div class="mb-3">
-                                <label for="mensagemEmail" class="form-label">Mensagem Adicional (opcional)</label>
-                                <textarea class="form-control" id="mensagemEmail" rows="3"></textarea>
+                            <div class="item-info">
+                                <h4>Ferramentas</h4>
+                                <p>Conjunto completo de ferramentas para manutenção</p>
+                                <span class="item-status available">Disponível</span>
                             </div>
-                        </form>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                        <button type="button" class="btn btn-primary" id="enviarEmailBtn">Enviar</button>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">
+                                <i class="fas fa-helmet-safety"></i>
+                            </div>
+                            <div class="item-info">
+                                <h4>EPIs</h4>
+                                <p>Equipamentos de Proteção Individual</p>
+                                <span class="item-status available">Disponível</span>
+                            </div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">
+                                <i class="fas fa-box"></i>
+                            </div>
+                            <div class="item-info">
+                                <h4>Materiais</h4>
+                                <p>Materiais diversos para reparos</p>
+                                <span class="item-status available">Disponível</span>
+                            </div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">
+                                <i class="fas fa-broom"></i>
+                            </div>
+                            <div class="item-info">
+                                <h4>Limpeza</h4>
+                                <p>Produtos e equipamentos de limpeza</p>
+                                <span class="item-status available">Disponível</span>
+                            </div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">
+                                <i class="fas fa-plug"></i>
+                            </div>
+                            <div class="item-info">
+                                <h4>Elétrica</h4>
+                                <p>Materiais e ferramentas elétricas</p>
+                                <span class="item-status available">Disponível</span>
+                            </div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">
+                                <i class="fas fa-faucet"></i>
+                            </div>
+                            <div class="item-info">
+                                <h4>Hidráulica</h4>
+                                <p>Materiais e ferramentas hidráulicas</p>
+                                <span class="item-status available">Disponível</span>
+                            </div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">
+                                <i class="fas fa-paint-roller"></i>
+                            </div>
+                            <div class="item-info">
+                                <h4>Pintura</h4>
+                                <p>Tintas e materiais para pintura</p>
+                                <span class="item-status available">Disponível</span>
+                            </div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">
+                                <i class="fas fa-tape"></i>
+                            </div>
+                            <div class="item-info">
+                                <h4>Vedantes</h4>
+                                <p>Fitas, colas e materiais de vedação</p>
+                                <span class="item-status available">Disponível</span>
+                            </div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <div class="item-info">
+                                <h4>Parafusos</h4>
+                                <p>Diversos tipos de parafusos e fixadores</p>
+                                <span class="item-status available">Disponível</span>
+                            </div>
+                        </div>
+                        <div class="item-card">
+                            <div class="item-icon">
+                                <i class="fas fa-ruler-combined"></i>
+                            </div>
+                            <div class="item-info">
+                                <h4>Medição</h4>
+                                <p>Instrumentos de medição e precisão</p>
+                                <span class="item-status available">Disponível</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <h4>Sistema de Registro de Anormalidades</h4>
+                    <p>Desenvolvido por SENAI - Serviço Nacional de Aprendizagem Industrial</p>
+                    <p>© 2024 Todos os direitos reservados</p>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contato</h4>
+                    <p><i class="fas fa-envelope"></i> contato@senai.com.br</p>
+                    <p><i class="fas fa-phone"></i> (11) 1234-5678</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Links Úteis</h4>
+                    <ul>
+                        <li><a href="https://www.senai.com.br" target="_blank">Site Oficial SENAI</a></li>
+                        <li><a href="https://www.senai.com.br/termos" target="_blank">Termos de Uso</a></li>
+                        <li><a href="https://www.senai.com.br/privacidade" target="_blank">Política de Privacidade</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>

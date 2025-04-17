@@ -414,6 +414,141 @@ document.addEventListener('DOMContentLoaded', function() {
     if (startCameraButton) {
         startCameraButton.disabled = true;
     }
+
+    // Carregar histórico ao iniciar
+    carregarHistorico();
+    
+    // Event listener para botões de enviar email
+    document.querySelectorAll('.btn-enviar-email').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const index = e.target.closest('.btn-enviar-email').dataset.index;
+            $('#emailModal').modal('show');
+            
+            document.getElementById('enviarEmailBtn').onclick = () => {
+                enviarEmail(index);
+            };
+        });
+    });
+    
+    // Event listener para fechar modal
+    document.querySelectorAll('[data-dismiss="modal"]').forEach(button => {
+        button.addEventListener('click', () => {
+            $('#emailModal').modal('hide');
+        });
+    });
+
+    // Carrossel de Itens
+    const itemList = document.querySelector('.item-list');
+    const items = document.querySelectorAll('.item-card');
+    const wrapper = document.createElement('div');
+    wrapper.className = 'item-list-wrapper';
+    
+    // Envolve os itens em um wrapper
+    items.forEach(item => wrapper.appendChild(item.cloneNode(true)));
+    itemList.innerHTML = '';
+    itemList.appendChild(wrapper);
+
+    // Configuração do carrossel
+    let currentIndex = 0;
+    const itemWidth = items[0].offsetWidth + 30; // Largura do item + gap
+    const totalItems = items.length;
+    const visibleItems = Math.floor(itemList.offsetWidth / itemWidth);
+    
+    // Cria os dots de navegação
+    const dotsContainer = document.createElement('div');
+    dotsContainer.className = 'carousel-nav';
+    for (let i = 0; i < Math.ceil(totalItems / visibleItems); i++) {
+        const dot = document.createElement('div');
+        dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => goToSlide(i));
+        dotsContainer.appendChild(dot);
+    }
+    itemList.appendChild(dotsContainer);
+
+    // Função para mover o carrossel
+    function goToSlide(index) {
+        currentIndex = index;
+        const offset = -currentIndex * itemWidth * visibleItems;
+        wrapper.style.transform = `translateX(${offset}px)`;
+        
+        // Atualiza os dots ativos
+        document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === index);
+        });
+    }
+
+    // Rotação automática
+    let autoRotate = setInterval(() => {
+        currentIndex = (currentIndex + 1) % Math.ceil(totalItems / visibleItems);
+        goToSlide(currentIndex);
+    }, 3000); // Muda a cada 3 segundos
+
+    // Pausa a rotação quando o mouse está sobre o carrossel
+    itemList.addEventListener('mouseenter', () => clearInterval(autoRotate));
+    itemList.addEventListener('mouseleave', () => {
+        autoRotate = setInterval(() => {
+            currentIndex = (currentIndex + 1) % Math.ceil(totalItems / visibleItems);
+            goToSlide(currentIndex);
+        }, 3000);
+    });
+
+    // Botões de navegação
+    const prevButton = document.createElement('button');
+    prevButton.className = 'carousel-button prev';
+    prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+    prevButton.addEventListener('click', () => {
+        currentIndex = (currentIndex - 1 + Math.ceil(totalItems / visibleItems)) % Math.ceil(totalItems / visibleItems);
+        goToSlide(currentIndex);
+    });
+
+    const nextButton = document.createElement('button');
+    nextButton.className = 'carousel-button next';
+    nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    nextButton.addEventListener('click', () => {
+        currentIndex = (currentIndex + 1) % Math.ceil(totalItems / visibleItems);
+        goToSlide(currentIndex);
+    });
+
+    itemList.appendChild(prevButton);
+    itemList.appendChild(nextButton);
+
+    // Inicialização do carrossel
+    const myCarousel = new bootstrap.Carousel(document.getElementById('carouselExampleIndicators'), {
+        interval: 5000, // Tempo entre os slides em milissegundos
+        wrap: true, // Permite que o carrossel volte ao início após o último slide
+        keyboard: true // Permite navegação por teclado
+    });
+
+    // Adiciona controles de navegação personalizados
+    const carousel = document.getElementById('carouselExampleIndicators');
+    const prevButtonCarousel = carousel.querySelector('.carousel-control-prev');
+    const nextButtonCarousel = carousel.querySelector('.carousel-control-next');
+    const indicators = carousel.querySelectorAll('.carousel-indicators button');
+
+    // Adiciona eventos para os indicadores
+    indicators.forEach((indicator, index) => {
+        indicator.addEventListener('click', () => {
+            myCarousel.to(index);
+        });
+    });
+
+    // Adiciona eventos para os botões de navegação
+    prevButtonCarousel.addEventListener('click', () => {
+        myCarousel.prev();
+    });
+
+    nextButtonCarousel.addEventListener('click', () => {
+        myCarousel.next();
+    });
+
+    // Adiciona evento para pausar o carrossel quando o mouse estiver sobre ele
+    carousel.addEventListener('mouseenter', () => {
+        myCarousel.pause();
+    });
+
+    carousel.addEventListener('mouseleave', () => {
+        myCarousel.cycle();
+    });
 });
 
 /* ==========================================================================
@@ -842,28 +977,42 @@ function atualizarExibicaoHistorico() {
     // Adiciona cada registro
     historico.forEach((registro, index) => {
         const card = document.createElement('div');
-        card.className = 'col-md-4 mb-3';
-        card.innerHTML = `
-            <div class="card h-100">
-                <img src="${registro.image}" class="card-img-top" alt="Foto do registro">
-                <div class="card-body">
-                    <h5 class="card-title">Registro #${registro.id}</h5>
-                    <p class="card-text">
-                        <strong>Data:</strong> ${new Date(registro.timestamp).toLocaleString('pt-BR')}<br>
-                        <strong>Local:</strong> ${registro.location}<br>
-                        <strong>Descrição:</strong> ${registro.description}
-                    </p>
-                    <button class="btn btn-primary btn-sm enviar-email" data-index="${index}">
-                        Enviar por Email
-                    </button>
-                </div>
-            </div>
-        `;
+        card.className = 'registro-card';
+        
+        const img = document.createElement('img');
+        img.src = registro.image;
+        img.alt = 'Registro ' + (index + 1);
+        
+        const info = document.createElement('div');
+        info.className = 'registro-info';
+        
+        const titulo = document.createElement('h5');
+        titulo.textContent = registro.data + ' - ' + registro.hora;
+        
+        const local = document.createElement('p');
+        local.textContent = 'Local: ' + registro.location;
+        
+        const descricao = document.createElement('p');
+        descricao.textContent = 'Descrição: ' + registro.description;
+        
+        const btnEmail = document.createElement('button');
+        btnEmail.className = 'btn-enviar-email';
+        btnEmail.textContent = 'Enviar por Email';
+        btnEmail.setAttribute('data-index', index);
+        
+        info.appendChild(titulo);
+        info.appendChild(local);
+        info.appendChild(descricao);
+        info.appendChild(btnEmail);
+        
+        card.appendChild(img);
+        card.appendChild(info);
+        
         historicoContainer.appendChild(card);
     });
     
     // Adiciona event listeners aos botões de envio
-    document.querySelectorAll('.enviar-email').forEach(button => {
+    document.querySelectorAll('.btn-enviar-email').forEach(button => {
         button.addEventListener('click', function() {
             const index = this.getAttribute('data-index');
             abrirModalEmail(historico[index]);
@@ -1029,4 +1178,82 @@ window.startCamera = startCamera;
 window.stopCamera = stopCamera;
 window.takePhoto = takePhoto;
 window.retakePhoto = retakePhoto;
-window.showCameraError = showCameraError; 
+window.showCameraError = showCameraError;
+
+// Função para carregar o histórico de registros
+function carregarHistorico() {
+    const historicoRegistros = document.getElementById('historicoRegistros');
+    const registros = JSON.parse(localStorage.getItem('registros') || '[]');
+    
+    historicoRegistros.innerHTML = '';
+    
+    registros.forEach((registro, index) => {
+        const card = document.createElement('div');
+        card.className = 'registro-card';
+        
+        const img = document.createElement('img');
+        img.src = registro.imagem;
+        img.alt = 'Registro ' + (index + 1);
+        
+        const info = document.createElement('div');
+        info.className = 'registro-info';
+        
+        const titulo = document.createElement('h5');
+        titulo.textContent = registro.data + ' - ' + registro.hora;
+        
+        const local = document.createElement('p');
+        local.textContent = 'Local: ' + registro.local;
+        
+        const descricao = document.createElement('p');
+        descricao.textContent = 'Descrição: ' + registro.descricao;
+        
+        const btnEmail = document.createElement('button');
+        btnEmail.className = 'btn-enviar-email';
+        btnEmail.textContent = 'Enviar por Email';
+        btnEmail.setAttribute('data-index', index);
+        
+        info.appendChild(titulo);
+        info.appendChild(local);
+        info.appendChild(descricao);
+        info.appendChild(btnEmail);
+        
+        card.appendChild(img);
+        card.appendChild(info);
+        
+        historicoRegistros.appendChild(card);
+    });
+}
+
+// Função para enviar email
+async function enviarEmail(index) {
+    const registros = JSON.parse(localStorage.getItem('registros') || '[]');
+    const registro = registros[index];
+    
+    if (!registro) {
+        alert('Registro não encontrado!');
+        return;
+    }
+    
+    const emailDestinatario = document.getElementById('emailDestinatario').value;
+    
+    try {
+        const response = await emailjs.send('service_2g8768o', 'template_gvn13j7', {
+            to_email: emailDestinatario,
+            data: registro.data,
+            hora: registro.hora,
+            local: registro.local,
+            descricao: registro.descricao,
+            imagem: registro.imagem
+        });
+        
+        if (response.status === 200) {
+            alert('Email enviado com sucesso!');
+            $('#emailModal').modal('hide');
+        } else {
+            throw new Error('Erro ao enviar email');
+        }
+    } catch (error) {
+        console.error('Erro ao enviar email:', error);
+        alert('Erro ao enviar email. Por favor, tente novamente.');
+    }
+} 
