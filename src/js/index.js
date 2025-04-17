@@ -13,8 +13,14 @@ window.addEventListener('load', () => {
         return;
     }
     
-    // Inicializa a câmera automaticamente
-    startCamera();
+    // Verifica se o navegador suporta a API de mídia
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        // Inicializa a câmera automaticamente
+        checkCameraPermission();
+    } else {
+        console.error('Navegador não suporta acesso à câmera');
+        showCameraError('Seu navegador não suporta acesso à câmera. Por favor, use um navegador mais recente.');
+    }
 });
 
 /* ==========================================================================
@@ -61,36 +67,126 @@ function checkLogin() {
    ========================================================================== */
 
 /**
+ * Verifica a permissão da câmera e tenta inicializá-la
+ */
+async function checkCameraPermission() {
+    try {
+        // Primeiro, verifica se já temos permissão
+        const permission = await navigator.permissions.query({ name: 'camera' });
+        
+        if (permission.state === 'granted') {
+            startCamera();
+        } else if (permission.state === 'prompt') {
+            // Se precisar pedir permissão, mostra uma mensagem ao usuário
+            showCameraPrompt();
+        } else {
+            showCameraError('Permissão da câmera negada. Por favor, permita o acesso à câmera nas configurações do seu navegador.');
+        }
+    } catch (error) {
+        // Se não puder verificar a permissão, tenta iniciar a câmera diretamente
+        startCamera();
+    }
+}
+
+/**
+ * Mostra uma mensagem de erro da câmera
+ * @param {string} message - Mensagem de erro para mostrar
+ */
+function showCameraError(message) {
+    const cameraContainer = document.querySelector('.camera-container');
+    if (cameraContainer) {
+        cameraContainer.innerHTML = `
+            <div class="camera-error">
+                <p>${message}</p>
+                <button onclick="retryCamera()" class="camera-button">
+                    <i class="fas fa-redo"></i> Tentar Novamente
+                </button>
+            </div>
+        `;
+    }
+}
+
+/**
+ * Mostra um prompt para o usuário permitir a câmera
+ */
+function showCameraPrompt() {
+    const cameraContainer = document.querySelector('.camera-container');
+    if (cameraContainer) {
+        cameraContainer.innerHTML = `
+            <div class="camera-prompt">
+                <p>Para tirar fotos, precisamos do seu permissão para acessar a câmera.</p>
+                <button onclick="startCamera()" class="camera-button">
+                    <i class="fas fa-camera"></i> Permitir Câmera
+                </button>
+            </div>
+        `;
+    }
+}
+
+/**
+ * Tenta iniciar a câmera novamente
+ */
+function retryCamera() {
+    startCamera();
+}
+
+/**
  * Inicia a câmera do dispositivo
  * @async
  * @returns {Promise<void>}
  */
 async function startCamera() {
     try {
+        // Tenta primeiro a câmera traseira
         stream = await navigator.mediaDevices.getUserMedia({ 
             video: { 
-                facingMode: 'environment',
+                facingMode: { ideal: 'environment' },
                 width: { ideal: 1280 },
                 height: { ideal: 720 }
             } 
         });
+        
         video.srcObject = stream;
         video.style.display = 'block';
-        startCameraButton.style.display = 'none';
-        takePhotoButton.style.display = 'block';
-        takePhotoButton.disabled = false;
-        uploadButton.style.display = 'none';
+        canvas.style.display = 'none';
         
-        video.onloadedmetadata = () => {
-            video.play();
+        // Atualiza os botões
+        if (startCameraButton) startCameraButton.style.display = 'none';
+        if (takePhotoButton) {
+            takePhotoButton.style.display = 'block';
             takePhotoButton.disabled = false;
-        };
+        }
+        if (uploadButton) uploadButton.style.display = 'none';
+        if (retakePhotoButton) retakePhotoButton.style.display = 'none';
+        
+        // Aguarda o carregamento do vídeo
+        await new Promise((resolve) => {
+            video.onloadedmetadata = () => {
+                video.play().then(resolve).catch(resolve);
+            };
+        });
+        
     } catch (err) {
         console.error('Erro ao acessar a câmera:', err);
-        alert('Não foi possível acessar a câmera. Por favor, verifique as permissões.');
-        startCameraButton.style.display = 'block';
-        takePhotoButton.style.display = 'none';
-        uploadButton.style.display = 'block';
+        
+        // Tenta a câmera frontal como fallback
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: 'user',
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            });
+            
+            video.srcObject = stream;
+            video.style.display = 'block';
+            video.play();
+            
+        } catch (frontErr) {
+            console.error('Erro ao acessar câmera frontal:', frontErr);
+            showCameraError('Não foi possível acessar a câmera. Por favor, verifique as permissões do seu navegador.');
+        }
     }
 }
 
