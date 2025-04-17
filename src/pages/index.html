@@ -61,13 +61,15 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="photoInput">Foto:</label>
-                        <input type="hidden" id="photoInput" name="photo">
+                        <label for="video">Foto:</label>
                         <div class="camera-container">
-                            <video id="video" autoplay playsinline></video>
+                            <video id="video" autoplay playsinline style="display: none;"></video>
                             <canvas id="canvas" style="display: none;"></canvas>
                             <div class="camera-controls">
-                                <button type="button" onclick="takePhoto()" class="camera-button" title="Tirar foto">
+                                <button type="button" onclick="startCamera()" class="camera-button" id="startCamera" title="Abrir câmera">
+                                    <i class="fas fa-camera"></i> Abrir Câmera
+                                </button>
+                                <button type="button" onclick="takePhoto()" class="camera-button" style="display: none;" title="Tirar foto">
                                     <i class="fas fa-camera"></i> Tirar Foto
                                 </button>
                                 <button type="button" onclick="retakePhoto()" class="camera-button" style="display: none;" title="Refazer foto">

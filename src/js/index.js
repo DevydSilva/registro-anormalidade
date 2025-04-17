@@ -6,6 +6,7 @@
 const elements = {
     video: null,
     canvas: null,
+    startCameraButton: null,
     takePhotoButton: null,
     retakePhotoButton: null,
     imagePreview: null,
@@ -16,11 +17,16 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize elements
     elements.video = document.getElementById('video');
     elements.canvas = document.getElementById('canvas');
-    elements.takePhotoButton = document.querySelector('.camera-button');
-    elements.retakePhotoButton = document.querySelector('.camera-button:nth-child(2)');
+    elements.startCameraButton = document.getElementById('startCamera');
+    elements.takePhotoButton = document.querySelector('.camera-button:nth-child(2)');
+    elements.retakePhotoButton = document.querySelector('.camera-button:nth-child(3)');
     elements.imagePreview = document.getElementById('imagePreview');
 
     // Setup event listeners
+    if (elements.startCameraButton) {
+        elements.startCameraButton.addEventListener('click', startCamera);
+    }
+
     if (elements.takePhotoButton) {
         elements.takePhotoButton.addEventListener('click', takePhoto);
     }
@@ -32,19 +38,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add cleanup event
     window.addEventListener('beforeunload', stopCamera);
 
-    // Check login and initialize camera
+    // Check login
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (!userData || !userData.email) {
         window.location.href = 'login.html';
         return;
-    }
-
-    // Inicializa câmera automaticamente
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        startCamera();
-    } else {
-        console.error('Navegador não suporta acesso à câmera');
-        showCameraError('Seu navegador não suporta acesso à câmera. Por favor, use um navegador mais recente.');
     }
 });
 
@@ -58,6 +56,9 @@ async function startCamera() {
         });
         elements.video.srcObject = elements.stream;
         elements.video.style.display = 'block';
+        
+        // Esconde botão de abrir câmera e mostra botão de tirar foto
+        elements.startCameraButton.style.display = 'none';
         elements.takePhotoButton.style.display = 'block';
         elements.takePhotoButton.disabled = false;
         elements.retakePhotoButton.style.display = 'none';
@@ -135,10 +136,11 @@ function retakePhoto() {
         elements.imagePreview.innerHTML = '';
     }
     elements.retakePhotoButton.style.display = 'none';
-    startCamera();
+    elements.startCameraButton.style.display = 'block';
 }
 
 // Expõe funções necessárias globalmente
+window.startCamera = startCamera;
 window.takePhoto = takePhoto;
 window.retakePhoto = retakePhoto;
 
