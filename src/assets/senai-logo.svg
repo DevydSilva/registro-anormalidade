@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="120" viewBox="0 0 300 120" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        .senai-text { font-family: Arial, sans-serif; font-weight: bold; font-style: italic; }
+        .slogan-text { font-family: Arial, sans-serif; font-weight: bold; }
+    </style>
+    <rect x="0" y="0" width="300" height="120" fill="#003399"/>
+    <!-- Linhas laterais -->
+    <rect x="10" y="15" width="4" height="50" fill="white"/>
+    <rect x="20" y="15" width="4" height="50" fill="white"/>
+    <rect x="30" y="15" width="4" height="50" fill="white"/>
+    <rect x="266" y="15" width="4" height="50" fill="white"/>
+    <rect x="276" y="15" width="4" height="50" fill="white"/>
+    <rect x="286" y="15" width="4" height="50" fill="white"/>
+    
+    <!-- SENAI texto -->
+    <text x="50" y="60" class="senai-text" fill="white" font-size="48">SENAI</text>
+    
+    <!-- Slogan -->
+    <text x="10" y="100" class="slogan-text" fill="#0066cc" font-size="20">PELO FUTURO DO TRABALHO</text>
+</svg> 
