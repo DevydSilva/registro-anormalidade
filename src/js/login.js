@@ -96,22 +96,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Função para recuperação de senha
-    const forgotPassword = document.getElementById('forgotPassword');
-    if (forgotPassword) {
-        forgotPassword.addEventListener('click', (e) => {
+    // Remover qualquer interceptação do link de recuperação
+    const forgotPasswordLink = document.getElementById('forgotPassword');
+    if (forgotPasswordLink) {
+        forgotPasswordLink.addEventListener('click', (e) => {
             e.preventDefault();
-            const email = prompt('Digite seu e-mail para recuperar a senha:');
-            if (email) {
-                const users = JSON.parse(localStorage.getItem('users')) || [];
-                const user = users.find(u => u.email === email);
-                
-                if (user) {
-                    alert(`Sua senha é: ${user.password}`);
-                } else {
-                    alert('E-mail não encontrado.');
-                }
-            }
+            window.location.href = 'recuperacao.html';
         });
     }
 
