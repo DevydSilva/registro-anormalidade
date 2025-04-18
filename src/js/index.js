@@ -1536,4 +1536,42 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+});
+
+// Função para lidar com inscrição em cursos
+function handleInscricaoCurso(cursoId) {
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    if (!userData) {
+        alert('Por favor, faça login para se inscrever em um curso.');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    // Verifica se o usuário já está inscrito no curso
+    const inscricoes = JSON.parse(localStorage.getItem('inscricoesCursos') || '[]');
+    if (inscricoes.some(inscricao => inscricao.cursoId === cursoId && inscricao.userId === userData.id)) {
+        alert('Você já está inscrito neste curso!');
+        return;
+    }
+
+    // Adiciona a inscrição
+    inscricoes.push({
+        cursoId,
+        userId: userData.id,
+        dataInscricao: new Date().toISOString()
+    });
+
+    localStorage.setItem('inscricoesCursos', JSON.stringify(inscricoes));
+    alert('Inscrição realizada com sucesso!');
+}
+
+// Adiciona event listeners para os botões de inscrição
+document.addEventListener('DOMContentLoaded', () => {
+    const botoesInscricao = document.querySelectorAll('.btn-inscrever');
+    botoesInscricao.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const cursoId = e.target.dataset.cursoId;
+            handleInscricaoCurso(cursoId);
+        });
+    });
 }); 
