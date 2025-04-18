@@ -2,6 +2,36 @@
    Initialization and Login Verification
    ========================================================================== */
 
+// Verificação de login
+document.addEventListener('DOMContentLoaded', () => {
+    // Função para verificar login
+    function verificarLogin() {
+        try {
+            const userData = JSON.parse(localStorage.getItem('userData'));
+            if (!userData || !userData.email) {
+                window.location.replace('login.html');
+                return false;
+            }
+            return true;
+        } catch (error) {
+            console.error('Erro ao verificar login:', error);
+            window.location.replace('login.html');
+            return false;
+        }
+    }
+
+    // Verificar login inicial
+    if (!verificarLogin()) {
+        return;
+    }
+
+    // Verificar login periodicamente (a cada 30 segundos)
+    setInterval(verificarLogin, 30000);
+
+    // Verificar login quando a página ganha foco
+    window.addEventListener('focus', verificarLogin);
+});
+
 // Elementos globais
 let video = null;
 let canvas = null;

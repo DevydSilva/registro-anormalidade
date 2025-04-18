@@ -85,8 +85,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     email: user.email
                 }));
                 
-                // Redirecionar para a página principal
-                window.location.href = 'index.html';
+                // Redirecionar para a página principal usando replace
+                window.location.replace('index.html');
             } else {
                 showError('Nome, e-mail ou senha incorretos.');
             }
