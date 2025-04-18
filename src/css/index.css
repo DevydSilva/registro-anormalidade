@@ -854,4 +854,62 @@ textarea {
         min-width: 220px;
         padding: 1rem;
     }
+}
+
+/* Estilos do Menu de Navegação */
+.main-nav {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 1rem;
+}
+
+.nav-item {
+    flex: 1;
+    text-align: center;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: #333;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+}
+
+.nav-link.active {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.nav-link i {
+    font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+    .nav-menu {
+        flex-direction: column;
+    }
+    
+    .nav-link {
+        justify-content: flex-start;
+        padding: 1rem;
+    }
 } 

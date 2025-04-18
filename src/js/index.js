@@ -1503,4 +1503,37 @@ if (logoutButton) {
         localStorage.removeItem('userData');
         window.location.href = 'login.html';
     };
-} 
+}
+
+// Funções do Menu de Navegação
+document.addEventListener('DOMContentLoaded', function() {
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove a classe active de todos os links
+            navLinks.forEach(l => l.classList.remove('active'));
+            
+            // Adiciona a classe active ao link clicado
+            this.classList.add('active');
+            
+            // Lógica para cada item do menu
+            const menuItem = this.querySelector('i').className;
+            
+            if (menuItem.includes('fa-home')) {
+                // Página inicial já está ativa
+            } else if (menuItem.includes('fa-history')) {
+                // Mostrar histórico
+                document.querySelector('.historico-section').scrollIntoView({ behavior: 'smooth' });
+            } else if (menuItem.includes('fa-chart-bar')) {
+                // Mostrar relatórios (implementar futuramente)
+                alert('Funcionalidade de relatórios em desenvolvimento');
+            } else if (menuItem.includes('fa-cog')) {
+                // Mostrar configurações (implementar futuramente)
+                alert('Funcionalidade de configurações em desenvolvimento');
+            }
+        });
+    });
+}); 
