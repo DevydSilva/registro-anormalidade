@@ -23,7 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função para mostrar/esconder senha
     if (togglePassword) {
-        togglePassword.addEventListener('click', () => {
+        togglePassword.addEventListener('click', (e) => {
+            e.preventDefault();
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
             togglePassword.classList.toggle('fa-eye');
@@ -37,12 +38,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return re.test(email);
     }
 
+    // Função para mostrar mensagem de erro
+    function showError(message) {
+        if (errorMessage) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 3000);
+        }
+    }
+
     // Função para validar o login
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const name = nameInput.value;
-        const email = emailInput.value;
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
         const password = passwordInput.value;
         
         // Limpar mensagem de erro anterior
@@ -52,36 +64,35 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Validar campos
         if (!name || !email || !password) {
-            if (errorMessage) {
-                errorMessage.textContent = 'Por favor, preencha todos os campos.';
-            }
+            showError('Por favor, preencha todos os campos.');
             return;
         }
 
         if (!validateEmail(email)) {
-            if (errorMessage) {
-                errorMessage.textContent = 'Por favor, insira um e-mail válido.';
-            }
+            showError('Por favor, insira um e-mail válido.');
             return;
         }
 
-        // Buscar usuários no localStorage
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const user = users.find(u => u.email === email && u.password === password && u.name === name);
+        try {
+            // Buscar usuários no localStorage
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.email === email && u.password === password && u.name === name);
 
-        if (user) {
-            // Salvar usuário atual na sessão
-            localStorage.setItem('userData', JSON.stringify({
-                name: user.name,
-                email: user.email
-            }));
-            
-            // Redirecionar para a página principal
-            window.location.href = 'index.html';
-        } else {
-            if (errorMessage) {
-                errorMessage.textContent = 'Nome, e-mail ou senha incorretos.';
+            if (user) {
+                // Salvar usuário atual na sessão
+                localStorage.setItem('userData', JSON.stringify({
+                    name: user.name,
+                    email: user.email
+                }));
+                
+                // Redirecionar para a página principal
+                window.location.href = 'index.html';
+            } else {
+                showError('Nome, e-mail ou senha incorretos.');
             }
+        } catch (error) {
+            console.error('Erro ao processar login:', error);
+            showError('Ocorreu um erro ao processar seu login. Por favor, tente novamente.');
         }
     });
 
@@ -103,4 +114,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // Melhorias para dispositivos móveis
+    if ('ontouchstart' in window) {
+        // Ajustar tamanho dos inputs para melhor usabilidade em touch
+        [nameInput, emailInput, passwordInput].forEach(input => {
+            input.style.minHeight = '44px'; // Tamanho mínimo recomendado para touch
+        });
+
+        // Melhorar feedback visual em touch
+        loginForm.querySelectorAll('button, input').forEach(element => {
+            element.style.webkitTapHighlightColor = 'rgba(0, 123, 255, 0.3)';
+        });
+    }
+
+    // Prevenir zoom automático em iOS
+    document.addEventListener('focusin', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            window.scrollTo(0, 0);
+        }
+    });
 }); 
