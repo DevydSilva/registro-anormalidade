@@ -1497,9 +1497,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Adicionar evento de clique ao botão de logout
-document.addEventListener('DOMContentLoaded', () => {
-    const logoutButton = document.getElementById('logoutButton');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', fazerLogout);
-    }
-}); 
+const logoutButton = document.getElementById('logoutButton');
+if (logoutButton) {
+    logoutButton.onclick = function() {
+        localStorage.removeItem('userData');
+        window.location.href = 'login.html';
+    };
+} 
