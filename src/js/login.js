@@ -2,13 +2,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Elementos do DOM
     const loginForm = document.getElementById('loginForm');
+    const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const errorMessage = document.getElementById('errorMessage');
     const togglePassword = document.getElementById('togglePassword');
 
     // Verificar se os elementos foram encontrados
-    if (!loginForm || !emailInput || !passwordInput) {
+    if (!loginForm || !nameInput || !emailInput || !passwordInput) {
         console.error('Elementos do formulário não encontrados!');
         return;
     }
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         
+        const name = nameInput.value;
         const email = emailInput.value;
         const password = passwordInput.value;
         
@@ -49,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         // Validar campos
-        if (!email || !password) {
+        if (!name || !email || !password) {
             if (errorMessage) {
                 errorMessage.textContent = 'Por favor, preencha todos os campos.';
             }
@@ -65,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Buscar usuários no localStorage
         const users = JSON.parse(localStorage.getItem('users')) || [];
-        const user = users.find(u => u.email === email && u.password === password);
+        const user = users.find(u => u.email === email && u.password === password && u.name === name);
 
         if (user) {
             // Salvar usuário atual na sessão
@@ -78,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = 'index.html';
         } else {
             if (errorMessage) {
-                errorMessage.textContent = 'E-mail ou senha incorretos.';
+                errorMessage.textContent = 'Nome, e-mail ou senha incorretos.';
             }
         }
     });
