@@ -48,92 +48,7 @@ document.getElementById('regPhone').addEventListener('input', function(e) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const registerForm = document.getElementById('registerForm');
-    const avatarWrapper = document.querySelector('.avatar-wrapper');
-    const avatarPreview = document.getElementById('avatarPreview');
     const errorMessage = document.querySelector('.error-message');
-
-    // Criar input de arquivo oculto
-    const avatarInput = document.createElement('input');
-    avatarInput.type = 'file';
-    avatarInput.accept = 'image/*';
-    avatarInput.style.display = 'none';
-    document.body.appendChild(avatarInput);
-
-    // Quando o avatar for clicado, mostrar opções
-    avatarWrapper.addEventListener('click', function() {
-        const options = [
-            { text: 'Escolher Imagem', action: () => avatarInput.click() },
-            { text: 'Tirar Selfie', action: startCamera }
-        ];
-
-        showOptionsModal(options);
-    });
-
-    // Preview da imagem do avatar
-    avatarInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                avatarPreview.src = e.target.result;
-                avatarPreview.classList.add('active');
-            }
-            reader.readAsDataURL(file);
-        }
-    });
-
-    function showOptionsModal(options) {
-        const modal = document.createElement('div');
-        modal.style.position = 'fixed';
-        modal.style.top = '0';
-        modal.style.left = '0';
-        modal.style.width = '100%';
-        modal.style.height = '100%';
-        modal.style.backgroundColor = 'rgba(0,0,0,0.5)';
-        modal.style.display = 'flex';
-        modal.style.justifyContent = 'center';
-        modal.style.alignItems = 'center';
-        modal.style.zIndex = '1000';
-
-        const modalContent = document.createElement('div');
-        modalContent.style.backgroundColor = 'white';
-        modalContent.style.padding = '20px';
-        modalContent.style.borderRadius = '8px';
-        modalContent.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
-
-        options.forEach(option => {
-            const button = document.createElement('button');
-            button.textContent = option.text;
-            button.style.display = 'block';
-            button.style.width = '100%';
-            button.style.padding = '10px';
-            button.style.margin = '5px 0';
-            button.style.border = 'none';
-            button.style.borderRadius = '4px';
-            button.style.backgroundColor = '#4CAF50';
-            button.style.color = 'white';
-            button.style.cursor = 'pointer';
-            button.addEventListener('click', () => {
-                option.action();
-                document.body.removeChild(modal);
-            });
-            modalContent.appendChild(button);
-        });
-
-        modal.appendChild(modalContent);
-        document.body.appendChild(modal);
-
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                document.body.removeChild(modal);
-            }
-        });
-    }
-
-    function startCamera() {
-        // Implementar a funcionalidade de câmera aqui
-        alert('Funcionalidade de câmera será implementada em breve!');
-    }
 
     // Validação do formulário
     registerForm.addEventListener('submit', function(e) {
@@ -144,7 +59,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const phone = document.getElementById('regPhone').value;
         const password = document.getElementById('regPassword').value;
         const confirmPassword = document.getElementById('regConfirmPassword').value;
-        const avatar = avatarInput.files[0];
 
         // Validações básicas
         if (!name || !email || !phone || !password || !confirmPassword) {
@@ -167,8 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
             name,
             email,
             phone,
-            password,
-            avatar: avatar ? avatarPreview.src : null
+            password
         };
 
         // Salvar no localStorage (simulando um banco de dados)
@@ -194,19 +107,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function saveUser(userData) {
-        // Obter usuários existentes ou criar array vazio
         let users = JSON.parse(localStorage.getItem('users')) || [];
-        
-        // Verificar se o email já está cadastrado
-        if (users.some(user => user.email === userData.email)) {
-            showError('Este email já está cadastrado.');
-            return;
-        }
-
-        // Adicionar novo usuário
         users.push(userData);
-        
-        // Salvar no localStorage
         localStorage.setItem('users', JSON.stringify(users));
     }
 });
