@@ -22,11 +22,35 @@
  * Define o fundo gradiente e centraliza o conteúdo
  */
 body {
-    background: linear-gradient(135deg, #43cea2  0%, #185a9d 100%);
+    margin: 0;
+    padding: 0;
     min-height: 100vh;
+    width: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    background: url('../assets/Login.svg') no-repeat center 20%;
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
+}
+
+/**
+ * Pontos decorativos
+ */
+.decoration-dots {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    opacity: 0.2;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background-color: #fff;
+    border-radius: 50%;
 }
 
 /**
@@ -35,19 +59,211 @@ body {
  */
 .container {
     width: 100%;
-    max-width: 500px;
-    padding: 20px;
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-/**
- * Container do formulário
- * Define o estilo do container que envolve os formulários
- */
-.form-container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+/* Área de conteúdo à esquerda */
+.content-area {
+    flex: 1;
+    padding: 4rem;
+    color: white;
+    max-width: 50%;
+}
+
+.logo img {
+    width: 120px;
+    margin-bottom: 2rem;
+}
+
+h1.senai {
+    font-size: 2.5rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+.title-arieis {
+    font-size: 4.5rem;
+    margin: 0;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    margin: 1rem 0 2rem 0;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
+.description {
+    font-size: 1rem;
+    max-width: 500px;
+    line-height: 1.6;
+    opacity: 0.8;
+    margin-top: 0.5rem;
+}
+
+/* Área do formulário à direita */
+.login-container {
+    width: 500px;
+    padding: 3rem;
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    border-radius: 20px;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 2;
+    margin-right: 2rem;
+    max-width: 90%;
+}
+
+/* Removendo os pseudo-elementos que podem estar interferindo */
+.login-container::before,
+.login-container::after {
+    display: none;
+}
+
+.login-container h2,
+.login-container label,
+.login-container input,
+.login-container button {
+    color: white;
+}
+
+.login-container * {
+    background-color: transparent !important;
+}
+
+.login-container h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: white;
+    text-align: left;
+    font-weight: 500;
+}
+
+.login-container h1 {
+    color: white;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    font-size: 2.5rem;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    color: white;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px;
+    color: white !important;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.form-group input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+/* Removendo estilos duplicados e garantindo que o estilo do botão seja aplicado */
+#loginForm button[type="submit"] {
+    width: 100%;
+    padding: 0.75rem;
+    background: #000000;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(53, 51, 205, 1) 100%);
+    color: white !important;
+    border: none !important;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 1.5rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+#loginForm button[type="submit"]:hover {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.9) 0%, rgba(53, 51, 205, 0.9) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(53, 51, 205, 0.3);
+}
+
+/* Decoração */
+.decoration {
+    position: absolute;
+    right: 2rem;
+    top: 2rem;
+    opacity: 0.1;
+}
+
+/* Responsividade */
+@media (max-width: 1440px) {
+    body {
+        background-size: cover;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+    
+    .login-container {
+        margin-right: 2rem;
+    }
+    
+    .content-area {
+        padding: 2rem;
+        text-align: center;
+        max-width: 100%;
+    }
+    
+    .description {
+        margin: 0 auto;
+    }
+
+    .decoration-dots {
+        display: none;
+    }
+}
+
+@media (min-width: 1441px) {
+    body {
+        background-size: 100vw auto;
+    }
 }
 
 /* ==========================================================================
@@ -73,17 +289,18 @@ h2 {
  * Define o espaçamento entre os grupos de campos
  */
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 1rem;
 }
 
 /**
  * Labels
  * Define o estilo das labels dos campos
  */
-label {
+.form-group label {
     display: block;
-    margin-bottom: 5px;
-    color: #666;
+    margin-bottom: 0.3rem;
+    color: #555;
+    font-size: 0.85rem;
     font-weight: 500;
 }
 
@@ -91,22 +308,24 @@ label {
  * Campos de entrada
  * Define o estilo dos campos de texto
  */
-input {
+.form-group input {
     width: 100%;
-    padding: 10px;
+    padding: 0.5rem 0.75rem;
     border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    transition: border-color 0.3s ease;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    height: 35px;
 }
 
 /**
  * Estados de foco dos campos
  * Define o estilo quando os campos estão em foco
  */
-input:focus {
+.form-group input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
     outline: none;
-    border-color: #4a90e2;
 }
 
 /* ==========================================================================
@@ -117,24 +336,24 @@ input:focus {
  * Botões
  * Define o estilo base dos botões
  */
-button {
+.btn-login {
     width: 100%;
-    padding: 12px;
-    background: #4a90e2;
+    padding: 0.75rem;
+    background-color: #4CAF50;
     color: white;
     border: none;
-    border-radius: 5px;
-    font-size: 16px;
+    border-radius: 4px;
+    font-size: 1rem;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: background-color 0.3s;
 }
 
 /**
  * Estados de hover dos botões
  * Define o estilo quando o mouse está sobre os botões
  */
-button:hover {
-    background: #357abd;
+.btn-login:hover {
+    background-color: #45a049;
 }
 
 /* ==========================================================================
@@ -146,11 +365,8 @@ button:hover {
  * Define o estilo da mensagem que indica a possibilidade de registro
  */
 .register-message {
-    margin-top: 20px;
-    text-align: center;
+    margin-top: 1rem;
     color: #666;
-    font-size: 14px;
-    font-style: italic;
 }
 
 /**
@@ -178,7 +394,6 @@ button:hover {
 .register-link a {
     color: #4CAF50;
     text-decoration: none;
-    font-weight: bold;
 }
 
 /**
@@ -205,4 +420,475 @@ button:hover {
     .form-container {
         padding: 20px;
     }
+}
+
+/* Estilos do Header */
+.header-section {
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+}
+
+.header-logo {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.header-logo img {
+    max-height: 60px;
+    width: auto;
+}
+
+/* Estilos do Main Content */
+.main-content {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem;
+}
+
+/* Estilos do Container do Formulário */
+.login-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+    position: relative;
+    z-index: 1;
+}
+
+/* Estilos do Formulário */
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header h1 {
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.error-message {
+    color: #ff4444;
+    text-align: center;
+    margin-top: 1rem;
+    display: none;
+}
+
+.avatar-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.avatar-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #4CAF50;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: #555;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    height: 35px;
+}
+
+.form-group input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+    outline: none;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    height: 35px;
+    font-weight: 500;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.links {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.links a {
+    color: #4CAF50;
+    text-decoration: none;
+    margin: 0 0.5rem;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
+
+/* Estilos Base */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    padding: 20px;
+}
+
+.form-container {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: #555;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    height: 35px;
+}
+
+.form-group input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+    outline: none;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 0.5rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    height: 35px;
+    font-weight: 500;
+}
+
+button[type="submit"]:hover {
+    background-color: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.error-message {
+    color: #dc3545;
+    margin-top: 1rem;
+    text-align: center;
+    display: none;
+}
+
+.register-message {
+    text-align: center;
+    padding: 1rem;
+    margin: 1rem 0;
+    background-color: #ffe6e6;
+    border: 1px solid #ff9999;
+    border-radius: 4px;
+    color: #d32f2f;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.recovery-link {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.recovery-link a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.recovery-link a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .form-container {
+        padding: 20px;
+    }
+}
+
+/* Estilos específicos para a página de login */
+.main-content {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    padding: 2rem;
+}
+
+.form-container {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+}
+
+.form-container h2 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+}
+
+.avatar-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.avatar-wrapper {
+    width: 120px;
+    height: 120px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.avatar-wrapper:hover {
+    transform: scale(1.05);
+}
+
+.avatar-preview {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+#avatarPreview {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: #2c3e50;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    height: 35px;
+}
+
+.form-group input:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 0.5rem;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    height: 35px;
+    font-weight: 500;
+}
+
+button[type="submit"]:hover {
+    background: #2980b9;
+}
+
+.register-message {
+    text-align: center;
+    margin: 1rem 0;
+    padding: 0.8rem;
+    background: #f8d7da;
+    color: #721c24;
+    border-radius: 8px;
+}
+
+.register-link, .recovery-link {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.register-link a, .recovery-link a {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.register-link a:hover, .recovery-link a:hover {
+    color: #2980b9;
+}
+
+.form-footer {
+    margin-top: 2rem;
+    text-align: center;
+    color: #7f8c8d;
+}
+
+.footer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.footer-links a {
+    color: #7f8c8d;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-links a:hover {
+    color: #2c3e50;
+}
+
+/* Responsividade */
+@media (max-width: 480px) {
+    .form-container {
+        padding: 1.5rem;
+    }
+
+    .avatar-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+
+    .form-group input {
+        padding: 0.7rem 0.9rem;
+    }
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.logo img {
+    max-width: 150px;
+    height: auto;
+}
+
+.password-container {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+#loginForm .form-group input {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: white !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+#loginForm .form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.8) !important;
 } 

@@ -50,23 +50,199 @@ body {
  * Define o estilo do container que envolve os formulários
  */
 .form-container {
+    max-width: 400px;
+    margin: 0.5rem auto;
+    padding: 0.8rem;
     background: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    padding: 2rem;
-    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .form-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid #00247D;
+    text-align: center;
+    margin-bottom: 0.5rem;
 }
 
 .form-header h2 {
-    color: #00247D;
-    font-size: 1.5rem;
-    font-weight: 600;
+    color: #333;
+    font-size: 1.2rem;
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 0.3rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: #555;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.4rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.form-group input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.2);
+    outline: none;
+}
+
+.avatar-container {
+    margin-bottom: 0.3rem;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.avatar-wrapper:hover {
+    transform: scale(1.05);
+}
+
+.avatar-circle {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid #4CAF50;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.avatar-circle:hover {
+    transform: scale(1.05);
+    border-color: #45a049;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+
+.avatar-text {
+    color: #666;
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+}
+
+#avatarPreview {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    z-index: 2;
+    display: none;
+}
+
+#avatarPreview.active {
+    display: block;
+}
+
+.avatar-upload-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.avatar-upload-btn:hover {
+    background-color: #45a049;
+    transform: scale(1.1);
+}
+
+.avatar-upload-btn i {
+    font-size: 1.2rem;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    margin-top: 0.5rem;
+}
+
+.btn-primary {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+.btn-primary:hover {
+    background-color: #45a049;
+    box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+    transform: translateY(-2px);
+}
+
+.btn-link {
+    text-align: center;
+    color: #4CAF50;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: color 0.3s;
+    margin-top: 0.2rem;
+}
+
+.btn-link:hover {
+    color: #45a049;
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: none;
 }
 
 /* ==========================================================================
@@ -188,8 +364,8 @@ button:hover {
  * Define o estilo do container que mostra a prévia da imagem
  */
 #imagePreview {
-    margin-top: 10px;
-    max-width: 100%;
+    position: relative;
+    max-width: 300px;
     height: 200px;
     border: 2px dashed #ddd;
     border-radius: 5px;
@@ -197,6 +373,7 @@ button:hover {
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    margin: 0 auto;
 }
 
 /**
@@ -207,6 +384,52 @@ button:hover {
     max-width: 100%;
     max-height: 100%;
     object-fit: contain;
+}
+
+/* Botão para deletar imagem */
+.btn-deletar-imagem {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.btn-deletar-imagem:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.btn-deletar-imagem:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Container da imagem e botão */
+.image-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 5px;
 }
 
 /* ==========================================================================
@@ -228,55 +451,116 @@ button:hover {
 }
 
 /* Estilos para o histórico de registros */
+.historico-section {
+    padding: 20px 0;
+    background: #f8f9fa;
+}
+
+.historico-container {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 20px;
+    justify-content: flex-start;
+    padding: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+}
+
 .registro-card {
     background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    min-width: 300px;
     overflow: hidden;
     transition: transform 0.3s ease;
-    margin-bottom: 1.5rem;
+    flex-shrink: 0;
 }
 
 .registro-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-.registro-card img {
+.registro-imagem-container {
     width: 100%;
     height: 200px;
+    overflow: hidden;
+    position: relative;
+}
+
+.registro-imagem {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 
 .registro-info {
-    padding: 1.5rem;
+    padding: 15px;
 }
 
 .registro-info h5 {
-    color: #00247D;
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #333;
 }
 
 .registro-info p {
+    font-size: 14px;
+    margin: 5px 0;
     color: #666;
-    margin-bottom: 0.5rem;
 }
 
 .btn-enviar-email {
-    background: #00247D;
-    color: #fff;
+    background-color: #007bff;
+    color: white;
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 4px;
+    padding: 8px 16px;
+    border-radius: 20px;
     cursor: pointer;
+    margin-top: 10px;
     transition: all 0.3s ease;
     width: 100%;
-    margin-top: 1rem;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
 .btn-enviar-email:hover {
-    background: #001a5c;
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+/* Carrossel do histórico */
+.historico-carousel {
+    max-width: 100%;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.historico-carousel .carousel-inner {
+    padding: 20px;
+}
+
+.historico-carousel .carousel-control-prev,
+.historico-carousel .carousel-control-next {
+    width: 40px;
+    height: 40px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.historico-carousel .carousel-control-prev {
+    left: 10px;
+}
+
+.historico-carousel .carousel-control-next {
+    right: 10px;
 }
 
 /* Estilos para o modal de email */
@@ -333,25 +617,7 @@ button:hover {
     opacity: 0.9;
 }
 
-/* Container do histórico */
-#historicoRegistros {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    padding: 20px;
-    margin: 0 auto;
-    max-width: 1200px;
-}
-
-/* Título da seção */
-.historico-section h2 {
-    color: #00247D;
-    margin-bottom: 2rem;
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-/* Estilos do Rodapé */
+/* Estilos para o Rodapé */
 .footer {
     background: #00247D;
     color: #fff;
@@ -489,11 +755,13 @@ button:hover {
     padding: 1rem;
     margin-bottom: 1rem;
     text-align: center;
+    max-width: 300px;
+    margin: 0 auto;
 }
 
 #video {
     width: 100%;
-    max-width: 640px;
+    max-width: 300px;
     border-radius: 4px;
     margin-bottom: 1rem;
 }
@@ -524,4 +792,665 @@ button:hover {
 .camera-button:disabled {
     background: #ccc;
     cursor: not-allowed;
+}
+
+/* Estilos para Achados e Perdidos */
+.item-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    padding: 15px;
+    display: flex;
+    gap: 20px;
+}
+
+.item-imagem-container {
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 5px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.item-imagem {
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
+    border-radius: 5px;
+}
+
+.item-info {
+    flex: 1;
+}
+
+.item-info h3 {
+    margin-top: 0;
+    color: #333;
+}
+
+.item-info p {
+    margin: 5px 0;
+    color: #666;
+}
+
+.btn-retirar {
+    margin-top: 10px;
+}
+
+.search-container {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.search-container input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.search-container button {
+    padding: 8px 16px;
+}
+
+#registroForm {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#registroForm .form-group {
+    margin-bottom: 15px;
+}
+
+#registroForm label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+#registroForm input,
+#registroForm textarea {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#registroForm textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+#registroForm button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#registroForm button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Estilos para o modal de retirada */
+#retiradaModal .modal-content {
+    border-radius: 8px;
+}
+
+#retiradaModal .modal-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+#retiradaModal .modal-body {
+    padding: 20px;
+}
+
+#retiradaModal .form-group {
+    margin-bottom: 15px;
+}
+
+#retiradaModal label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+#retiradaModal input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+#retiradaModal .btn-primary {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+}
+
+/* Estilos para as abas */
+.nav-tabs {
+    margin-bottom: 20px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+.nav-tabs .nav-link {
+    color: #495057;
+    border: none;
+    padding: 10px 20px;
+    margin-right: 5px;
+    border-radius: 4px 4px 0 0;
+}
+
+.nav-tabs .nav-link:hover {
+    border: none;
+    color: #007bff;
+}
+
+.nav-tabs .nav-link.active {
+    color: #007bff;
+    background-color: #fff;
+    border: none;
+    border-bottom: 2px solid #007bff;
+}
+
+/* Estilos para a área de busca */
+#searchBox {
+    margin-bottom: 20px;
+}
+
+#searchBox .form-control {
+    border-radius: 4px;
+    border: 1px solid #ced4da;
+    padding: 10px 15px;
+}
+
+#searchBox .form-control:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+/* Estilos para o Carrossel */
+.carousel {
+    max-width: 300px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.carousel-inner {
+    height: 250px;
+    overflow: hidden;
+}
+
+.carousel-item {
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.item-card {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.item-imagem-container {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    margin-bottom: 5px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+.item-imagem {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 5px;
+}
+
+.item-info {
+    width: 100%;
+    text-align: center;
+    padding: 5px;
+    height: auto;
+    overflow: hidden;
+}
+
+.item-info h4 {
+    font-size: 14px;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-info p {
+    font-size: 12px;
+    margin: 2px 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-status {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    margin: 2px 0;
+}
+
+.btn-encontrado {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.3s ease;
+    width: 100%;
+    max-width: 150px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-encontrado:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.btn-encontrado:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para indicadores do carrossel */
+.carousel-indicators {
+    bottom: -30px;
+}
+
+.carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin: 0 5px;
+    background-color: #007bff;
+}
+
+/* Estilos para a página de login */
+.login-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.login-logo {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-logo img {
+    width: 120px;
+    height: auto;
+}
+
+.login-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1.5rem;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-group {
+    position: relative;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+.form-group input.error {
+    border-color: #ff4444;
+}
+
+.error-message {
+    color: #ff4444;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #666;
+}
+
+.toggle-password:hover {
+    color: #333;
+}
+
+.login-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.login-btn:hover {
+    background-color: #45a049;
+}
+
+.login-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.login-links a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.3s ease;
+}
+
+.login-links a:hover {
+    color: #45a049;
+    text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+    .login-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .login-logo img {
+        width: 100px;
+    }
+    
+    .login-links {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: center;
+    }
+}
+
+.main-header {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    padding: 1.5rem 0;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.header-content h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+}
+
+.header-content p {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.main-content {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6rem 1rem 2rem;
+    background-color: #f8f9fa;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.form-container {
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.form-container h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.avatar-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 100px;
+    height: 100px;
+}
+
+.avatar-preview {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #4CAF50;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: #555;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+    outline: none;
+}
+
+button[type="submit"] {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 1rem;
+}
+
+button[type="submit"]:hover {
+    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+.register-link, .recovery-link {
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.register-link a, .recovery-link a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+}
+
+.register-link a:hover, .recovery-link a:hover {
+    color: #45a049;
+    text-decoration: underline;
+}
+
+.register-message {
+    background-color: #ffe6e6;
+    border: 1px solid #ff9999;
+    border-radius: 4px;
+    padding: 0.8rem;
+    margin: 1rem 0;
+    text-align: center;
+    color: #dc3545;
+    font-size: 0.9rem;
+}
+
+.form-footer {
+    margin-top: 2rem;
+    padding: 1rem 0;
+    border-top: 1px solid #eee;
+}
+
+.footer-content {
+    text-align: center;
+}
+
+.footer-content p {
+    color: #666;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.footer-links a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: color 0.3s;
+}
+
+.footer-links a:hover {
+    color: #45a049;
+    text-decoration: underline;
+}
+
+@media (max-width: 480px) {
+    .main-header {
+        padding: 1rem 0;
+    }
+
+    .header-content h1 {
+        font-size: 1.5rem;
+    }
+
+    .header-content p {
+        font-size: 0.9rem;
+    }
+
+    .main-content {
+        padding: 5rem 1rem 2rem;
+    }
+
+    .form-container {
+        padding: 1.2rem;
+    }
+
+    .avatar-wrapper {
+        width: 80px;
+        height: 80px;
+    }
 } 

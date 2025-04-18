@@ -3,39 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://devydsilva.github.io https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://ssl.gstatic.com; img-src 'self' data: blob: https://devydsilva.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; media-src 'self' blob:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';">
     <title>Cadastro - Sistema de Registro de Anormalidades</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/cadastro.css">
 </head>
-<body>
-    <div class="container" id="userRegisterScreen">
+<body class="cadastro-page">
+    <div class="container">
         <div class="form-container">
-            <h2>Cadastro de Usuário</h2>
-            <form id="userRegisterForm">
+            <div class="form-header">
+                <h2>Cadastro</h2>
+            </div>
+            <form id="registerForm">
                 <div class="form-group">
-                    <label for="regName">Nome:</label>
-                    <input type="text" id="regName" required>
+                    <label for="regName">Nome Completo</label>
+                    <input type="text" id="regName" name="name" required>
                 </div>
                 <div class="form-group">
-                    <label for="regEmail">E-mail:</label>
-                    <input type="email" id="regEmail" required>
+                    <label for="regEmail">Email</label>
+                    <input type="email" id="regEmail" name="email" required>
                 </div>
                 <div class="form-group">
-                    <label for="regPhone">Telefone:</label>
-                    <input type="tel" id="regPhone" required>
+                    <label for="regPhone">Telefone</label>
+                    <input type="tel" id="regPhone" name="phone" required>
                 </div>
                 <div class="form-group">
-                    <label for="regPassword">Senha:</label>
-                    <input type="password" id="regPassword" required>
+                    <label for="regPassword">Senha</label>
+                    <input type="password" id="regPassword" name="password" required>
                 </div>
                 <div class="form-group">
-                    <label for="regConfirmPassword">Confirmar Senha:</label>
-                    <input type="password" id="regConfirmPassword" required>
+                    <label for="regConfirmPassword">Confirmar Senha</label>
+                    <input type="password" id="regConfirmPassword" name="confirmPassword" required>
                 </div>
-                <button type="submit">Cadastrar</button>
-                <div class="login-link">
-                    <p>Já tem uma conta? <a href="login.html" id="loginLink">Voltar para o Login</a></p>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Cadastrar</button>
+                    <a href="login.html" class="btn-link">Já tem uma conta? Faça login</a>
                 </div>
             </form>
         </div>

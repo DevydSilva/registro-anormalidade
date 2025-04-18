@@ -21,33 +21,53 @@
  * Estilo do corpo da página
  * Define o fundo gradiente e centraliza o conteúdo
  */
-body {
-    background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+body.cadastro-page {
+    margin: 0;
+    padding: 0;
     min-height: 100vh;
+    width: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
+    background: url('../assets/Cadastro.svg') no-repeat center 20%;
+    background-size: cover;
+    position: relative;
+    overflow: hidden;
 }
 
 /**
  * Container principal
  * Define a largura máxima e padding do container
  */
-.container {
+body.cadastro-page .container {
     width: 100%;
-    max-width: 500px;
-    padding: 20px;
+    min-height: 100vh;
+    padding: 2rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 /**
  * Container do formulário
  * Define o estilo do container que envolve os formulários
  */
-.form-container {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+body.cadastro-page .form-container {
+    width: 500px;
+    padding: 3rem;
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    border-radius: 20px;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 2;
+    margin-right: 2rem;
+    max-width: 90%;
 }
 
 /* ==========================================================================
@@ -72,41 +92,52 @@ h2 {
  * Grupo de campos do formulário
  * Define o espaçamento entre os grupos de campos
  */
-.form-group {
-    margin-bottom: 20px;
+body.cadastro-page .form-group {
+    margin-bottom: 1.2rem;
+    position: relative;
 }
 
 /**
  * Labels
  * Define o estilo das labels dos campos
  */
-label {
+body.cadastro-page .form-group label {
     display: block;
-    margin-bottom: 5px;
-    color: #666;
-    font-weight: 500;
+    color: white;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 /**
  * Campos de entrada
  * Define o estilo dos campos de texto
  */
-input {
+body.cadastro-page .form-group input {
     width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    transition: border-color 0.3s ease;
+    padding: 0.6rem 1rem;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px;
+    color: white !important;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
 }
 
 /**
  * Estados de foco dos campos
  * Define o estilo quando os campos estão em foco
  */
-input:focus {
+body.cadastro-page .form-group input::placeholder {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+body.cadastro-page .form-group input:focus {
     outline: none;
-    border-color: #43cea2;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
 }
 
 /* ==========================================================================
@@ -117,24 +148,30 @@ input:focus {
  * Botões
  * Define o estilo base dos botões
  */
-button {
+body.cadastro-page button[type="submit"] {
     width: 100%;
-    padding: 12px;
-    background: #43cea2;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
+    padding: 0.6rem;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(53, 51, 205, 1) 100%);
+    color: white !important;
+    border: none !important;
+    border-radius: 8px;
+    font-size: 0.85rem;
     cursor: pointer;
-    transition: background 0.3s ease;
+    transition: all 0.3s ease;
+    margin-top: 1.5rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 /**
  * Estados de hover dos botões
  * Define o estilo quando o mouse está sobre os botões
  */
-button:hover {
-    background: #3ab792;
+body.cadastro-page button[type="submit"]:hover {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.9) 0%, rgba(53, 51, 205, 0.9) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(53, 51, 205, 0.3);
 }
 
 /* ==========================================================================
@@ -145,8 +182,8 @@ button:hover {
  * Container do link de login
  * Define o estilo do container que envolve o link de login
  */
-.login-link {
-    margin-top: 20px;
+body.cadastro-page .form-actions {
+    margin-top: 2rem;
     text-align: center;
 }
 
@@ -154,26 +191,22 @@ button:hover {
  * Parágrafo dentro do link de login
  * Define o estilo do texto dentro do container do link de login
  */
-.login-link p {
-    color: #666;
-    font-size: 14px;
+body.cadastro-page .btn-link {
+    color: white;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    display: inline-block;
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
 }
 
 /**
  * Link de login
  * Define o estilo do link que leva para a página de login
  */
-.login-link a {
-    color: #4CAF50;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-/**
- * Estados de hover do link de login
- * Define o estilo quando o mouse está sobre o link de login
- */
-.login-link a:hover {
+body.cadastro-page .btn-link:hover {
+    opacity: 1;
     text-decoration: underline;
 }
 
@@ -185,12 +218,10 @@ button:hover {
  * Responsividade para telas menores
  * Ajusta o layout para dispositivos móveis
  */
-@media (max-width: 600px) {
-    .container {
-        padding: 10px;
-    }
-    
-    .form-container {
-        padding: 20px;
+@media (max-width: 768px) {
+    body.cadastro-page .form-container {
+        margin-left: 5rem;
+        width: 90%;
+        padding: 2rem;
     }
 } 

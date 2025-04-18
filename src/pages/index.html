@@ -4,8 +4,9 @@
     <!-- Meta tags -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://devydsilva.github.io https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://ssl.gstatic.com; img-src 'self' data: blob: https://devydsilva.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; media-src 'self' blob: mediastream:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://devydsilva.github.io https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://ssl.gstatic.com https://api.emailjs.com; connect-src 'self' https://api.emailjs.com; img-src 'self' data: blob: https://devydsilva.github.io; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; media-src 'self' blob: mediastream:;">
     <title>Registro de Anormalidade</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/index.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -53,7 +54,11 @@
                         <div class="camera-container">
                             <video id="video" autoplay playsinline muted style="display: none;"></video>
                             <canvas id="canvas" style="display: none;"></canvas>
-                            <div id="imagePreview"></div>
+                            <div id="imagePreview" class="image-preview">
+                                <button class="btn-deletar-imagem">
+                                    <i class="fas fa-trash-alt"></i> Deletar Imagem
+                                </button>
+                            </div>
                             <div id="qrcode" style="display: none;"></div>
                             <div class="camera-controls">
                                 <button type="button" class="camera-button" id="startCamera" title="Abrir câmera">
@@ -79,112 +84,54 @@
             <div class="info-section">
                 <div class="info-content">
                     <h3>Itens Disponíveis</h3>
-                    <div class="item-list">
-                        <div class="item-card">
-                            <div class="item-icon">
-                                <i class="fas fa-tools"></i>
-                            </div>
-                            <div class="item-info">
-                                <h4>Ferramentas</h4>
-                                <p>Conjunto completo de ferramentas para manutenção</p>
-                                <span class="item-status available">Disponível</span>
-                            </div>
-                        </div>
-                        <div class="item-card">
-                            <div class="item-icon">
-                                <i class="fas fa-helmet-safety"></i>
-                            </div>
-                            <div class="item-info">
-                                <h4>EPIs</h4>
-                                <p>Equipamentos de Proteção Individual</p>
-                                <span class="item-status available">Disponível</span>
+                    <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <div class="item-list">
+                                    <div class="item-card">
+                                        <div class="item-info">
+                                            <h4>Nenhum item disponível</h4>
+                                            <p>Registre um novo item para que ele apareça aqui</p>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="item-card">
-                            <div class="item-icon">
-                                <i class="fas fa-box"></i>
-                            </div>
-                            <div class="item-info">
-                                <h4>Materiais</h4>
-                                <p>Materiais diversos para reparos</p>
-                                <span class="item-status available">Disponível</span>
-                            </div>
-                        </div>
-                        <div class="item-card">
-                            <div class="item-icon">
-                                <i class="fas fa-broom"></i>
-                            </div>
-                            <div class="item-info">
-                                <h4>Limpeza</h4>
-                                <p>Produtos e equipamentos de limpeza</p>
-                                <span class="item-status available">Disponível</span>
-                            </div>
-                        </div>
-                        <div class="item-card">
-                            <div class="item-icon">
-                                <i class="fas fa-plug"></i>
-                            </div>
-                            <div class="item-info">
-                                <h4>Elétrica</h4>
-                                <p>Materiais e ferramentas elétricas</p>
-                                <span class="item-status available">Disponível</span>
-                            </div>
-                        </div>
-                        <div class="item-card">
-                            <div class="item-icon">
-                                <i class="fas fa-faucet"></i>
-                            </div>
-                            <div class="item-info">
-                                <h4>Hidráulica</h4>
-                                <p>Materiais e ferramentas hidráulicas</p>
-                                <span class="item-status available">Disponível</span>
-                            </div>
-                        </div>
-                        <div class="item-card">
-                            <div class="item-icon">
-                                <i class="fas fa-paint-roller"></i>
-                            </div>
-                            <div class="item-info">
-                                <h4>Pintura</h4>
-                                <p>Tintas e materiais para pintura</p>
-                                <span class="item-status available">Disponível</span>
-                            </div>
-                        </div>
-                        <div class="item-card">
-                            <div class="item-icon">
-                                <i class="fas fa-tape"></i>
-                            </div>
-                            <div class="item-info">
-                                <h4>Vedantes</h4>
-                                <p>Fitas, colas e materiais de vedação</p>
-                                <span class="item-status available">Disponível</span>
-                            </div>
-                        </div>
-                        <div class="item-card">
-                            <div class="item-icon">
-                                <i class="fas fa-bolt"></i>
-                            </div>
-                            <div class="item-info">
-                                <h4>Parafusos</h4>
-                                <p>Diversos tipos de parafusos e fixadores</p>
-                                <span class="item-status available">Disponível</span>
-                            </div>
-                        </div>
-                        <div class="item-card">
-                            <div class="item-icon">
-                                <i class="fas fa-ruler-combined"></i>
-                            </div>
-                            <div class="item-info">
-                                <h4>Medição</h4>
-                                <p>Instrumentos de medição e precisão</p>
-                                <span class="item-status available">Disponível</span>
-                            </div>
-                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Anterior</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Próximo</span>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Seção de Histórico -->
+    <section class="historico-section">
+        <div class="container">
+            <div class="historico-header">
+                <h3 class="historico-title">Histórico de Registros</h3>
+            </div>
+            <div id="historicoCarousel" class="carousel slide historico-carousel" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <!-- Os registros serão inseridos aqui via JavaScript -->
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#historicoCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#historicoCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Próximo</span>
+                </button>
+            </div>
+        </div>
+    </section>
 
     <footer class="footer">
         <div class="container">
@@ -217,6 +164,6 @@
     <script>
         emailjs.init("UhX1NQMUijjOeEFNH");
     </script>
-    <script src="../js/index.js"></script>
+    <script src="/src/js/index.js"></script>
 </body>
 </html> 

@@ -11,6 +11,9 @@ let retakePhotoButton = null;
 let imagePreview = null;
 let stream = null;
 
+// Variável global para armazenar o item selecionado
+let itemSelecionado = null;
+
 // Função para mostrar erros da câmera
 function showCameraError(message) {
     alert(message);
@@ -24,8 +27,8 @@ function checkCameraSupport() {
     return new Promise((resolve, reject) => {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
             reject(new Error('Seu navegador não suporta acesso à câmera'));
-            return;
-        }
+        return;
+    }
 
         // Verifica se o navegador suporta a API de mídia
         if (!navigator.mediaDevices.enumerateDevices) {
@@ -80,11 +83,11 @@ async function getCameraStream(facingMode) {
             } else {
                 // Se não encontrar pelo label, tenta pelo facingMode
                 constraints = {
-                    video: {
-                        facingMode: 'environment',
-                        width: { ideal: 1280 },
-                        height: { ideal: 720 }
-                    }
+            video: { 
+                facingMode: 'environment',
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            } 
                 };
             }
         } else {
@@ -127,8 +130,8 @@ function initializeVideo(stream) {
 
         // Configura o novo stream
         try {
-            video.srcObject = stream;
-            video.style.display = 'block';
+        video.srcObject = stream;
+        video.style.display = 'block';
             video.autoplay = true;
             video.playsinline = true;
             video.muted = true; // Adiciona muted para evitar problemas de autoplay
@@ -215,13 +218,13 @@ async function startCamera() {
             
             // Atualiza botões somente após o vídeo estar pronto
             if (startCameraButton) {
-                startCameraButton.style.display = 'none';
+        startCameraButton.style.display = 'none';
                 startCameraButton.disabled = false;
                 startCameraButton.textContent = 'Abrir Câmera';
             }
             if (takePhotoButton) {
-                takePhotoButton.style.display = 'block';
-                takePhotoButton.disabled = false;
+        takePhotoButton.style.display = 'block';
+        takePhotoButton.disabled = false;
             }
             if (retakePhotoButton) retakePhotoButton.style.display = 'none';
             
@@ -243,7 +246,7 @@ async function startCamera() {
                 }
                 if (takePhotoButton) {
                     takePhotoButton.style.display = 'block';
-                    takePhotoButton.disabled = false;
+            takePhotoButton.disabled = false;
                 }
                 if (retakePhotoButton) retakePhotoButton.style.display = 'none';
                 
@@ -271,18 +274,37 @@ async function startCamera() {
 // Função para parar a câmera
 function stopCamera() {
     try {
-        if (stream) {
+    if (stream) {
             stream.getTracks().forEach(track => {
                 track.stop();
             });
-            stream = null;
+        stream = null;
         }
         if (video) {
             video.srcObject = null;
-            video.style.display = 'none';
-        }
+        video.style.display = 'none';
+    }
     } catch (error) {
         console.error('Erro ao parar câmera:', error);
+    }
+}
+
+// Função para selecionar um item
+function selecionarItem(itemElement) {
+    // Remove a seleção anterior
+    document.querySelectorAll('.item-card').forEach(item => {
+        item.classList.remove('selected');
+    });
+    
+    // Adiciona a seleção ao novo item
+    itemElement.classList.add('selected');
+    itemSelecionado = itemElement;
+    
+    // Atualiza o botão da câmera
+    const startCameraButton = document.getElementById('startCamera');
+    if (startCameraButton) {
+        startCameraButton.disabled = false;
+        startCameraButton.textContent = 'Tirar Foto do Item';
     }
 }
 
@@ -296,37 +318,48 @@ function takePhoto() {
     if (!video || !canvas) return;
     
     try {
-        canvas.style.display = 'block';
+        // Captura a foto
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
-        
         const context = canvas.getContext('2d');
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
         
-        if (!imagePreview) {
-            imagePreview = document.getElementById('imagePreview');
+        // Redimensiona a imagem para um tamanho menor
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 400; // Largura máxima
+        tempCanvas.height = 300; // Altura máxima
+        const tempContext = tempCanvas.getContext('2d');
+        tempContext.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+        
+        // Converte para base64 com qualidade reduzida
+        const photoData = tempCanvas.toDataURL('image/jpeg', 0.6);
+        
+        // Exibe a imagem no preview
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = imagePreview.querySelector('img');
+        const deleteButton = imagePreview.querySelector('.btn-deletar-imagem');
+        
+        if (imagePreview && previewImg && deleteButton) {
+            previewImg.src = photoData;
+            previewImg.style.display = 'block';
+            deleteButton.style.display = 'flex';
         }
         
-        if (imagePreview) {
-            const photoData = canvas.toDataURL('image/jpeg', 0.8);
-            imagePreview.innerHTML = `<img src="${photoData}" alt="Foto capturada">`;
-            
-            // Armazena a foto no localStorage para uso posterior
-            localStorage.setItem('lastPhoto', photoData);
-        }
+        // Salva a foto no localStorage
+        localStorage.setItem('lastPhoto', photoData);
         
+        // Para a câmera
         stopCamera();
         
-        if (!takePhotoButton) {
-            takePhotoButton = document.getElementById('takePhoto');
-        }
-        if (!retakePhotoButton) {
-            retakePhotoButton = document.getElementById('retakePhoto');
-        }
-        
+        // Atualiza os botões
+        const takePhotoButton = document.getElementById('takePhoto');
+        const retakePhotoButton = document.getElementById('retakePhoto');
         if (takePhotoButton) takePhotoButton.style.display = 'none';
         if (retakePhotoButton) retakePhotoButton.style.display = 'block';
+        
+        // Esconde o canvas
         canvas.style.display = 'none';
+        
     } catch (error) {
         console.error('Erro ao tirar foto:', error);
         alert('Erro ao capturar a foto. Por favor, tente novamente.');
@@ -513,42 +546,63 @@ document.addEventListener('DOMContentLoaded', function() {
     itemList.appendChild(nextButton);
 
     // Inicialização do carrossel
-    const myCarousel = new bootstrap.Carousel(document.getElementById('carouselExampleIndicators'), {
-        interval: 5000, // Tempo entre os slides em milissegundos
-        wrap: true, // Permite que o carrossel volte ao início após o último slide
-        keyboard: true // Permite navegação por teclado
-    });
-
-    // Adiciona controles de navegação personalizados
     const carousel = document.getElementById('carouselExampleIndicators');
-    const prevButtonCarousel = carousel.querySelector('.carousel-control-prev');
-    const nextButtonCarousel = carousel.querySelector('.carousel-control-next');
-    const indicators = carousel.querySelectorAll('.carousel-indicators button');
+    if (carousel) {
+        var myCarousel = new bootstrap.Carousel(carousel, {
+            interval: 5000,
+            wrap: true,
+            keyboard: true
+        });
 
-    // Adiciona eventos para os indicadores
-    indicators.forEach((indicator, index) => {
-        indicator.addEventListener('click', () => {
-            myCarousel.to(index);
+        // Adiciona eventos para pausar o carrossel no hover
+        carousel.addEventListener('mouseenter', () => {
+            bootstrap.Carousel.getInstance(carousel).pause();
+        });
+
+        carousel.addEventListener('mouseleave', () => {
+            bootstrap.Carousel.getInstance(carousel).cycle();
+        });
+    }
+
+    // Adiciona event listeners para os itens
+    document.querySelectorAll('.item-card').forEach(item => {
+        item.addEventListener('click', function() {
+            selecionarItem(this);
         });
     });
 
-    // Adiciona eventos para os botões de navegação
-    prevButtonCarousel.addEventListener('click', () => {
-        myCarousel.prev();
-    });
+    // Função para limpar todos os itens disponíveis e o histórico
+    function limparTodosOsRegistros() {
+        // Limpa o localStorage
+        localStorage.removeItem('itensAchados');
+        localStorage.removeItem('registros');
+        
+        // Atualiza o carrossel para mostrar a mensagem padrão
+        const carouselInner = document.querySelector('.carousel-inner');
+        if (carouselInner) {
+            carouselInner.innerHTML = `
+                <div class="carousel-item active">
+                    <div class="item-list">
+                        <div class="item-card">
+                            <div class="item-info">
+                                <h4>Nenhum item disponível</h4>
+                                <p>Registre um novo item para que ele apareça aqui</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Limpa o histórico
+        const historicoRegistros = document.getElementById('historicoRegistros');
+        if (historicoRegistros) {
+            historicoRegistros.innerHTML = '';
+        }
+    }
 
-    nextButtonCarousel.addEventListener('click', () => {
-        myCarousel.next();
-    });
-
-    // Adiciona evento para pausar o carrossel quando o mouse estiver sobre ele
-    carousel.addEventListener('mouseenter', () => {
-        myCarousel.pause();
-    });
-
-    carousel.addEventListener('mouseleave', () => {
-        myCarousel.cycle();
-    });
+    // Adiciona o event listener para limpar os registros quando a página carregar
+    limparTodosOsRegistros();
 });
 
 /* ==========================================================================
@@ -820,11 +874,11 @@ function wrapText(context, text, maxWidth, lineHeight) {
  */
 function salvarImagemLocalmente(imageData) {
     try {
-        const link = document.createElement('a');
+            const link = document.createElement('a');
         link.download = 'anomalia-info.png';
-        link.href = imageData;
-        link.click();
-    } catch (error) {
+            link.href = imageData;
+            link.click();
+        } catch (error) {
         console.error('Erro ao salvar imagem:', error);
         alert('Erro ao salvar a imagem. Por favor, tente novamente.');
     }
@@ -946,7 +1000,7 @@ function handleFileUpload(e) {
 // Função para salvar registro no histórico
 function salvarRegistroNoHistorico(anomalyData) {
     // Obtém o histórico atual do localStorage
-    let historico = JSON.parse(localStorage.getItem('historicoRegistros') || '[]');
+    let historico = JSON.parse(localStorage.getItem('registros') || '[]');
     
     // Adiciona o novo registro
     historico.unshift(anomalyData);
@@ -957,65 +1011,66 @@ function salvarRegistroNoHistorico(anomalyData) {
     }
     
     // Salva no localStorage
-    localStorage.setItem('historicoRegistros', JSON.stringify(historico));
+    localStorage.setItem('registros', JSON.stringify(historico));
     
     // Atualiza a exibição
-    atualizarExibicaoHistorico();
+    carregarHistorico();
 }
 
-// Função para atualizar a exibição do histórico
-function atualizarExibicaoHistorico() {
-    const historicoContainer = document.getElementById('historicoRegistros');
-    if (!historicoContainer) return;
+// Função para carregar o histórico de registros
+function carregarHistorico() {
+    const carouselInner = document.querySelector('#historicoCarousel .carousel-inner');
+    if (!carouselInner) return;
+
+    const registros = JSON.parse(localStorage.getItem('registros') || '[]');
     
-    // Obtém o histórico do localStorage
-    const historico = JSON.parse(localStorage.getItem('historicoRegistros') || '[]');
-    
-    // Limpa o container
-    historicoContainer.innerHTML = '';
-    
-    // Adiciona cada registro
-    historico.forEach((registro, index) => {
-        const card = document.createElement('div');
-        card.className = 'registro-card';
-        
-        const img = document.createElement('img');
-        img.src = registro.image;
-        img.alt = 'Registro ' + (index + 1);
-        
-        const info = document.createElement('div');
-        info.className = 'registro-info';
-        
-        const titulo = document.createElement('h5');
-        titulo.textContent = registro.data + ' - ' + registro.hora;
-        
-        const local = document.createElement('p');
-        local.textContent = 'Local: ' + registro.location;
-        
-        const descricao = document.createElement('p');
-        descricao.textContent = 'Descrição: ' + registro.description;
-        
-        const btnEmail = document.createElement('button');
-        btnEmail.className = 'btn-enviar-email';
-        btnEmail.textContent = 'Enviar por Email';
-        btnEmail.setAttribute('data-index', index);
-        
-        info.appendChild(titulo);
-        info.appendChild(local);
-        info.appendChild(descricao);
-        info.appendChild(btnEmail);
-        
-        card.appendChild(img);
-        card.appendChild(info);
-        
-        historicoContainer.appendChild(card);
-    });
-    
-    // Adiciona event listeners aos botões de envio
+    if (registros.length === 0) {
+        carouselInner.innerHTML = `
+            <div class="carousel-item active">
+                <div class="historico-container">
+                    <div class="registro-card">
+                        <div class="registro-info">
+                            <h5>Nenhum registro encontrado</h5>
+                            <p>Registre uma nova anormalidade para que ela apareça aqui</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    // Cria um único slide com todos os registros lado a lado
+    carouselInner.innerHTML = `
+        <div class="carousel-item active">
+            <div class="historico-container">
+                ${registros.map(registro => `
+                    <div class="registro-card">
+                        <div class="registro-imagem-container">
+                            <img src="${registro.image}" alt="Registro" class="registro-imagem">
+                        </div>
+                        <div class="registro-info">
+                            <h5>${new Date(registro.timestamp).toLocaleDateString('pt-BR')}</h5>
+                            <p><strong>Local:</strong> ${registro.location}</p>
+                            <p><strong>Descrição:</strong> ${registro.description}</p>
+                            <button class="btn-enviar-email" data-index="${registros.indexOf(registro)}">
+                                <i class="fas fa-envelope"></i> Enviar por Email
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    // Adiciona event listeners para os botões de email
     document.querySelectorAll('.btn-enviar-email').forEach(button => {
         button.addEventListener('click', function() {
-            const index = this.getAttribute('data-index');
-            abrirModalEmail(historico[index]);
+            const index = parseInt(this.getAttribute('data-index'));
+            const registro = registros[index];
+            if (registro) {
+                abrirModalEmail(registro);
+            }
         });
     });
 }
@@ -1035,39 +1090,101 @@ function abrirModalEmail(registro) {
     modal.show();
 }
 
-// Função para enviar email
-async function enviarEmailRegistro(registro, emailDestino, mensagemAdicional) {
+// Função para validar os dados do email
+function validarDadosEmail(dados) {
     try {
-        const emailParams = {
-            to_email: emailDestino,
-            subject: `Registro de Anormalidade - ${new Date(registro.timestamp).toLocaleString('pt-BR')}`,
-            message: `
-                <h2>Registro de Anormalidade</h2>
-                <p><strong>Data:</strong> ${new Date(registro.timestamp).toLocaleString('pt-BR')}</p>
-                <p><strong>Local:</strong> ${registro.location}</p>
-                <p><strong>Descrição:</strong> ${registro.description}</p>
-                ${mensagemAdicional ? `<p><strong>Mensagem Adicional:</strong> ${mensagemAdicional}</p>` : ''}
-                <p>A imagem está anexada a este email.</p>
-            `,
-            image: registro.image
-        };
-
-        const response = await emailjs.send(
-            "service_2g8768o",
-            "template_gvn13j7",
-            emailParams
-        );
-
-        if (response.status === 200) {
-            alert('Email enviado com sucesso!');
-            return true;
-        } else {
-            throw new Error('Falha no envio do email');
+        console.log('Validando dados do email...', dados);
+        // Verifica se todos os campos obrigatórios estão presentes
+        const camposObrigatorios = ['to_email', 'from_name', 'message'];
+        for (const campo of camposObrigatorios) {
+            if (!dados[campo]) {
+                console.error(`Campo obrigatório ausente: ${campo}`);
+                throw new Error(`Campo obrigatório ausente: ${campo}`);
+            }
         }
+
+        // Valida o formato do email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(dados.to_email)) {
+            console.error('Formato de email inválido');
+            throw new Error('Formato de email inválido');
+        }
+
+        // Valida o tamanho da mensagem
+        if (dados.message.length > 10000) {
+            console.error('Mensagem muito longa');
+            throw new Error('Mensagem muito longa. Limite de 10.000 caracteres.');
+        }
+
+        console.log('Validação concluída com sucesso');
+        return true;
     } catch (error) {
-        console.error('Erro ao enviar email:', error);
+        console.error('Erro na validação dos dados do email:', error);
         throw error;
     }
+}
+
+// Função para enviar email com anexo
+async function enviarEmailComAnexo(dados, anexo) {
+    try {
+        // Valida os dados básicos
+        validarDadosEmail(dados);
+
+        // Verifica se o anexo é válido
+        if (!anexo || !anexo.type || !anexo.data) {
+            throw new Error('Anexo inválido');
+        }
+
+        // Limita o tamanho do anexo (5MB)
+        if (anexo.data.length > 5 * 1024 * 1024) {
+            throw new Error('Anexo muito grande. Limite de 5MB.');
+        }
+
+        // Adiciona o anexo aos dados
+        const dadosComAnexo = {
+            ...dados,
+            attachment: {
+                name: anexo.name || 'anexo',
+                data: anexo.data,
+                type: anexo.type
+            }
+        };
+
+        // Configura o timeout
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout ao enviar email com anexo')), 45000);
+        });
+
+        // Tenta enviar o email
+        const sendPromise = emailjs.send(
+            process.env.EMAILJS_SERVICE_ID,
+            process.env.EMAILJS_TEMPLATE_ID,
+            dadosComAnexo
+        );
+
+        // Aguarda o envio ou timeout
+        const resultado = await Promise.race([sendPromise, timeoutPromise]);
+        
+        console.log('Email com anexo enviado com sucesso:', resultado);
+        return resultado;
+    } catch (error) {
+        console.error('Erro ao enviar email com anexo:', error);
+        throw error;
+    }
+}
+
+// Função para converter imagem em base64
+function converterImagemParaBase64(imagem) {
+    return new Promise((resolve, reject) => {
+        try {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(imagem);
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 // Event listener para o botão de enviar email
@@ -1082,8 +1199,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 if (!emailDestino) {
                     alert('Por favor, insira um email de destino');
-                    return;
-                }
+        return;
+    }
                 
                 this.disabled = true;
                 this.textContent = 'Enviando...';
@@ -1104,7 +1221,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Atualiza a exibição do histórico quando a página carrega
-    atualizarExibicaoHistorico();
+    carregarHistorico();
 });
 
 // Modifica a função processForm para salvar no histórico
@@ -1148,9 +1265,25 @@ async function processForm(event) {
             description: descricao,
             image: imageData
         };
-        
+
         // Salva no histórico
         salvarRegistroNoHistorico(anomalyData);
+        
+        // Salva também na lista de itens achados
+        const itensAchados = JSON.parse(localStorage.getItem('itensAchados') || '[]');
+        const novoItem = {
+            id: anomalyData.id,
+            titulo: descricao.substring(0, 30) + (descricao.length > 30 ? '...' : ''),
+            local: local,
+            data: new Date(`${data}T${hora}`).toLocaleDateString('pt-BR'),
+            descricao: descricao,
+            imagem: imageData
+        };
+        itensAchados.push(novoItem);
+        localStorage.setItem('itensAchados', JSON.stringify(itensAchados));
+        
+        // Atualiza o carrossel de itens
+        atualizarCarrosselItens();
         
         // Cria a imagem com as informações
         const infoImage = await criarImagemInfo(anomalyData);
@@ -1161,7 +1294,7 @@ async function processForm(event) {
         // Limpa o formulário após o envio bem-sucedido
         event.target.reset();
         if (imagePreview) {
-            imagePreview.innerHTML = '';
+        imagePreview.innerHTML = '';
         }
         localStorage.removeItem('lastPhoto');
         
@@ -1180,80 +1313,185 @@ window.takePhoto = takePhoto;
 window.retakePhoto = retakePhoto;
 window.showCameraError = showCameraError;
 
-// Função para carregar o histórico de registros
-function carregarHistorico() {
-    const historicoRegistros = document.getElementById('historicoRegistros');
-    const registros = JSON.parse(localStorage.getItem('registros') || '[]');
+// Função para atualizar o carrossel de itens
+function atualizarCarrosselItens() {
+    const carouselInner = document.querySelector('.carousel-inner');
+    if (!carouselInner) return;
+
+    const itens = JSON.parse(localStorage.getItem('itensAchados') || '[]');
     
-    historicoRegistros.innerHTML = '';
-    
-    registros.forEach((registro, index) => {
-        const card = document.createElement('div');
-        card.className = 'registro-card';
-        
-        const img = document.createElement('img');
-        img.src = registro.imagem;
-        img.alt = 'Registro ' + (index + 1);
-        
-        const info = document.createElement('div');
-        info.className = 'registro-info';
-        
-        const titulo = document.createElement('h5');
-        titulo.textContent = registro.data + ' - ' + registro.hora;
-        
-        const local = document.createElement('p');
-        local.textContent = 'Local: ' + registro.local;
-        
-        const descricao = document.createElement('p');
-        descricao.textContent = 'Descrição: ' + registro.descricao;
-        
-        const btnEmail = document.createElement('button');
-        btnEmail.className = 'btn-enviar-email';
-        btnEmail.textContent = 'Enviar por Email';
-        btnEmail.setAttribute('data-index', index);
-        
-        info.appendChild(titulo);
-        info.appendChild(local);
-        info.appendChild(descricao);
-        info.appendChild(btnEmail);
-        
-        card.appendChild(img);
-        card.appendChild(info);
-        
-        historicoRegistros.appendChild(card);
+    if (itens.length === 0) {
+        carouselInner.innerHTML = `
+            <div class="carousel-item active">
+                <div class="item-list">
+                    <div class="item-card">
+                        <div class="item-info">
+                            <h4>Nenhum item disponível</h4>
+                            <p>Registre um novo item para que ele apareça aqui</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        return;
+    }
+
+    carouselInner.innerHTML = '';
+    itens.forEach((item, index) => {
+        const itemHTML = `
+            <div class="carousel-item ${index === 0 ? 'active' : ''}">
+                <div class="item-list">
+                    <div class="item-card">
+                        <div class="item-imagem-container">
+                            <img src="${item.imagem}" alt="${item.titulo}" class="item-imagem">
+                        </div>
+                        <div class="item-info">
+                            <h4>${item.titulo}</h4>
+                            <p><strong>Local:</strong> ${item.local}</p>
+                            <p><strong>Data:</strong> ${item.data}</p>
+                            <p><strong>Descrição:</strong> ${item.descricao}</p>
+                            <span class="item-status available">Disponível</span>
+                            <button class="btn-encontrado" data-id="${item.id}">
+                                <i class="fas fa-check-circle"></i> Item Encontrado
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        carouselInner.innerHTML += itemHTML;
+    });
+
+    // Adiciona event listeners para os botões
+    document.querySelectorAll('.btn-encontrado').forEach(button => {
+        button.addEventListener('click', function() {
+            const itemId = this.getAttribute('data-id');
+            marcarItemComoEncontrado(itemId);
+        });
     });
 }
 
-// Função para enviar email
-async function enviarEmail(index) {
-    const registros = JSON.parse(localStorage.getItem('registros') || '[]');
-    const registro = registros[index];
-    
-    if (!registro) {
-        alert('Registro não encontrado!');
-        return;
-    }
-    
-    const emailDestinatario = document.getElementById('emailDestinatario').value;
-    
+// Função para marcar item como encontrado
+function marcarItemComoEncontrado(itemId) {
     try {
-        const response = await emailjs.send('service_2g8768o', 'template_gvn13j7', {
-            to_email: emailDestinatario,
-            data: registro.data,
-            hora: registro.hora,
-            local: registro.local,
-            descricao: registro.descricao,
-            imagem: registro.imagem
-        });
+        // Obtém os itens do localStorage
+        let itens = JSON.parse(localStorage.getItem('itensAchados') || '[]');
         
-        if (response.status === 200) {
-            alert('Email enviado com sucesso!');
-            $('#emailModal').modal('hide');
-        } else {
-            throw new Error('Erro ao enviar email');
+        // Filtra o item que foi encontrado
+        itens = itens.filter(item => item.id !== itemId);
+        
+        // Salva a lista atualizada
+        localStorage.setItem('itensAchados', JSON.stringify(itens));
+        
+        // Atualiza o carrossel
+        atualizarCarrosselItens();
+        
+        alert('Item marcado como encontrado e removido da lista!');
+    } catch (error) {
+        console.error('Erro ao marcar item como encontrado:', error);
+        alert('Erro ao processar a operação. Por favor, tente novamente.');
+    }
+}
+
+// Função para inicializar o EmailJS
+function inicializarEmailJS() {
+    try {
+        // Verifica se o EmailJS está disponível
+        if (!window.emailjs) {
+            throw new Error('Biblioteca EmailJS não carregada');
         }
+
+        // Inicializa o EmailJS com a chave pública
+        emailjs.init("UhX1NQMUijjOeEFNH"); // Chave pública do EmailJS
+
+        // Verifica se a inicialização foi bem sucedida
+        if (!emailjs.send) {
+            throw new Error('Falha na inicialização do EmailJS');
+        }
+
+        console.log('EmailJS inicializado com sucesso');
+        return true;
+    } catch (error) {
+        console.error('Erro ao inicializar EmailJS:', error);
+        return false;
+    }
+}
+
+// Adiciona o listener para inicializar o EmailJS quando o DOM estiver carregado
+document.addEventListener('DOMContentLoaded', () => {
+    // Inicializa o EmailJS
+    if (!inicializarEmailJS()) {
+        console.warn('EmailJS não inicializado. O envio de emails não estará disponível.');
+    }
+});
+
+// Função para enviar email com registro
+async function enviarEmailRegistro(dados) {
+    try {
+        console.log('Iniciando envio de email...', dados);
+        // Valida os dados antes de enviar
+        validarDadosEmail(dados);
+        console.log('Dados validados com sucesso');
+
+        // Verifica se há uma imagem para anexar
+        if (dados.imagem) {
+            console.log('Processando imagem para anexo...');
+            try {
+                // Converte a imagem para base64
+                const imagemBase64 = await converterImagemParaBase64(dados.imagem);
+                console.log('Imagem convertida para base64');
+                
+                // Prepara o anexo
+                const anexo = {
+                    name: 'registro.jpg',
+                    type: 'image/jpeg',
+                    data: imagemBase64
+                };
+
+                // Envia o email com anexo
+                return await enviarEmailComAnexo(dados, anexo);
+            } catch (error) {
+                console.error('Erro ao processar imagem:', error);
+                // Continua sem anexo se houver erro
+            }
+        }
+
+        // Configura o timeout
+        const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('Timeout ao enviar email')), 30000);
+        });
+
+        // Tenta enviar o email sem anexo
+        const sendPromise = emailjs.send(
+            "service_2g8768o", // Service ID
+            "template_gvn13j7", // Template ID
+            dados
+        );
+
+        // Aguarda o envio ou timeout
+        const resultado = await Promise.race([sendPromise, timeoutPromise]);
+        
+        console.log('Email enviado com sucesso:', resultado);
+        return resultado;
     } catch (error) {
         console.error('Erro ao enviar email:', error);
-        alert('Erro ao enviar email. Por favor, tente novamente.');
+        throw error;
     }
-} 
+}
+
+// Função para deletar a imagem
+function deletarImagem() {
+    const imagePreview = document.getElementById('imagePreview');
+    if (imagePreview) {
+        imagePreview.innerHTML = '';
+        localStorage.removeItem('lastPhoto');
+    }
+}
+
+// Adiciona o event listener para o botão de deletar
+document.addEventListener('DOMContentLoaded', function() {
+    const btnDeletar = document.querySelector('.btn-deletar-imagem');
+    if (btnDeletar) {
+        btnDeletar.addEventListener('click', deletarImagem);
+    }
+}); 

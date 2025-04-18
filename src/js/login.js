@@ -2,11 +2,14 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Elementos do DOM
     const loginForm = document.getElementById('loginForm');
+    const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
+    const errorMessage = document.getElementById('errorMessage');
+    const togglePassword = document.getElementById('togglePassword');
 
     // Verificar se os elementos foram encontrados
-    if (!loginForm || !emailInput || !passwordInput) {
+    if (!loginForm || !nameInput || !emailInput || !passwordInput) {
         console.error('Elementos do formulário não encontrados!');
         return;
     }
@@ -14,76 +17,77 @@ document.addEventListener('DOMContentLoaded', () => {
     // Verificar se o usuário já está logado
     const userData = JSON.parse(localStorage.getItem('userData'));
     if (userData && userData.email) {
-        window.location.href = 'registro.html';
+        window.location.href = 'index.html';
         return;
     }
 
-    // Função para verificar se o usuário existe
-    function checkUserExists(email) {
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        return users.some(user => user.email === email);
+    // Função para mostrar/esconder senha
+    togglePassword.addEventListener('click', () => {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        togglePassword.classList.toggle('fa-eye');
+        togglePassword.classList.toggle('fa-eye-slash');
+    });
+
+    // Função para validar email
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
     }
 
-    // Função para verificar as credenciais
-    function checkCredentials(email, password) {
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        return users.find(user => user.email === email && user.password === password);
-    }
-
-    // Formatar número de telefone
-    function formatPhoneNumber(input) {
-        let value = input.value.replace(/\D/g, '');
-        if (value.length > 11) value = value.slice(0, 11);
-        
-        if (value.length > 2) {
-            value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
-        }
-        if (value.length > 9) {
-            value = `${value.slice(0, 9)}-${value.slice(9)}`;
-        }
-        
-        input.value = value;
-    }
-
-    // Adicionar formatação ao campo de telefone
-    document.getElementById('phone').addEventListener('input', (e) => formatPhoneNumber(e.target));
-
-    // Manipula o envio do formulário
+    // Função para validar o login
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         
+        const name = nameInput.value;
         const email = emailInput.value;
         const password = passwordInput.value;
         
-        // Verificar se o usuário existe
-        if (!checkUserExists(email)) {
-            // Mostrar a mensagem de cadastro
-            const messageElement = document.querySelector('.register-message');
-            if (messageElement) {
-                messageElement.style.display = 'block';
-                messageElement.style.color = 'red';
-                messageElement.style.margin = '10px 0';
-                messageElement.style.padding = '10px';
-                messageElement.style.backgroundColor = '#ffe6e6';
-                messageElement.style.border = '1px solid #ff9999';
-                messageElement.style.borderRadius = '5px';
-            }
+        // Limpar mensagem de erro anterior
+        errorMessage.textContent = '';
+        
+        // Validar campos
+        if (!name || !email || !password) {
+            errorMessage.textContent = 'Por favor, preencha todos os campos.';
             return;
         }
-        
-        // Verificar as credenciais
-        const user = checkCredentials(email, password);
+
+        if (!validateEmail(email)) {
+            errorMessage.textContent = 'Por favor, insira um e-mail válido.';
+            return;
+        }
+
+        // Buscar usuários no localStorage
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        const user = users.find(u => u.email === email && u.password === password && u.name === name);
+
         if (user) {
-            // Salvar dados do usuário logado
+            // Salvar usuário atual na sessão
             localStorage.setItem('userData', JSON.stringify({
-                email: user.email,
-                name: user.name
+                name: user.name,
+                email: user.email
             }));
             
-            // Redirecionar para a página de registro
-            window.location.href = 'registro.html';
+            // Redirecionar para a página principal
+            window.location.href = 'index.html';
         } else {
-            alert('Senha incorreta!');
+            errorMessage.textContent = 'Nome, e-mail ou senha incorretos.';
+        }
+    });
+
+    // Função para recuperação de senha
+    document.getElementById('forgotPassword').addEventListener('click', (e) => {
+        e.preventDefault();
+        const email = prompt('Digite seu e-mail para recuperar a senha:');
+        if (email) {
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.email === email);
+            
+            if (user) {
+                alert(`Sua senha é: ${user.password}`);
+            } else {
+                alert('E-mail não encontrado.');
+            }
         }
     });
 }); 
