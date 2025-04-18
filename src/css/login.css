@@ -11,7 +11,6 @@
     padding: 0;
     box-sizing: border-box;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    -webkit-tap-highlight-color: transparent;
 }
 
 /* ==========================================================================
@@ -28,16 +27,10 @@ body {
     min-height: 100vh;
     width: 100%;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
     background: url('../assets/Login.svg') no-repeat center 20%;
     background-size: cover;
     position: relative;
     overflow: hidden;
-    font-family: 'Poppins', sans-serif;
-    background-color: #f8f9fa;
-    -webkit-text-size-adjust: 100%;
 }
 
 /**
@@ -120,18 +113,19 @@ h1.senai {
 
 /* Área do formulário à direita */
 .login-container {
-    width: 100%;
-    max-width: 400px;
-    background: white;
-    padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: 1rem;
+    width: 500px;
+    padding: 3rem;
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+    border-radius: 20px;
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     position: relative;
     z-index: 2;
+    margin-right: 2rem;
+    max-width: 90%;
 }
 
 /* Removendo os pseudo-elementos que podem estar interferindo */
@@ -169,7 +163,7 @@ h1.senai {
 }
 
 .form-group {
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.2rem;
     position: relative;
 }
 
@@ -185,13 +179,13 @@ h1.senai {
 
 .form-group input {
     width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    font-size: 16px;
-    transition: border-color 0.3s;
-    -webkit-appearance: none;
-    appearance: none;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px;
+    color: white !important;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
 }
 
 .form-group input::placeholder {
@@ -200,27 +194,33 @@ h1.senai {
 
 .form-group input:focus {
     outline: none;
-    border-color: #007bff;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
 }
 
 /* Removendo estilos duplicados e garantindo que o estilo do botão seja aplicado */
 #loginForm button[type="submit"] {
     width: 100%;
-    padding: 12px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
+    padding: 0.75rem;
+    background: #000000;
+    background: linear-gradient(90deg, rgba(0, 0, 0, 1) 0%, rgba(53, 51, 205, 1) 100%);
+    color: white !important;
+    border: none !important;
+    border-radius: 8px;
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: background-color 0.3s;
-    -webkit-appearance: none;
-    appearance: none;
+    transition: all 0.3s ease;
+    margin-top: 1.5rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-#loginForm button[type="submit"]:active {
-    background-color: #0056b3;
-    transform: scale(0.98);
+#loginForm button[type="submit"]:hover {
+    background: linear-gradient(90deg, rgba(0, 0, 0, 0.9) 0%, rgba(53, 51, 205, 0.9) 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(53, 51, 205, 0.3);
 }
 
 /* Decoração */
@@ -891,61 +891,4 @@ button[type="submit"]:hover {
 
 #loginForm .form-group input::placeholder {
     color: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* Ajustes para dispositivos móveis */
-@media (max-width: 480px) {
-    .login-container {
-        padding: 1.5rem;
-        margin: 0.5rem;
-    }
-
-    .form-group input {
-        padding: 14px;
-        font-size: 16px;
-    }
-
-    .btn-login {
-        padding: 14px;
-        font-size: 16px;
-    }
-
-    /* Evita zoom automático em campos de input no iOS */
-    input, select, textarea {
-        font-size: 16px !important;
-    }
-}
-
-/* Ajustes para telas muito pequenas */
-@media (max-width: 320px) {
-    .login-container {
-        padding: 1rem;
-    }
-
-    .form-group {
-        margin-bottom: 1rem;
-    }
-}
-
-/* Ajustes para evitar problemas de toque em elementos */
-button, input, select, textarea {
-    touch-action: manipulation;
-}
-
-/* Melhorias para feedback tátil */
-.btn-login {
-    -webkit-tap-highlight-color: rgba(0, 123, 255, 0.3);
-}
-
-/* Ajustes para teclado virtual */
-.form-group input {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-}
-
-/* Previne seleção de texto em botões */
-.btn-login {
-    user-select: none;
-    -webkit-user-select: none;
 } 
