@@ -48,7 +48,30 @@ document.getElementById('regPhone').addEventListener('input', function(e) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const registerForm = document.getElementById('registerForm');
-    const errorMessage = document.querySelector('.error-message');
+    const errorMessage = document.getElementById('errorMessage');
+    const togglePassword = document.getElementById('togglePassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    const passwordInput = document.getElementById('regPassword');
+    const confirmPasswordInput = document.getElementById('regConfirmPassword');
+
+    // Função para mostrar/esconder senha
+    if (togglePassword) {
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            togglePassword.classList.toggle('fa-eye');
+            togglePassword.classList.toggle('fa-eye-slash');
+        });
+    }
+
+    if (toggleConfirmPassword) {
+        toggleConfirmPassword.addEventListener('click', () => {
+            const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordInput.setAttribute('type', type);
+            toggleConfirmPassword.classList.toggle('fa-eye');
+            toggleConfirmPassword.classList.toggle('fa-eye-slash');
+        });
+    }
 
     // Validação do formulário
     registerForm.addEventListener('submit', function(e) {
@@ -59,6 +82,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const phone = document.getElementById('regPhone').value;
         const password = document.getElementById('regPassword').value;
         const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+        // Limpar mensagem de erro anterior
+        if (errorMessage) {
+            errorMessage.textContent = '';
+        }
 
         // Validações básicas
         if (!name || !email || !phone || !password || !confirmPassword) {
@@ -76,6 +104,13 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
+        // Verificar se o email já está cadastrado
+        const users = JSON.parse(localStorage.getItem('users')) || [];
+        if (users.some(user => user.email === email)) {
+            showError('Este email já está cadastrado.');
+            return;
+        }
+
         // Criar objeto com os dados do usuário
         const userData = {
             name,
@@ -84,32 +119,22 @@ document.addEventListener('DOMContentLoaded', function() {
             password
         };
 
-        // Salvar no localStorage (simulando um banco de dados)
-        saveUser(userData);
+        // Salvar no localStorage
+        users.push(userData);
+        localStorage.setItem('users', JSON.stringify(users));
         
         // Redirecionar para a página de login
         window.location.href = 'login.html';
     });
 
     function showError(message) {
-        if (!errorMessage) {
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error-message';
-            errorDiv.style.color = 'red';
-            errorDiv.style.marginTop = '10px';
-            registerForm.insertBefore(errorDiv, registerForm.firstChild);
+        if (errorMessage) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 3000);
         }
-        errorMessage.textContent = message;
-        errorMessage.style.display = 'block';
-        setTimeout(() => {
-            errorMessage.style.display = 'none';
-        }, 3000);
-    }
-
-    function saveUser(userData) {
-        let users = JSON.parse(localStorage.getItem('users')) || [];
-        users.push(userData);
-        localStorage.setItem('users', JSON.stringify(users));
     }
 });
 

@@ -7,6 +7,7 @@
     <title>Cadastro - Sistema de Registro de Anormalidades</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/cadastro.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body class="cadastro-page">
     <div class="container">
@@ -29,12 +30,19 @@
                 </div>
                 <div class="form-group">
                     <label for="regPassword">Senha</label>
-                    <input type="password" id="regPassword" name="password" required>
+                    <div class="password-container">
+                        <input type="password" id="regPassword" name="password" required>
+                        <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="regConfirmPassword">Confirmar Senha</label>
-                    <input type="password" id="regConfirmPassword" name="confirmPassword" required>
+                    <div class="password-container">
+                        <input type="password" id="regConfirmPassword" name="confirmPassword" required>
+                        <i class="fas fa-eye toggle-password" id="toggleConfirmPassword"></i>
+                    </div>
                 </div>
+                <div class="error-message" id="errorMessage"></div>
                 <div class="form-actions">
                     <button type="submit" class="btn-primary">Cadastrar</button>
                     <a href="login.html" class="btn-link">Já tem uma conta? Faça login</a>
