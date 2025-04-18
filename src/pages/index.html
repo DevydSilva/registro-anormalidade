@@ -9,8 +9,14 @@
     <script>
         // Verificação imediata de login
         (function() {
-            const userData = JSON.parse(localStorage.getItem('userData'));
-            if (!userData || !userData.email) {
+            try {
+                const userData = JSON.parse(localStorage.getItem('userData'));
+                if (!userData || !userData.email) {
+                    // Usar replace para evitar que o usuário volte para esta página
+                    window.location.replace('login.html');
+                }
+            } catch (error) {
+                // Se houver qualquer erro, redireciona para o login
                 window.location.replace('login.html');
             }
         })();

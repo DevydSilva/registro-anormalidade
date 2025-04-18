@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta http-equiv="refresh" content="0; url=src/pages/login.html">
     <title>Redirecionando...</title>
+    <script>
+        // Verificação adicional para garantir o redirecionamento
+        window.onload = function() {
+            const path = window.location.pathname;
+            if (!path.includes('login.html')) {
+                window.location.replace('src/pages/login.html');
+            }
+        };
+    </script>
 </head>
 <body>
     <p>Se você não for redirecionado automaticamente, <a href="src/pages/login.html">clique aqui</a>.</p>
