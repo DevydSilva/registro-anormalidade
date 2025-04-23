@@ -2,7 +2,7 @@
    Estilos Base e Reset
    ========================================================================== */
 
-* {
+   * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -229,6 +229,19 @@ textarea {
 .submit-button:hover {
     background: #0d47a1;
     transform: translateY(-1px);
+}
+
+/* User Info Styles */
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-name {
+    color: #00247D;
+    font-weight: 500;
+    font-size: 1rem;
 }
 
 /* Botão de Logout */
@@ -1016,4 +1029,47 @@ textarea {
     .cursos-title {
         font-size: 2rem;
     }
+}
+
+/* Estilos para o botão de carregar imagem */
+.btn-upload-image {
+    width: 100%;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-upload-image:hover {
+    background: linear-gradient(135deg, #0056b3, #003d7a);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.btn-upload-image:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-upload-image i {
+    font-size: 1.2rem;
+}
+
+/* Estilo para quando o botão está desabilitado */
+.btn-upload-image:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 } 

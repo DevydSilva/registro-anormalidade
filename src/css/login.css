@@ -6,7 +6,7 @@
  * Reset CSS e configurações base
  * Define as propriedades padrão para todos os elementos
  */
-* {
+ * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -892,3 +892,44 @@ button[type="submit"]:hover {
 #loginForm .form-group input::placeholder {
     color: rgba(255, 255, 255, 0.8) !important;
 } 
+
+.form-and-qr {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.qr-code-section {
+    text-align: center;
+    margin-top: 2rem;
+    padding: 1rem;
+    /* background: rgb(251, 248, 248); */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.qr-code-container {
+    position: absolute;
+    left: 333px;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 20px;
+    border-radius: 10px;
+   
+}
+
+.qr-code-container img {
+    max-width: 150px;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+   
+}
+/* .qr-code-container img {
+    max-width: 150px;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+} */

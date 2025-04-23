@@ -14,6 +14,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <div class="qr-code-container">
+        <div class="qr-code-container">
+            <img id="qrCodeImage" src="../image/Registro_do_Anarmalidade.png">
+        </div>
+    </div>
     <div class="login-container">
         <h1>Login</h1>
         <form id="loginForm">
@@ -35,6 +40,7 @@
             <button type="submit">Entrar</button>
             <div class="error-message" id="errorMessage"></div>
         </form>
+        
         <div class="links">
             <a href="recuperacao.html" id="forgotPassword" onclick="window.location.href='recuperacao.html'; return false;">Esqueceu a senha?</a>
             <a href="cadastro.html">Criar conta</a>
