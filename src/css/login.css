@@ -912,7 +912,7 @@ button[type="submit"]:hover {
 
 .qr-code-container {
     position: absolute;
-    left: 333px;
+    left: 500px;
     top: 50%;
     transform: translateY(-50%);
     padding: 20px;
