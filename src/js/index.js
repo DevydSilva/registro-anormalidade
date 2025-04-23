@@ -2,7 +2,7 @@
    Initialization and Login Verification
    ========================================================================== */
 
-// Verificação de login
+// Verificação de login e exibição do nome do usuário
 document.addEventListener('DOMContentLoaded', () => {
     // Função para verificar login
     function verificarLogin() {
@@ -23,6 +23,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Verificar login inicial
     if (!verificarLogin()) {
         return;
+    }
+
+    // Exibir nome do usuário
+    const userData = JSON.parse(localStorage.getItem('userData'));
+    const userNameElement = document.getElementById('userName');
+    if (userNameElement && userData && userData.name) {
+        userNameElement.textContent = userData.name;
     }
 
     // Verificar login periodicamente (a cada 30 segundos)
@@ -633,6 +640,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Adiciona o event listener para limpar os registros quando a página carregar
     limparTodosOsRegistros();
+
+    // Adiciona evento de clique para o link de cursos
+    const cursosLink = document.querySelector('.nav-link[href="#"]:nth-child(3)');
+    cursosLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('Funcionalidade de cursos em desenvolvimento');
+    });
+
+    // Exibir nome do usuário
+    const userNameElement = document.getElementById('userName');
+    
+    if (userData && userData.name && userNameElement) {
+        userNameElement.textContent = userData.name;
+    }
 });
 
 /* ==========================================================================
@@ -1557,11 +1578,14 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (menuItem.includes('fa-history')) {
                 // Mostrar histórico
                 document.querySelector('.historico-section').scrollIntoView({ behavior: 'smooth' });
+            } else if (menuItem.includes('fa-graduation-cap')) {
+                // Mostrar cursos
+                alert('Funcionalidade de cursos em desenvolvimento');
             } else if (menuItem.includes('fa-chart-bar')) {
-                // Mostrar relatórios (implementar futuramente)
+                // Mostrar relatórios
                 alert('Funcionalidade de relatórios em desenvolvimento');
             } else if (menuItem.includes('fa-cog')) {
-                // Mostrar configurações (implementar futuramente)
+                // Mostrar configurações
                 alert('Funcionalidade de configurações em desenvolvimento');
             }
         });
