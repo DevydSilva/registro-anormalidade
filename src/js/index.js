@@ -32,6 +32,12 @@ document.addEventListener('DOMContentLoaded', () => {
         userNameElement.textContent = userData.name;
     }
 
+    // Adicionar event listener para o input de arquivo
+    const imageInput = document.getElementById('imageInput');
+    if (imageInput) {
+        imageInput.addEventListener('change', handleFileUpload);
+    }
+
     // Verificar login periodicamente (a cada 30 segundos)
     setInterval(verificarLogin, 30000);
 
@@ -1031,17 +1037,82 @@ function fazerLogout() {
 function handleFileUpload(e) {
     try {
         const file = e.target.files[0];
-        if (file && imagePreview) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+        if (!file) {
+            console.log('Nenhum arquivo selecionado');
+            return;
+        }
+
+        // Verifica se é uma imagem
+        if (!file.type.startsWith('image/')) {
+            alert('Por favor, selecione apenas arquivos de imagem.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Cria uma imagem temporária para redimensionar
+            const img = new Image();
+            img.onload = function() {
+                // Define o tamanho máximo
+                const maxWidth = 800;
+                const maxHeight = 600;
+
+                // Calcula as novas dimensões mantendo a proporção
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {
+                    height = Math.round((maxWidth * height) / width);
+                    width = maxWidth;
+                }
+                if (height > maxHeight) {
+                    width = Math.round((maxHeight * width) / height);
+                    height = maxHeight;
+                }
+
+                // Cria um canvas para redimensionar
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+
+                // Desenha a imagem redimensionada
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Converte para JPEG com qualidade reduzida
+                const compressedImage = canvas.toDataURL('image/jpeg', 0.7);
+
+                // Atualiza a preview
+                const imagePreview = document.getElementById('imagePreview');
+                const previewImage = document.getElementById('previewImage');
+                const noImageText = document.getElementById('noImageText');
+                const deleteImageBtn = document.getElementById('deleteImage');
+
+                if (imagePreview && previewImage && noImageText) {
+                    previewImage.src = compressedImage;
+                    previewImage.style.display = 'block';
+                    noImageText.style.display = 'none';
+                    if (deleteImageBtn) {
+                        deleteImageBtn.style.display = 'block';
+                    }
+                }
+
+                // Para o vídeo se estiver rodando
                 stopCamera();
                 if (video) video.style.display = 'none';
                 if (takePhotoButton) takePhotoButton.style.display = 'none';
                 if (retakePhotoButton) retakePhotoButton.style.display = 'none';
+                if (startCameraButton) startCameraButton.style.display = 'block';
             };
-            reader.readAsDataURL(file);
-        }
+
+            img.src = e.target.result;
+        };
+
+        reader.onerror = () => {
+            alert('Erro ao ler o arquivo. Por favor, tente novamente.');
+        };
+
+        reader.readAsDataURL(file);
     } catch (error) {
         console.error('Erro ao fazer upload da imagem:', error);
         alert('Erro ao fazer upload da imagem. Por favor, tente novamente.');
